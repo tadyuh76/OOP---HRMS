@@ -1,0 +1,128 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Admin\\Data\\Coding Projects\\C \u0026 C\u002B\u002B \u0026 C#\\HRManagementSystem\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{256AE898-0D16-4156-9E06-46FF2AEA86F6}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\data\\coding projects\\c \u0026 c\u002B\u002B \u0026 c#\\hrmanagementsystem\\hrmanagementsystem\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{256AE898-0D16-4156-9E06-46FF2AEA86F6}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{256AE898-0D16-4156-9E06-46FF2AEA86F6}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\data\\coding projects\\c \u0026 c\u002B\u002B \u0026 c#\\hrmanagementsystem\\hrmanagementsystem\\forms\\dashboardoverview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{256AE898-0D16-4156-9E06-46FF2AEA86F6}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\forms\\dashboardoverview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{256AE898-0D16-4156-9E06-46FF2AEA86F6}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\data\\coding projects\\c \u0026 c\u002B\u002B \u0026 c#\\hrmanagementsystem\\hrmanagementsystem\\forms\\dashboardoverview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{256AE898-0D16-4156-9E06-46FF2AEA86F6}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\forms\\dashboardoverview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{256AE898-0D16-4156-9E06-46FF2AEA86F6}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\data\\coding projects\\c \u0026 c\u002B\u002B \u0026 c#\\hrmanagementsystem\\hrmanagementsystem\\mainform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{256AE898-0D16-4156-9E06-46FF2AEA86F6}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\mainform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{256AE898-0D16-4156-9E06-46FF2AEA86F6}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\data\\coding projects\\c \u0026 c\u002B\u002B \u0026 c#\\hrmanagementsystem\\hrmanagementsystem\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{256AE898-0D16-4156-9E06-46FF2AEA86F6}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{256AE898-0D16-4156-9E06-46FF2AEA86F6}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\data\\coding projects\\c \u0026 c\u002B\u002B \u0026 c#\\hrmanagementsystem\\hrmanagementsystem\\forms\\reports.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{256AE898-0D16-4156-9E06-46FF2AEA86F6}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\forms\\reports.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MainForm.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Data\\Coding Projects\\C \u0026 C\u002B\u002B \u0026 C#\\HRManagementSystem\\HRManagementSystem\\MainForm.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\MainForm.cs",
+              "ToolTip": "C:\\Users\\Admin\\Data\\Coding Projects\\C \u0026 C\u002B\u002B \u0026 C#\\HRManagementSystem\\HRManagementSystem\\MainForm.cs",
+              "RelativeToolTip": "HRManagementSystem\\MainForm.cs",
+              "ViewState": "AgIAAFEAAAAAAAAAAAAmwBAAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-05T16:57:34.859Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "DashboardOverview.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Data\\Coding Projects\\C \u0026 C\u002B\u002B \u0026 C#\\HRManagementSystem\\HRManagementSystem\\Forms\\DashboardOverview.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\Forms\\DashboardOverview.cs",
+              "ToolTip": "C:\\Users\\Admin\\Data\\Coding Projects\\C \u0026 C\u002B\u002B \u0026 C#\\HRManagementSystem\\HRManagementSystem\\Forms\\DashboardOverview.cs",
+              "RelativeToolTip": "HRManagementSystem\\Forms\\DashboardOverview.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-05T16:59:14.896Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "MainForm.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Data\\Coding Projects\\C \u0026 C\u002B\u002B \u0026 C#\\HRManagementSystem\\HRManagementSystem\\MainForm.Designer.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\MainForm.Designer.cs",
+              "ToolTip": "C:\\Users\\Admin\\Data\\Coding Projects\\C \u0026 C\u002B\u002B \u0026 C#\\HRManagementSystem\\HRManagementSystem\\MainForm.Designer.cs",
+              "RelativeToolTip": "HRManagementSystem\\MainForm.Designer.cs",
+              "ViewState": "AgIAAKYAAAAAAAAAAAAAwLIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-05T16:58:26.388Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "DashboardOverview.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Admin\\Data\\Coding Projects\\C \u0026 C\u002B\u002B \u0026 C#\\HRManagementSystem\\HRManagementSystem\\Forms\\DashboardOverview.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\Forms\\DashboardOverview.cs",
+              "ToolTip": "C:\\Users\\Admin\\Data\\Coding Projects\\C \u0026 C\u002B\u002B \u0026 C#\\HRManagementSystem\\HRManagementSystem\\Forms\\DashboardOverview.cs [Design]",
+              "RelativeToolTip": "HRManagementSystem\\Forms\\DashboardOverview.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-05T16:59:22.885Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "MainForm.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Admin\\Data\\Coding Projects\\C \u0026 C\u002B\u002B \u0026 C#\\HRManagementSystem\\HRManagementSystem\\MainForm.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\MainForm.cs",
+              "ToolTip": "C:\\Users\\Admin\\Data\\Coding Projects\\C \u0026 C\u002B\u002B \u0026 C#\\HRManagementSystem\\HRManagementSystem\\MainForm.cs [Design]",
+              "RelativeToolTip": "HRManagementSystem\\MainForm.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-05T17:07:21.162Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Reports.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Data\\Coding Projects\\C \u0026 C\u002B\u002B \u0026 C#\\HRManagementSystem\\HRManagementSystem\\Forms\\Reports.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\Forms\\Reports.cs",
+              "ToolTip": "C:\\Users\\Admin\\Data\\Coding Projects\\C \u0026 C\u002B\u002B \u0026 C#\\HRManagementSystem\\HRManagementSystem\\Forms\\Reports.cs",
+              "RelativeToolTip": "HRManagementSystem\\Forms\\Reports.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-05T16:56:34.727Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
