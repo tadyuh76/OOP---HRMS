@@ -379,12 +379,6 @@
 
                 // Fire the event with module information
                 ModuleAccessRequested?.Invoke(this, new ModuleAccessEventArgs(moduleName));
-
-                // Alternatively, if using direct reference:
-                // if (mainForm != null)
-                // {
-                //     OpenModuleForm(moduleName);
-                // }
             }
         }
 
