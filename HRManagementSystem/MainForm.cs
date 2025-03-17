@@ -136,8 +136,7 @@
         {
             ContextMenuStrip roleMenu = new ContextMenuStrip();
             roleMenu.Items.Add("Admin", null, (s, args) => SwitchRole("Admin"));
-            roleMenu.Items.Add("Manager", null, (s, args) => SwitchRole("Manager"));
-            roleMenu.Items.Add("User", null, (s, args) => SwitchRole("User"));
+            roleMenu.Items.Add("Employee", null, (s, args) => SwitchRole("Employee"));
 
             roleMenu.Show(btnRoleSwitcher, new Point(0, btnRoleSwitcher.Height));
         }

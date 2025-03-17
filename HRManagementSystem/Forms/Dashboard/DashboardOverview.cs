@@ -77,9 +77,9 @@
             // Create modules panel (bottom)
             pnlModules = new Panel
             {
-                Location = new Point(20, 290),
-                Size = new Size(ClientSize.Width - 48, 450),
-                BackColor = Color.FromArgb(245, 245, 245),
+                Location = new Point(0, 290), // Set location to match top section (20px padding)
+                Size = new Size(ClientSize.Width - 60, 300), // Match width calculation used for top section
+                BackColor = Color.White,
                 BorderStyle = BorderStyle.None,
                 AutoScroll = false,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
@@ -88,10 +88,10 @@
 
             Label lblModulesTitle = new Label
             {
-                Text = "HR Management Modules",
+                Text = "Access Modules",
                 Font = new Font("Segoe UI", 16, FontStyle.Bold),
                 AutoSize = true,
-                Location = new Point(15, 15)
+                Location = new Point(12, 12)
             };
             pnlModules.Controls.Add(lblModulesTitle);
 
@@ -251,6 +251,7 @@
         {
             if (sender is Panel panel)
             {
+                // Draw a complete rectangle border around the entire panel
                 Rectangle rect = new Rectangle(0, 0, panel.Width - 1, panel.Height - 1);
                 using (Pen pen = new Pen(Color.FromArgb(230, 230, 230), 1))
                 {
@@ -270,8 +271,6 @@
                 "Departments Management",
                 "Leave & Attendance",
                 "Payroll",
-                "Performance",
-                "Reports"
             };
 
             string[] descriptions = new string[] {
@@ -279,8 +278,6 @@
                 "Create and manage departments, assign managers and employees",
                 "Track attendance and manage leave requests",
                 "Manage employee compensation and process payroll",
-                "Track performance reviews and achievements",
-                "Generate HR reports and analytics"
             };
 
             // Create module cards with initial position (will be repositioned in RecalculateModuleCardLayout)
@@ -317,7 +314,8 @@
 
         private void CreateModuleCard(string title, string description, int x, int y)
         {
-            int cardWidth = (pnlModules.Width - 60) / 3;
+            // Calculate card width to fit 4 cards in a single row with proper spacing
+            int cardWidth = (pnlModules.Width - 45) / 4; // Adjusted for 4 cards with 5 padding spaces
 
             Panel pnlModule = new Panel
             {
@@ -327,6 +325,10 @@
                 BorderStyle = BorderStyle.None,
                 Tag = "ModuleCard" + title.Replace(" ", "") // Unique tag for each card
             };
+
+            // Add border and shadow effect using the Paint event, same as stat cards
+            pnlModule.Paint += PaintStatCard;
+
             pnlModules.Controls.Add(pnlModule);
 
             Label lblTitle = new Label
@@ -402,7 +404,7 @@
                 if (pnlTopSection != null)
                 {
                     // Adjust top section panel size
-                    pnlTopSection.Width = ClientSize.Width - 40;
+                    pnlTopSection.Width = ClientSize.Width - 60; // Consistent padding (20px on each side + 20px from parent panel)
 
                     // Recalculate company info and stats panel widths
                     if (pnlCompanyInfo != null)
@@ -441,8 +443,17 @@
                 // Adjust modules panel
                 if (pnlModules != null)
                 {
-                    pnlModules.Width = ClientSize.Width - 48;
+                    pnlModules.Width = ClientSize.Width - 30; // Match top section width calculation
                     RecalculateModuleCardLayout();
+
+                    // Force redraw of all module cards
+                    foreach (Control c in pnlModules.Controls)
+                    {
+                        if (c is Panel panel && panel.Tag != null && panel.Tag.ToString().StartsWith("ModuleCard"))
+                        {
+                            panel.Invalidate();
+                        }
+                    }
                 }
             }
         }
@@ -520,8 +531,11 @@
         private void RecalculateModuleCardLayout()
         {
             int padding = 15;
-            int availableWidth = pnlModules.Width - padding * 5;
-            int cardWidth = availableWidth / 3;
+
+            // Calculate total width properly to match the top section's width
+            int totalWidth = pnlModules.Width;
+            int availableWidth = totalWidth - (padding * 5); // 5 padding spaces for 4 cards
+            int cardWidth = availableWidth / 4; // Divide by 4 for four cards
 
             // Find all module cards
             List<Panel> moduleCards = new List<Panel>();
@@ -533,16 +547,15 @@
                 }
             }
 
-            // Position cards in a grid layout
+            // Position cards in a single row layout
             for (int i = 0; i < moduleCards.Count; i++)
             {
-                int row = i / 3;
-                int col = i % 3;
-
                 Panel pnl = moduleCards[i];
-                pnl.Location = new Point(padding + (col * (cardWidth + padding)),
-                                        60 + (row * (150 + padding)));
-                pnl.Width = cardWidth;
+                pnl.Location = new Point(padding + (i * (cardWidth + padding)), 60);
+                pnl.Size = new Size(cardWidth, 150); // Set both width and height to ensure proper sizing
+
+                // Force redraw to update borders properly
+                pnl.Invalidate();
 
                 // Resize description label and ensure access button stays in position
                 foreach (Control c in pnl.Controls)

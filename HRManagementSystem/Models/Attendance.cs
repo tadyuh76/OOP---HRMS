@@ -1,9 +1,9 @@
 using System.Text.Json.Serialization;
 
-namespace HRManagementSystem {
+namespace HRManagementSystem
+{
     public class Attendance
     {
-        // Private fields
         private string attendanceId;
         private string employeeId;
         private DateTime date;
@@ -11,44 +11,87 @@ namespace HRManagementSystem {
         private DateTime clockOutTime;
         private AttendanceStatus status;
 
-        // Public properties with JSON serialization
-        [JsonPropertyName("attendanceId")]
-        public string AttendanceId { get => attendanceId; set => attendanceId = value; }
-        
-        [JsonPropertyName("employeeId")]
-        public string EmployeeId { get => employeeId; set => employeeId = value; }
-        
-        [JsonPropertyName("date")]
-        public DateTime Date { get => date; set => date = value; }
-        
-        [JsonPropertyName("clockInTime")]
-        public DateTime ClockInTime { get => clockInTime; set => clockInTime = value; }
-        
-        [JsonPropertyName("clockOutTime")]
-        public DateTime ClockOutTime { get => clockOutTime; set => clockOutTime = value; }
-        
-        [JsonPropertyName("status")]
-        public AttendanceStatus Status { get => status; set => status = value; }
+        public Attendance()
+        {
+            // Default constructor required for JSON serialization
+        }
 
-        // Navigation property - not serialized directly
-        [JsonIgnore]
+        public Attendance(
+            string attendanceId,
+            string employeeId,
+            DateTime date,
+            DateTime clockInTime,
+            DateTime clockOutTime,
+            AttendanceStatus status)
+        {
+            this.attendanceId = attendanceId ?? throw new ArgumentNullException(nameof(attendanceId));
+            this.employeeId = employeeId ?? throw new ArgumentNullException(nameof(employeeId));
+            this.date = date;
+            this.clockInTime = clockInTime;
+            this.clockOutTime = clockOutTime;
+            this.status = status;
+        }
+
+        [JsonPropertyName("attendanceId")]
+        public string AttendanceId
+        {
+            get { return attendanceId; }
+            set { attendanceId = value ?? throw new ArgumentNullException(nameof(value)); }
+        }
+
+        [JsonPropertyName("employeeId")]
+        public string EmployeeId
+        {
+            get { return employeeId; }
+            set { employeeId = value ?? throw new ArgumentNullException(nameof(value)); }
+        }
+
+        [JsonPropertyName("date")]
+        public DateTime Date
+        {
+            get { return date; }
+            set { date = value; }
+        }
+
+        [JsonPropertyName("clockInTime")]
+        public DateTime ClockInTime
+        {
+            get { return clockInTime; }
+            set { clockInTime = value; }
+        }
+
+        [JsonPropertyName("clockOutTime")]
+        public DateTime ClockOutTime
+        {
+            get { return clockOutTime; }
+            set { clockOutTime = value; }
+        }
+
+        [JsonPropertyName("status")]
+        public AttendanceStatus Status
+        {
+            get { return status; }
+            set { status = value; }
+        }
+
+        [JsonPropertyName("employee")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Employee Employee { get; set; }
 
-        // Methods
         public TimeSpan CalculateWorkHours()
         {
-            if (ClockOutTime > ClockInTime)
+            if (clockOutTime > clockInTime)
             {
-                return ClockOutTime - ClockInTime;
+                return clockOutTime - clockInTime;
             }
             return TimeSpan.Zero;
         }
 
         public bool IsLate()
         {
-            // Assuming work starts at 9:00 AM
-            var workStartTime = new DateTime(Date.Year, Date.Month, Date.Day, 9, 0, 0);
-            return ClockInTime > workStartTime;
+            // Assuming standard work start time is 9:00 AM
+            DateTime standardTime = new DateTime(date.Year, date.Month, date.Day, 9, 0, 0);
+            return clockInTime > standardTime;
         }
     }
 

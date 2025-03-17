@@ -1,6 +1,9 @@
+using System.Text.Json.Serialization;
+
 namespace HRManagementSystem
 {
     // Enumerations
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum EmployeeStatus
     {
         Active,
@@ -9,6 +12,7 @@ namespace HRManagementSystem
         Suspended
     }
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum LeaveType
     {
         Annual,
@@ -19,6 +23,7 @@ namespace HRManagementSystem
         Bereavement
     }
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum LeaveStatus
     {
         Pending,
@@ -27,6 +32,7 @@ namespace HRManagementSystem
         Cancelled
     }
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum AttendanceStatus
     {
         Present,
@@ -35,10 +41,10 @@ namespace HRManagementSystem
         WorkFromHome
     }
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum UserRole
     {
         Administrator,
-        Manager,
         Employee
     }
 }

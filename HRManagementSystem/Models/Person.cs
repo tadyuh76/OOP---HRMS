@@ -1,56 +1,90 @@
 using System.Text.Json.Serialization;
 
-namespace HRManagementSystem {
+namespace HRManagementSystem
+{
     // Base class for all entities
     public class Person
     {
-        // Private fields
-        private string id = "";
-        private string name = "";
-        private string email = "";
-        private string phone = "";
-        private DateTime dateOfBirth = new DateTime();
-        private string address = "";
+        private string id;
+        private string name;
+        private string email;
+        private string phone;
+        private DateTime dateOfBirth;
+        private string address;
 
-        public Person() { }
+        public Person()
+        {
+            // Default constructor required for JSON serialization
+            id = string.Empty;
+            name = string.Empty;
+            email = string.Empty;
+            phone = string.Empty;
+            address = string.Empty;
+        }
 
         public Person(string id, string name, string email, string phone, DateTime dateOfBirth, string address)
         {
-            Id = id;
-            Name = name;
-            Email = email;
-            Phone = phone;
-            DateOfBirth = dateOfBirth;
-            Address = address;
+            this.id = id ?? throw new ArgumentNullException(nameof(id));
+            this.name = name ?? throw new ArgumentNullException(nameof(name));
+            this.email = email ?? throw new ArgumentNullException(nameof(email));
+            this.phone = phone;
+            this.dateOfBirth = dateOfBirth;
+            this.address = address;
         }
 
-        // Public properties with JSON serialization
         [JsonPropertyName("id")]
-        public string Id { get => id; set => id = value; }
-        
-        [JsonPropertyName("name")]
-        public string Name { get => name; set => name = value; }
-        
-        [JsonPropertyName("email")]
-        public string Email { get => email; set => email = value; }
-        
-        [JsonPropertyName("phone")]
-        public string Phone { get => phone; set => phone = value; }
-        
-        [JsonPropertyName("dateOfBirth")]
-        public DateTime DateOfBirth { get => dateOfBirth; set => dateOfBirth = value; }
-        
-        [JsonPropertyName("address")]
-        public string Address { get => address; set => address = value; }
+        public string Id
+        {
+            get { return id; }
+            set { id = value ?? throw new ArgumentNullException(nameof(value)); }
+        }
 
-        // Methods
+        [JsonPropertyName("name")]
+        public string Name
+        {
+            get { return name; }
+            set { name = value ?? throw new ArgumentNullException(nameof(value)); }
+        }
+
+        [JsonPropertyName("email")]
+        public string Email
+        {
+            get { return email; }
+            set { email = value ?? throw new ArgumentNullException(nameof(value)); }
+        }
+
+        [JsonPropertyName("phone")]
+        public string Phone
+        {
+            get { return phone; }
+            set { phone = value; }
+        }
+
+        [JsonPropertyName("dateOfBirth")]
+        public DateTime DateOfBirth
+        {
+            get { return dateOfBirth; }
+            set { dateOfBirth = value; }
+        }
+
+        [JsonPropertyName("address")]
+        public string Address
+        {
+            get { return address; }
+            set { address = value; }
+        }
+
         public int CalculateAge()
         {
             DateTime today = DateTime.Today;
-            int age = today.Year - DateOfBirth.Year;
-            if (DateOfBirth.Date > today.AddYears(-age)) age--;
+            int age = today.Year - dateOfBirth.Year;
+
+            if (dateOfBirth.Date > today.AddYears(-age))
+            {
+                age--;
+            }
+
             return age;
         }
     }
-
 }

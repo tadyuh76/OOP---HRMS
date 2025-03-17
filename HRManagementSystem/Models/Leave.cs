@@ -1,9 +1,9 @@
 using System.Text.Json.Serialization;
 
-namespace HRManagementSystem {
+namespace HRManagementSystem
+{
     public class Leave
     {
-        // Private fields
         private string leaveId;
         private string employeeId;
         private DateTime startDate;
@@ -12,37 +12,86 @@ namespace HRManagementSystem {
         private LeaveStatus status;
         private string remarks;
 
-        // Public properties with JSON serialization
-        [JsonPropertyName("leaveId")]
-        public string LeaveId { get => leaveId; set => leaveId = value; }
-        
-        [JsonPropertyName("employeeId")]
-        public string EmployeeId { get => employeeId; set => employeeId = value; }
-        
-        [JsonPropertyName("startDate")]
-        public DateTime StartDate { get => startDate; set => startDate = value; }
-        
-        [JsonPropertyName("endDate")]
-        public DateTime EndDate { get => endDate; set => endDate = value; }
-        
-        [JsonPropertyName("type")]
-        public LeaveType Type { get => type; set => type = value; }
-        
-        [JsonPropertyName("status")]
-        public LeaveStatus Status { get => status; set => status = value; }
-        
-        [JsonPropertyName("remarks")]
-        public string Remarks { get => remarks; set => remarks = value; }
+        public Leave()
+        {
+            // Default constructor required for JSON serialization
+        }
 
-        // Navigation property - not serialized directly
-        [JsonIgnore]
+        public Leave(
+            string leaveId,
+            string employeeId,
+            DateTime startDate,
+            DateTime endDate,
+            LeaveType type,
+            LeaveStatus status,
+            string remarks)
+        {
+            this.leaveId = leaveId ?? throw new ArgumentNullException(nameof(leaveId));
+            this.employeeId = employeeId ?? throw new ArgumentNullException(nameof(employeeId));
+            this.startDate = startDate;
+            this.endDate = endDate;
+            this.type = type;
+            this.status = status;
+            this.remarks = remarks;
+        }
+
+        [JsonPropertyName("leaveId")]
+        public string LeaveId
+        {
+            get { return leaveId; }
+            set { leaveId = value ?? throw new ArgumentNullException(nameof(value)); }
+        }
+
+        [JsonPropertyName("employeeId")]
+        public string EmployeeId
+        {
+            get { return employeeId; }
+            set { employeeId = value ?? throw new ArgumentNullException(nameof(value)); }
+        }
+
+        [JsonPropertyName("startDate")]
+        public DateTime StartDate
+        {
+            get { return startDate; }
+            set { startDate = value; }
+        }
+
+        [JsonPropertyName("endDate")]
+        public DateTime EndDate
+        {
+            get { return endDate; }
+            set { endDate = value; }
+        }
+
+        [JsonPropertyName("type")]
+        public LeaveType Type
+        {
+            get { return type; }
+            set { type = value; }
+        }
+
+        [JsonPropertyName("status")]
+        public LeaveStatus Status
+        {
+            get { return status; }
+            set { status = value; }
+        }
+
+        [JsonPropertyName("remarks")]
+        public string Remarks
+        {
+            get { return remarks; }
+            set { remarks = value; }
+        }
+
+        [JsonPropertyName("employee")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Employee Employee { get; set; }
 
-        // Methods
         public int CalculateDays()
         {
-            return (EndDate - StartDate).Days + 1;
+            TimeSpan duration = endDate - startDate;
+            return duration.Days + 1; // Including both start and end dates
         }
     }
-
 }

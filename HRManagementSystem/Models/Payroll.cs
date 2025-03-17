@@ -1,9 +1,9 @@
 using System.Text.Json.Serialization;
 
-namespace HRManagementSystem {
+namespace HRManagementSystem
+{
     public class Payroll
     {
-        // Private fields
         private string payrollId;
         private string employeeId;
         private DateTime payPeriodStart;
@@ -14,50 +14,110 @@ namespace HRManagementSystem {
         private decimal netSalary;
         private bool isPaid;
 
-        // Public properties with JSON serialization
-        [JsonPropertyName("payrollId")]
-        public string PayrollId { get => payrollId; set => payrollId = value; }
-        
-        [JsonPropertyName("employeeId")]
-        public string EmployeeId { get => employeeId; set => employeeId = value; }
-        
-        [JsonPropertyName("payPeriodStart")]
-        public DateTime PayPeriodStart { get => payPeriodStart; set => payPeriodStart = value; }
-        
-        [JsonPropertyName("payPeriodEnd")]
-        public DateTime PayPeriodEnd { get => payPeriodEnd; set => payPeriodEnd = value; }
-        
-        [JsonPropertyName("baseSalary")]
-        public decimal BaseSalary { get => baseSalary; set => baseSalary = value; }
-        
-        [JsonPropertyName("allowances")]
-        public decimal Allowances { get => allowances; set => allowances = value; }
-        
-        [JsonPropertyName("deductions")]
-        public decimal Deductions { get => deductions; set => deductions = value; }
-        
-        [JsonPropertyName("netSalary")]
-        public decimal NetSalary { get => netSalary; set => netSalary = value; }
-        
-        [JsonPropertyName("isPaid")]
-        public bool IsPaid { get => isPaid; set => isPaid = value; }
+        public Payroll()
+        {
+            // Default constructor required for JSON serialization
+        }
 
-        // Navigation property - not serialized directly
-        [JsonIgnore]
+        public Payroll(
+            string payrollId,
+            string employeeId,
+            DateTime payPeriodStart,
+            DateTime payPeriodEnd,
+            decimal baseSalary,
+            decimal allowances,
+            decimal deductions,
+            decimal netSalary,
+            bool isPaid)
+        {
+            this.payrollId = payrollId ?? throw new ArgumentNullException(nameof(payrollId));
+            this.employeeId = employeeId ?? throw new ArgumentNullException(nameof(employeeId));
+            this.payPeriodStart = payPeriodStart;
+            this.payPeriodEnd = payPeriodEnd;
+            this.baseSalary = baseSalary;
+            this.allowances = allowances;
+            this.deductions = deductions;
+            this.netSalary = netSalary;
+            this.isPaid = isPaid;
+        }
+
+        [JsonPropertyName("payrollId")]
+        public string PayrollId
+        {
+            get { return payrollId; }
+            set { payrollId = value ?? throw new ArgumentNullException(nameof(value)); }
+        }
+
+        [JsonPropertyName("employeeId")]
+        public string EmployeeId
+        {
+            get { return employeeId; }
+            set { employeeId = value ?? throw new ArgumentNullException(nameof(value)); }
+        }
+
+        [JsonPropertyName("payPeriodStart")]
+        public DateTime PayPeriodStart
+        {
+            get { return payPeriodStart; }
+            set { payPeriodStart = value; }
+        }
+
+        [JsonPropertyName("payPeriodEnd")]
+        public DateTime PayPeriodEnd
+        {
+            get { return payPeriodEnd; }
+            set { payPeriodEnd = value; }
+        }
+
+        [JsonPropertyName("baseSalary")]
+        public decimal BaseSalary
+        {
+            get { return baseSalary; }
+            set { baseSalary = value; }
+        }
+
+        [JsonPropertyName("allowances")]
+        public decimal Allowances
+        {
+            get { return allowances; }
+            set { allowances = value; }
+        }
+
+        [JsonPropertyName("deductions")]
+        public decimal Deductions
+        {
+            get { return deductions; }
+            set { deductions = value; }
+        }
+
+        [JsonPropertyName("netSalary")]
+        public decimal NetSalary
+        {
+            get { return netSalary; }
+            set { netSalary = value; }
+        }
+
+        [JsonPropertyName("isPaid")]
+        public bool IsPaid
+        {
+            get { return isPaid; }
+            set { isPaid = value; }
+        }
+
+        [JsonPropertyName("employee")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Employee Employee { get; set; }
 
-        // Methods
         public void CalculateNetSalary()
         {
-            NetSalary = BaseSalary + Allowances - Deductions;
+            netSalary = baseSalary + allowances - deductions;
         }
 
         public void GeneratePayslip()
         {
-            // Logic for generating payslip
-            // This would typically create a formatted report
-            CalculateNetSalary();
+            // This would typically generate a document or report
+            // For simplicity, just marking the payroll as paid
+            isPaid = true;
         }
     }
-
 }

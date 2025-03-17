@@ -11,4 +11,14 @@ namespace HRManagementSystem
             ModuleName = moduleName;
         }
     }
+
+    public class RoleChangedEventArgs : EventArgs
+    {
+        public UserRole NewRole { get; private set; }
+
+        public RoleChangedEventArgs(UserRole newRole)
+        {
+            NewRole = newRole;
+        }
+    }
 }

@@ -1,56 +1,108 @@
 using System.Text.Json.Serialization;
 
-namespace HRManagementSystem {
+namespace HRManagementSystem
+{
     public class Department
     {
-        // Private fields
         private string departmentId;
         private string name;
         private string description;
         private decimal budget;
         private string managerId;
 
-        // Public properties with JSON serialization
-        [JsonPropertyName("departmentId")]
-        public string DepartmentId { get => departmentId; set => departmentId = value; }
-        
-        [JsonPropertyName("name")]
-        public string Name { get => name; set => name = value; }
-        
-        [JsonPropertyName("description")]
-        public string Description { get => description; set => description = value; }
-        
-        [JsonPropertyName("budget")]
-        public decimal Budget { get => budget; set => budget = value; }
-        
-        [JsonPropertyName("managerId")]
-        public string ManagerId { get => managerId; set => managerId = value; }
+        public Department()
+        {
+            // Default constructor required for JSON serialization
+            this.Employees = new List<Employee>();
+        }
 
-        // Navigation properties - not serialized directly
-        [JsonIgnore]
-        public List<Employee> Employees { get; set; } = new List<Employee>();
-        
-        [JsonIgnore]
+        public Department(
+            string departmentId,
+            string name,
+            string description,
+            decimal budget,
+            string managerId)
+        {
+            this.departmentId = departmentId ?? throw new ArgumentNullException(nameof(departmentId));
+            this.name = name ?? throw new ArgumentNullException(nameof(name));
+            this.description = description;
+            this.budget = budget;
+            this.managerId = managerId ?? throw new ArgumentNullException(nameof(managerId));
+            this.Employees = new List<Employee>();
+        }
+
+        [JsonPropertyName("departmentId")]
+        public string DepartmentId
+        {
+            get { return departmentId; }
+            set { departmentId = value ?? throw new ArgumentNullException(nameof(value)); }
+        }
+
+        [JsonPropertyName("name")]
+        public string Name
+        {
+            get { return name; }
+            set { name = value ?? throw new ArgumentNullException(nameof(value)); }
+        }
+
+        [JsonPropertyName("description")]
+        public string Description
+        {
+            get { return description; }
+            set { description = value; }
+        }
+
+        [JsonPropertyName("budget")]
+        public decimal Budget
+        {
+            get { return budget; }
+            set { budget = value; }
+        }
+
+        [JsonPropertyName("managerId")]
+        public string ManagerId
+        {
+            get { return managerId; }
+            set { managerId = value ?? throw new ArgumentNullException(nameof(value)); }
+        }
+
+        [JsonPropertyName("employees")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<Employee> Employees { get; set; }
+
+        [JsonPropertyName("manager")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Employee Manager { get; set; }
 
-        // Methods
         public int GetEmployeeCount()
         {
-            return Employees?.Count ?? 0;
+            if (Employees == null)
+            {
+                return 0;
+            }
+
+            return Employees.Count;
         }
 
         public decimal GetBudgetUtilization()
         {
-            decimal totalSalaries = 0;
-            if (Employees != null)
+            if (Employees == null || Employees.Count == 0)
             {
-                foreach (var employee in Employees)
-                {
-                    totalSalaries += employee.CalculateSalary();
-                }
+                return 0;
             }
-            return Budget > 0 ? totalSalaries / Budget * 100 : 0;
+
+            decimal totalSalary = 0;
+            for (int i = 0; i < Employees.Count; i++)
+            {
+                totalSalary += Employees[i].CalculateSalary();
+            }
+
+            if (budget == 0)
+            {
+                return 0;
+            }
+
+            return totalSalary / budget * 100;
         }
     }
-
 }
