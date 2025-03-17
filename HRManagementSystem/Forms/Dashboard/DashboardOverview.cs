@@ -524,7 +524,7 @@
             int cardWidth = availableWidth / 3;
 
             // Find all module cards
-            var moduleCards = new List<Panel>();
+            List<Panel> moduleCards = new List<Panel>();
             foreach (Control control in pnlModules.Controls)
             {
                 if (control is Panel pnl && pnl.Tag != null && pnl.Tag?.ToString()?.StartsWith("ModuleCard") == true)

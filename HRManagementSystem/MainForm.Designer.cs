@@ -15,8 +15,6 @@
         private Button btnDepartments;
         private Button btnAttendance;
         private Button btnPayroll;
-        private Button btnPerformance;
-        private Button btnReports;
 
         protected override void Dispose(bool disposing)
         {
@@ -29,6 +27,7 @@
 
         private void InitializeComponent()
         {
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.components = new System.ComponentModel.Container();
 
             Color navBackground = Color.White;
@@ -69,31 +68,26 @@
             this.btnRoleSwitcher.ForeColor = Color.Black;
             this.btnRoleSwitcher.Font = new Font("Segoe UI", 10);
             this.btnRoleSwitcher.Size = new Size(100, 36);
-            this.btnRoleSwitcher.Location = new Point(this.ClientSize.Width - 120, 12); // Moved right without avatar
+            this.btnRoleSwitcher.Location = new Point(120, 12); // Moved right without avatar
             this.btnRoleSwitcher.Cursor = Cursors.Hand;
             this.btnRoleSwitcher.Click += new EventHandler(btnRoleSwitcher_Click);
 
             // Right-align navigation buttons
             int buttonWidth = 110;
-            int totalButtonsWidth = buttonWidth * 7; // 7 navigation buttons
-            int startX = this.ClientSize.Width - totalButtonsWidth - 150; // Adjusted for no avatar
-
+            int totalButtonsWidth = buttonWidth * 5; // 5 navigation buttons
+            int startX = this.ClientSize.Width - totalButtonsWidth; 
             // Navigation Buttons - right aligned
             this.btnDashboard = CreateNavButton("Dashboard", startX);
             this.btnEmployees = CreateNavButton("Employees", startX + buttonWidth);
             this.btnDepartments = CreateNavButton("Departments", startX + buttonWidth * 2);
             this.btnAttendance = CreateNavButton("Attendance", startX + buttonWidth * 3);
             this.btnPayroll = CreateNavButton("Payroll", startX + buttonWidth * 4);
-            this.btnPerformance = CreateNavButton("Performance", startX + buttonWidth * 5);
-            this.btnReports = CreateNavButton("Reports", startX + buttonWidth * 6);
 
             this.btnDashboard.Click += new EventHandler(btnDashboard_Click);
             this.btnEmployees.Click += new EventHandler(btnEmployees_Click);
             this.btnDepartments.Click += new EventHandler(btnDepartments_Click);
             this.btnAttendance.Click += new EventHandler(btnAttendance_Click);
             this.btnPayroll.Click += new EventHandler(btnPayroll_Click);
-            this.btnPerformance.Click += new EventHandler(btnPerformance_Click);
-            this.btnReports.Click += new EventHandler(btnReports_Click);
 
             // Add controls to navigation panel
             this.panelNavigation.Controls.Add(this.btnLogo);
@@ -103,8 +97,6 @@
             this.panelNavigation.Controls.Add(this.btnDepartments);
             this.panelNavigation.Controls.Add(this.btnAttendance);
             this.panelNavigation.Controls.Add(this.btnPayroll);
-            this.panelNavigation.Controls.Add(this.btnPerformance);
-            this.panelNavigation.Controls.Add(this.btnReports);
 
             // Content Panel
             this.panelContent = new Panel();
@@ -127,20 +119,18 @@
             if (btnRoleSwitcher != null)
             {
                 // Update role switcher position
-                btnRoleSwitcher.Location = new Point(this.ClientSize.Width - 120, 12);
+                btnRoleSwitcher.Location = new Point(120, 12);
 
                 // Update navigation buttons
                 int buttonWidth = 110;
-                int totalButtonsWidth = buttonWidth * 7;
-                int startX = this.ClientSize.Width - totalButtonsWidth - 150;
+                int totalButtonsWidth = buttonWidth * 5;
+                int startX = this.ClientSize.Width - totalButtonsWidth - 20;
 
                 if (btnDashboard != null) btnDashboard.Location = new Point(startX, 10);
                 if (btnEmployees != null) btnEmployees.Location = new Point(startX + buttonWidth, 10);
                 if (btnDepartments != null) btnDepartments.Location = new Point(startX + buttonWidth * 2, 10);
                 if (btnAttendance != null) btnAttendance.Location = new Point(startX + buttonWidth * 3, 10);
                 if (btnPayroll != null) btnPayroll.Location = new Point(startX + buttonWidth * 4, 10);
-                if (btnPerformance != null) btnPerformance.Location = new Point(startX + buttonWidth * 5, 10);
-                if (btnReports != null) btnReports.Location = new Point(startX + buttonWidth * 6, 10);
             }
         }
 

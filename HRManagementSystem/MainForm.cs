@@ -15,14 +15,14 @@
         // Create a dashboard with event subscription properly attached
         private DashboardOverview CreateDashboard()
         {
-            var dashboard = new DashboardOverview();
+            DashboardOverview dashboard = new DashboardOverview();
             dashboard.ModuleAccessRequested += Dashboard_ModuleAccessRequested;
             return dashboard;
         }
 
 
         // Event handler for dashboard module access requests
-        private void Dashboard_ModuleAccessRequested(object sender, ModuleAccessEventArgs e)
+        private void Dashboard_ModuleAccessRequested(object? sender, ModuleAccessEventArgs e)
         {
             // Open the appropriate form based on module name
             switch (e.ModuleName)
@@ -42,14 +42,6 @@
                 case "Payroll":
                     SetActiveTab(btnPayroll);
                     OpenChildForm(new PayrollManagement());
-                    break;
-                case "Performance":
-                    SetActiveTab(btnPerformance);
-                    OpenChildForm(new PerformanceManagement());
-                    break;
-                case "Reports":
-                    SetActiveTab(btnReports);
-                    OpenChildForm(new Reports());
                     break;
             }
         }
@@ -138,18 +130,6 @@
         {
             SetActiveTab((Button)sender);
             OpenChildForm(new PayrollManagement());
-        }
-
-        private void btnPerformance_Click(object sender, EventArgs e)
-        {
-            SetActiveTab((Button)sender);
-            OpenChildForm(new PerformanceManagement());
-        }
-
-        private void btnReports_Click(object sender, EventArgs e)
-        {
-            SetActiveTab((Button)sender);
-            OpenChildForm(new Reports());
         }
 
         private void btnRoleSwitcher_Click(object sender, EventArgs e)
