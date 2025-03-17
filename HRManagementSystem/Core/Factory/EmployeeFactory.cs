@@ -1,6 +1,5 @@
-using HRManagementSystem;
 
-namespace hrms
+namespace HRManagementSystem
 {
     public class EmployeeFactory
     {
