@@ -44,7 +44,7 @@ namespace HRManagementSystem
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum UserRole
     {
-        Administrator,
+        Admin,
         Employee
     }
 }

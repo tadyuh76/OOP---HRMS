@@ -5,16 +5,49 @@ namespace HRManagementSystem
     public class RoleSelectionService
     {
         private UserRole currentRole;
+        
+        // Singleton instance
+        private static RoleSelectionService instance;
+        private static readonly object lockObject = new object();
+        
+        // Public accessor for the singleton instance
+        public static RoleSelectionService Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (lockObject)
+                    {
+                        if (instance == null)
+                        {
+                            instance = new RoleSelectionService(UserRole.Admin);
+                        }
+                    }
+                }
+                return instance;
+            }
+        }
 
-        public RoleSelectionService()
+        // Make constructors private
+        private RoleSelectionService()
         {
             // Default to Employee role
             currentRole = UserRole.Employee;
         }
 
-        public RoleSelectionService(UserRole initialRole)
+        private RoleSelectionService(UserRole initialRole)
         {
             currentRole = initialRole;
+        }
+
+        // Static method to initialize with specific role (if needed)
+        public static void Initialize(UserRole initialRole)
+        {
+            lock (lockObject)
+            {
+                instance = new RoleSelectionService(initialRole);
+            }
         }
 
         [JsonPropertyName("currentRole")]
@@ -43,7 +76,7 @@ namespace HRManagementSystem
             // Implementation depends on feature permissions
             switch (currentRole)
             {
-                case UserRole.Administrator:
+                case UserRole.Admin:
                     return true; // Admin can access all features
                 case UserRole.Employee:
                     return featureName == "ViewProfile" || featureName == "RequestLeave"; // Example permissions
@@ -66,5 +99,4 @@ namespace HRManagementSystem
 
     // Delegate for role changed event
     public delegate void RoleChangedEventHandler(object sender, RoleChangedEventArgs e);
-
 }
