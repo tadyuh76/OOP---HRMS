@@ -1,0 +1,30 @@
+[
+  {
+    "employeeId": "EMP001",
+    "hireDate": "2020-03-15T00:00:00",
+    "position": "Software Developer",
+    "baseSalary": 15000000,
+    "departmentId": "DEP001",
+    "status": "Active",
+    "id": "E001",
+    "name": "Nguy\u1EC5n V\u0103n A",
+    "email": "nguyenvana@example.com",
+    "phone": "0901234567",
+    "dateOfBirth": "1990-01-15T00:00:00",
+    "address": "123 \u0110\u01B0\u1EDDng L\u00EA L\u1EE3i, Qu\u1EADn 1, TP.HCM"
+  },
+  {
+    "employeeId": "EMP002",
+    "hireDate": "2021-02-01T00:00:00",
+    "position": "UI/UX Designer",
+    "baseSalary": 14000000,
+    "departmentId": "DEP002",
+    "status": "Active",
+    "id": "E002",
+    "name": "Tr\u1EA7n Th\u1ECB B",
+    "email": "tranthib@example.com",
+    "phone": "0912345678",
+    "dateOfBirth": "1992-05-20T00:00:00",
+    "address": "456 \u0110\u01B0\u1EDDng Nguy\u1EC5n Hu\u1EC7, Qu\u1EADn 1, TP.HCM"
+  }
+]
