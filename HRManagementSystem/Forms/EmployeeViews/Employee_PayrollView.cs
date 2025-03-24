@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -11,39 +10,79 @@ using System.Windows.Forms;
 
 namespace HRManagementSystem
 {
-    public partial class PayrollManagement : Form
+    public partial class Employee_PayrollView : Form
     {
         private readonly PayrollService _payrollService;
-        private DateTime _currentMonth;
+        private string _selectedEmployeeName;
         private List<HRManagementSystem.Payroll> _currentPayrolls;
 
-        public PayrollManagement()
+        public Employee_PayrollView()
         {
             InitializeComponent();
-            _payrollService = new PayrollService(); 
-            _currentMonth = DateTime.Now;
+            
+            _payrollService = new PayrollService();
+            _selectedEmployeeName = string.Empty;
             _currentPayrolls = new List<HRManagementSystem.Payroll>();
 
             SetupDataGridView();
-            UpdateMonthDisplay();
-            LoadPayrollData();
+            LoadEmployeeNames();
+
+            
+            btnSearch.Click += BtnSearch_Click;
         }
 
-        public PayrollManagement(PayrollService payrollService)
+        public Employee_PayrollView(PayrollService payrollService)
         {
             InitializeComponent();
             _payrollService = payrollService;
-            _currentMonth = DateTime.Now;
+            _selectedEmployeeName = string.Empty;
             _currentPayrolls = new List<HRManagementSystem.Payroll>();
 
             SetupDataGridView();
-            UpdateMonthDisplay();
-            LoadPayrollData();
+            LoadEmployeeNames();
+
+            
+            btnSearch.Click += BtnSearch_Click;
+        }
+
+        private void LoadEmployeeNames()
+        {
+            try
+            {
+                
+                var allPayrolls = _payrollService.GetAllPayrolls();
+
+               
+                var employeeNames = allPayrolls
+                    .Select(p => p.EmployeeName)
+                    .Where(name => !string.IsNullOrEmpty(name))
+                    .Distinct()
+                    .ToList();
+
+               
+                cboEmployee.Items.Clear();
+                cboEmployee.Items.Add("-- Choose Employee --");
+
+                foreach (var name in employeeNames)
+                {
+                    cboEmployee.Items.Add(name);
+                }
+
+                cboEmployee.SelectedIndex = 0;
+
+                // Đăng ký sự kiện cho ComboBox
+                cboEmployee.SelectedIndexChanged += CboEmployee_SelectedIndexChanged;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi tải danh sách nhân viên: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void SetupDataGridView()
         {
-
+            // Giữ nguyên code thiết lập DataGridView
             dgvPayrolls.AutoGenerateColumns = false;
             dgvPayrolls.Columns.Clear();
 
@@ -133,7 +172,7 @@ namespace HRManagementSystem
                 Width = 80
             };
 
-            
+            // Thêm các cột vào DataGridView
             dgvPayrolls.Columns.Add(idColumn);
             dgvPayrolls.Columns.Add(employeeIdColumn);
             dgvPayrolls.Columns.Add(employeeNameColumn);
@@ -146,48 +185,54 @@ namespace HRManagementSystem
             dgvPayrolls.Columns.Add(isPaidColumn);
         }
 
-        private void UpdateMonthDisplay()
-        {
-            lblMonth.Text = _currentMonth.ToString("MM/yyyy");
-        }
-        public class PayrollViewModel
-        {
-            public string PayrollId { get; set; }
-            public string EmployeeId { get; set; }
-            public string EmployeeName { get; set; }
-            public DateTime PayPeriodStart { get; set; }
-            public DateTime PayPeriodEnd { get; set; }
-            public decimal BaseSalary { get; set; }
-            public decimal Allowances { get; set; }
-            public decimal Deductions { get; set; }
-            public decimal NetSalary { get; set; }
-            public bool IsPaid { get; set; }
-        }
         private void LoadPayrollData()
         {
             try
             {
-                _currentPayrolls = _payrollService.GetPayrollsByMonth(_currentMonth);
-                List<PayrollViewModel> payrollViewModels = new List<PayrollViewModel>();
-
-                foreach (var payroll in _currentPayrolls)
+               
+                if (string.IsNullOrWhiteSpace(_selectedEmployeeName) || _selectedEmployeeName == "-- Choose Employee --")
                 {
-
-                    payrollViewModels.Add(new PayrollViewModel
-                    {
-                        PayrollId = payroll.PayrollId,
-                        EmployeeId = payroll.EmployeeId,
-                        EmployeeName = payroll.EmployeeName ?? "[Không tìm thấy]",
-                        PayPeriodStart = payroll.PayPeriodStart,
-                        PayPeriodEnd = payroll.PayPeriodEnd,
-                        BaseSalary = payroll.BaseSalary,
-                        Allowances = payroll.Allowances,
-                        Deductions = payroll.Deductions,
-                        NetSalary = payroll.NetSalary,
-                        IsPaid = payroll.IsPaid
-                    });
+                    
+                    dgvPayrolls.DataSource = null;
+                    lblTotalPayroll.Text = "Tổng: 0 VND";
+                    lblAverageSalary.Text = "Trung bình: 0 VND";
+                    lblSalaryRange.Text = "Min-Max: 0 - 0 VND";
+                    MessageBox.Show("Vui lòng chọn nhân viên để xem phiếu lương", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
                 }
 
+                
+                _currentPayrolls = _payrollService.GetPayrollsByEmployee(_selectedEmployeeName);
+
+                
+                if (_currentPayrolls.Count == 0)
+                {
+                    MessageBox.Show($"Không tìm thấy phiếu lương cho nhân viên: {_selectedEmployeeName}", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    dgvPayrolls.DataSource = null;
+                    lblTotalPayroll.Text = "Tổng: 0 VND";
+                    lblAverageSalary.Text = "Trung bình: 0 VND";
+                    lblSalaryRange.Text = "Min-Max: 0 - 0 VND";
+                    return;
+                }
+
+                
+                var payrollViewModels = _currentPayrolls.Select(payroll => new
+                {
+                    PayrollId = payroll.PayrollId,
+                    EmployeeId = payroll.EmployeeId,
+                    EmployeeName = payroll.EmployeeName ?? "[Không tìm thấy]",
+                    PayPeriodStart = payroll.PayPeriodStart,
+                    PayPeriodEnd = payroll.PayPeriodEnd,
+                    BaseSalary = payroll.BaseSalary,
+                    Allowances = payroll.Allowances,
+                    Deductions = payroll.Deductions,
+                    NetSalary = payroll.NetSalary,
+                    IsPaid = payroll.IsPaid
+                }).ToList();
+
+                
                 dgvPayrolls.DataSource = null;
                 dgvPayrolls.DataSource = payrollViewModels;
                 UpdateStatistics();
@@ -198,6 +243,7 @@ namespace HRManagementSystem
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
         private void UpdateStatistics()
         {
             if (_currentPayrolls.Count > 0)
@@ -207,8 +253,8 @@ namespace HRManagementSystem
                 decimal minSalary, maxSalary;
                 _payrollService.GetSalaryRange(_currentPayrolls, out minSalary, out maxSalary);
 
-                lblTotalPayroll.Text = $"Total: {totalSalary:N0} VND";
-                lblAverageSalary.Text = $"Average: {avgSalary:N0} VND";
+                lblTotalPayroll.Text = $"Tổng: {totalSalary:N0} VND";
+                lblAverageSalary.Text = $"Trung bình: {avgSalary:N0} VND";
                 lblSalaryRange.Text = $"Min-Max: {minSalary:N0} - {maxSalary:N0} VND";
             }
             else
@@ -219,26 +265,36 @@ namespace HRManagementSystem
             }
         }
 
-        private void btnPreviousMonth_Click(object sender, EventArgs e)
+       
+        private void CboEmployee_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _currentMonth = _currentMonth.AddMonths(-1);
-            UpdateMonthDisplay();
+            if (cboEmployee.SelectedIndex > 0) 
+            {
+                _selectedEmployeeName = cboEmployee.SelectedItem.ToString();
+                Console.WriteLine($"Đã chọn nhân viên: {_selectedEmployeeName}");
+            }
+            else
+            {
+                _selectedEmployeeName = string.Empty;
+            }
+        }
+
+       
+        private void BtnSearch_Click(object sender, EventArgs e)
+        {
+            Console.WriteLine("Đã nhấn nút Xem");
+            Console.WriteLine($"Tên nhân viên đã chọn: {_selectedEmployeeName}");
             LoadPayrollData();
         }
 
-        private void btnNextMonth_Click(object sender, EventArgs e)
-        {
-            _currentMonth = _currentMonth.AddMonths(1);
-            UpdateMonthDisplay();
-            LoadPayrollData();
-        }
-
+       
         private void btnNewPayroll_Click(object sender, EventArgs e)
         {
-            
+           
             PayrollForm payrollForm = new PayrollForm(_payrollService);
             if (payrollForm.ShowDialog() == DialogResult.OK)
             {
+                LoadEmployeeNames(); 
                 LoadPayrollData();
             }
         }
@@ -308,7 +364,7 @@ namespace HRManagementSystem
 
                 if (selectedPayroll != null)
                 {
-                    
+                   
                     MessageBox.Show("Chức năng in phiếu lương đang được phát triển", "Thông báo",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -322,16 +378,9 @@ namespace HRManagementSystem
 
         private void btnReport_Click(object sender, EventArgs e)
         {
-            
+           
             PayrollReport reportForm = new PayrollReport(_payrollService);
             reportForm.ShowDialog();
-        }
-
-        private void btnSearch_Click(object sender, EventArgs e)
-        {
-           
-            PayrollSearch searchForm = new PayrollSearch(_payrollService);
-            searchForm.ShowDialog();
         }
 
         private void PayrollManagement_Load(object sender, EventArgs e)
@@ -340,16 +389,9 @@ namespace HRManagementSystem
             if (_payrollService.GetAllPayrolls().Count == 0)
             {
                 _payrollService.CreateSampleData();
-               
-                LoadPayrollData();
-            }
-            else
-            {
-               
-                LoadPayrollData();
+                
+                LoadEmployeeNames();
             }
         }
     }
 }
-
-

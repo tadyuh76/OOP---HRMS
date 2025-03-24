@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace HRManagementSystem
 {
@@ -6,6 +6,7 @@ namespace HRManagementSystem
     {
         private string payrollId;
         private string employeeId;
+        private string employeeName;
         private DateTime payPeriodStart;
         private DateTime payPeriodEnd;
         private decimal baseSalary;
@@ -22,6 +23,7 @@ namespace HRManagementSystem
         public Payroll(
             string payrollId,
             string employeeId,
+            string employeeName,
             DateTime payPeriodStart,
             DateTime payPeriodEnd,
             decimal baseSalary,
@@ -32,6 +34,7 @@ namespace HRManagementSystem
         {
             this.payrollId = payrollId ?? throw new ArgumentNullException(nameof(payrollId));
             this.employeeId = employeeId ?? throw new ArgumentNullException(nameof(employeeId));
+            this.employeeName = employeeName;
             this.payPeriodStart = payPeriodStart;
             this.payPeriodEnd = payPeriodEnd;
             this.baseSalary = baseSalary;
@@ -54,7 +57,11 @@ namespace HRManagementSystem
             get { return employeeId; }
             set { employeeId = value ?? throw new ArgumentNullException(nameof(value)); }
         }
-
+        [JsonPropertyName("employeeName")]
+        public string EmployeeName { 
+            get { return employeeName; }
+            set { employeeName = value; }
+        }
         [JsonPropertyName("payPeriodStart")]
         public DateTime PayPeriodStart
         {
@@ -119,5 +126,6 @@ namespace HRManagementSystem
             // For simplicity, just marking the payroll as paid
             isPaid = true;
         }
+        
     }
 }

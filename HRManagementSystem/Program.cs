@@ -1,3 +1,5 @@
+﻿using System.Text.Json;
+
 namespace HRManagementSystem
 {
     internal static class Program
@@ -14,6 +16,7 @@ namespace HRManagementSystem
             Application.SetCompatibleTextRenderingDefault(false);
             ApplicationConfiguration.Initialize();
             Application.Run(new MainForm());
+         
         }
     }
 }
