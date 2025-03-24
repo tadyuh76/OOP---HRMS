@@ -156,9 +156,9 @@ namespace HRManagementSystem
             lblSalaryRange.Location = new Point(785, 27);
             lblSalaryRange.Margin = new Padding(4, 0, 4, 0);
             lblSalaryRange.Name = "lblSalaryRange";
-            lblSalaryRange.Size = new Size(203, 28);
+            lblSalaryRange.Size = new Size(171, 28);
             lblSalaryRange.TabIndex = 2;
-            lblSalaryRange.Text = "Min-Max: 0 - 0 VND";
+            lblSalaryRange.Text = "Min-Max: 0 - 0 $";
             // 
             // lblAverageSalary
             // 
@@ -168,9 +168,9 @@ namespace HRManagementSystem
             lblAverageSalary.Location = new Point(427, 27);
             lblAverageSalary.Margin = new Padding(4, 0, 4, 0);
             lblAverageSalary.Name = "lblAverageSalary";
-            lblAverageSalary.Size = new Size(187, 28);
+            lblAverageSalary.Size = new Size(131, 28);
             lblAverageSalary.TabIndex = 1;
-            lblAverageSalary.Text = "Trung bình: 0 VND";
+            lblAverageSalary.Text = "Average: 0 $";
             // 
             // lblTotalPayroll
             // 
@@ -179,9 +179,9 @@ namespace HRManagementSystem
             lblTotalPayroll.Location = new Point(61, 27);
             lblTotalPayroll.Margin = new Padding(4, 0, 4, 0);
             lblTotalPayroll.Name = "lblTotalPayroll";
-            lblTotalPayroll.Size = new Size(133, 28);
+            lblTotalPayroll.Size = new Size(100, 28);
             lblTotalPayroll.TabIndex = 0;
-            lblTotalPayroll.Text = "Tổng: 0 VND";
+            lblTotalPayroll.Text = "Total: 0 $";
             // 
             // Employee_PayrollView
             // 

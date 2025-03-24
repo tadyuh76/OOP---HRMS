@@ -19,6 +19,7 @@ namespace HRManagementSystem
         decimal CalculateAverageSalary(List<Payroll> payrolls);
         void GetSalaryRange(List<Payroll> payrolls, out decimal minSalary, out decimal maxSalary);
         void CreateSampleData();
+    
     }
     public class PayrollService : IPayrollService
     {
@@ -31,13 +32,20 @@ namespace HRManagementSystem
         {
             this._fileStorage = new JsonFileStorage();
 
+            // Lấy đường dẫn thư mục thực thi
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+            // Tạo đường dẫn đến thư mục Data
+            _dataDirectory = Path.Combine(baseDirectory, "Data");
+
+            // Đảm bảo thư mục tồn tại
             if (!Directory.Exists(_dataDirectory))
             {
                 Directory.CreateDirectory(_dataDirectory);
             }
 
-            PAYROLL_FILE_PATH = Path.Combine(_dataDirectory, "payrolls.json");
-
+            // Tạo đường dẫn đầy đủ đến file
+            PAYROLL_FILE_PATH = Path.Combine(_dataDirectory, "Payroll.json");
             this.payrolls = this.LoadPayrolls();
         }
 
@@ -207,94 +215,94 @@ namespace HRManagementSystem
         public void CreateSampleData()
         {
             PayrollService employeeService = new PayrollService();
-           
+
             List<Payroll> samplePayrolls = new List<Payroll>
             {
             new Payroll
             {
-                PayrollId = "PAY001",
-                EmployeeId = "EMP001",
-                EmployeeName = "Trần Văn An",
-                PayPeriodStart = new DateTime(2025, 1, 1),
-                PayPeriodEnd = new DateTime(2025, 1, 31),
-                BaseSalary = 10000000,
-                Allowances = 2000000,
-                Deductions = 1000000,
-                NetSalary = 11000000,
+                PayrollId = "PR-2025-001",
+                EmployeeId = "p001",
+                EmployeeName = "John Smith",
+                PayPeriodStart=  new DateTime(2025, 02, 01),
+                PayPeriodEnd = new DateTime(2025,02,28),
+                BaseSalary = 4500,
+                Allowances = 750,
+                Deductions = 850,
+                NetSalary =  4400,
                 IsPaid = true
             },
             new Payroll
             {
-                PayrollId = "PAY002",
-                EmployeeId = "EMP002",
-                EmployeeName = "Ngô Ngọc Bình",
-                PayPeriodStart = new DateTime(2025, 1, 1),
-                PayPeriodEnd = new DateTime(2025, 1, 31),
-                BaseSalary = 12000000,
-                Allowances = 1500000,
-                Deductions = 1200000,
-                NetSalary = 12300000,
+                PayrollId = "PR-2025-002",
+                EmployeeId = "o002",
+                EmployeeName = "Emily Johnson",
+                PayPeriodStart = new DateTime(2025, 02, 01),
+                PayPeriodEnd = new DateTime(2025,02,28),
+                BaseSalary = 3800,
+                Allowances = 500,
+                Deductions = 750,
+                NetSalary =  3550,
                 IsPaid = true
             },
             new Payroll
             {
-                PayrollId = "PAY003",
-                EmployeeId = "EMP003",
-                EmployeeName = "Nguyễn Văn Cường",
-                PayPeriodStart = new DateTime(2025, 1, 1),
-                PayPeriodEnd = new DateTime(2025, 1, 31),
-                BaseSalary = 8000000,
-                Allowances = 1000000,
-                Deductions = 800000,
-                NetSalary = 8200000,
+                PayrollId = "PR-2025-003",
+                EmployeeId = "p003",
+                EmployeeName = "Michael Brown",
+                PayPeriodStart = new DateTime(2025, 02, 01),
+                PayPeriodEnd = new DateTime(2025,02,28),
+                BaseSalary = 5200,
+                Allowances = 850,
+                Deductions = 1200,
+                NetSalary = 4850,
                 IsPaid = true
             },
             new Payroll
             {
-                PayrollId = "PAY004",
-                EmployeeId = "EMP001",
-                EmployeeName = "Trần Mai Dung",
-                PayPeriodStart = new DateTime(2025, 2, 1),
-                PayPeriodEnd = new DateTime(2025, 2, 28),
-                BaseSalary = 10000000,
-                Allowances = 2000000,
-                Deductions = 1000000,
-                NetSalary = 11000000,
+                PayrollId = "PR-2025-004",
+                EmployeeId = "o004",
+                EmployeeName = "Sarah Davis",
+                PayPeriodStart = new DateTime(2025, 02, 01),
+                PayPeriodEnd = new DateTime(2025,02,28),
+                BaseSalary = 4000,
+                Allowances = 600,
+                Deductions = 780,
+                NetSalary = 3820,
                 IsPaid = true
             },
             new Payroll
             {
-                PayrollId = "PAY005",
-                EmployeeId = "EMP002",
-                EmployeeName = "Nguyễn Thị Én",
-                PayPeriodStart = new DateTime(2025, 2, 1),
-                PayPeriodEnd = new DateTime(2025, 2, 28),
-                BaseSalary = 12000000,
-                Allowances = 1500000,
-                Deductions = 1200000,
-                NetSalary = 12300000,
-                IsPaid = true
-            },
-            new Payroll
-            {
-                PayrollId = "PAY006",
-                EmployeeId = "EMP003",
-                EmployeeName = "Nguyễn Văn Phước",
-                PayPeriodStart = new DateTime(2025, 2, 1),
-                PayPeriodEnd = new DateTime(2025, 2, 28),
-                BaseSalary = 8000000,
-                Allowances = 1000000,
-                Deductions = 800000,
-                NetSalary = 8200000,
+                PayrollId = "PR-2025-005",
+                EmployeeId = "p001",
+                EmployeeName = "James Wilson",
+                PayPeriodStart = new DateTime(2025,03,01),
+                PayPeriodEnd = new DateTime(2025,03,31),
+                BaseSalary = 4500,
+                Allowances = 750,
+                Deductions = 850,
+                NetSalary = 4400,
                 IsPaid = false
             },
             new Payroll
             {
-                PayrollId = "PAY007",
-                EmployeeId = "EMP001",
-                EmployeeName = "Ngô Ngọc Giang",
-                PayPeriodStart = new DateTime(2025, 3, 1),
-                PayPeriodEnd = new DateTime(2025, 3, 31),
+                PayrollId = "PR-2025-006",
+                EmployeeId = "o002",
+                EmployeeName = "Jessica Lee",
+                PayPeriodStart = new DateTime(2025,03,01),
+                PayPeriodEnd = new DateTime(2025,03,31),
+                BaseSalary = 3800,
+                Allowances = 500,
+                Deductions = 750,
+                NetSalary =  3550,
+                IsPaid = false
+            },
+            new Payroll
+            {
+                PayrollId = "PR-2025-007",
+                EmployeeId = "p005",
+                EmployeeName = "David Martinez",
+                PayPeriodStart = new DateTime(2025,03,01),
+                PayPeriodEnd = new DateTime(2025,03,31),
                 BaseSalary = 10500000,
                 Allowances = 2000000,
                 Deductions = 1050000,
@@ -306,12 +314,12 @@ namespace HRManagementSystem
                 PayrollId = "PAY008",
                 EmployeeId = "EMP004",
                 EmployeeName = "Vũ Tiến Hoàng",
-                PayPeriodStart = new DateTime(2025, 3, 1),
-                PayPeriodEnd = new DateTime(2025, 3, 31),
-                BaseSalary = 15000000,
-                Allowances = 3000000,
-                Deductions = 1800000,
-                NetSalary = 16200000,
+                PayPeriodStart = new DateTime(2025,03,01),
+                PayPeriodEnd = new DateTime(2025,03,31),
+                BaseSalary = 4800,
+                Allowances = 900,
+                Deductions = 1050,
+                NetSalary = 4650,
                 IsPaid = false
             }
         };

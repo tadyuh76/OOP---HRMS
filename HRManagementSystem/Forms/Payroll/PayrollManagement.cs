@@ -207,15 +207,15 @@ namespace HRManagementSystem
                 decimal minSalary, maxSalary;
                 _payrollService.GetSalaryRange(_currentPayrolls, out minSalary, out maxSalary);
 
-                lblTotalPayroll.Text = $"Total: {totalSalary:N0} VND";
-                lblAverageSalary.Text = $"Average: {avgSalary:N0} VND";
-                lblSalaryRange.Text = $"Min-Max: {minSalary:N0} - {maxSalary:N0} VND";
+                lblTotalPayroll.Text = $"Total: {totalSalary:N0} $";
+                lblAverageSalary.Text = $"Average: {avgSalary:N0} $";
+                lblSalaryRange.Text = $"Min-Max: {minSalary:N0} - {maxSalary:N0} $";
             }
             else
             {
-                lblTotalPayroll.Text = "Tổng: 0 VND";
-                lblAverageSalary.Text = "Trung bình: 0 VND";
-                lblSalaryRange.Text = "Min-Max: 0 - 0 VND";
+                lblTotalPayroll.Text = "Total: 0 $";
+                lblAverageSalary.Text = "Average: 0 $";
+                lblSalaryRange.Text = "Min-Max: 0 - 0 $";
             }
         }
 

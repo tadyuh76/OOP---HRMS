@@ -22,3 +22,4 @@ C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\obj\Debug\net8.0-windows\HR
 C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\obj\Debug\net8.0-windows\HRManagementSystem.genruntimeconfig.cache
 C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\obj\Debug\net8.0-windows\ref\HRManagementSystem.dll
 C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\obj\Debug\net8.0-windows\HRManagementSystem.Employee_PayrollView.resources
+C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\bin\Debug\net8.0-windows\Data\Payroll.json

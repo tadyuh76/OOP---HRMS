@@ -194,9 +194,9 @@ namespace HRManagementSystem
                 {
                     
                     dgvPayrolls.DataSource = null;
-                    lblTotalPayroll.Text = "Tổng: 0 VND";
-                    lblAverageSalary.Text = "Trung bình: 0 VND";
-                    lblSalaryRange.Text = "Min-Max: 0 - 0 VND";
+                    lblTotalPayroll.Text = "Total: 0 $";
+                    lblAverageSalary.Text = "Average: 0 $";
+                    lblSalaryRange.Text = "Min-Max: 0 - 0 $";
                     MessageBox.Show("Vui lòng chọn nhân viên để xem phiếu lương", "Thông báo",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
@@ -211,9 +211,9 @@ namespace HRManagementSystem
                     MessageBox.Show($"Không tìm thấy phiếu lương cho nhân viên: {_selectedEmployeeName}", "Thông báo",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                     dgvPayrolls.DataSource = null;
-                    lblTotalPayroll.Text = "Tổng: 0 VND";
-                    lblAverageSalary.Text = "Trung bình: 0 VND";
-                    lblSalaryRange.Text = "Min-Max: 0 - 0 VND";
+                    lblTotalPayroll.Text = "Total: 0 $";
+                    lblAverageSalary.Text = "Average: 0 $";
+                    lblSalaryRange.Text = "Min-Max: 0 - 0 $";
                     return;
                 }
 
@@ -253,15 +253,15 @@ namespace HRManagementSystem
                 decimal minSalary, maxSalary;
                 _payrollService.GetSalaryRange(_currentPayrolls, out minSalary, out maxSalary);
 
-                lblTotalPayroll.Text = $"Tổng: {totalSalary:N0} VND";
-                lblAverageSalary.Text = $"Trung bình: {avgSalary:N0} VND";
-                lblSalaryRange.Text = $"Min-Max: {minSalary:N0} - {maxSalary:N0} VND";
+                lblTotalPayroll.Text = $"Total: {totalSalary:N0} $";
+                lblAverageSalary.Text = $"Average: {avgSalary:N0} $";
+                lblSalaryRange.Text = $"Min-Max: {minSalary:N0} - {maxSalary:N0} $";
             }
             else
             {
-                lblTotalPayroll.Text = "Tổng: 0 VND";
-                lblAverageSalary.Text = "Trung bình: 0 VND";
-                lblSalaryRange.Text = "Min-Max: 0 - 0 VND";
+                lblTotalPayroll.Text = "Total: 0 $";
+                lblAverageSalary.Text = "Average: 0 $";
+                lblSalaryRange.Text = "Min-Max: 0 - 0 $";
             }
         }
 
