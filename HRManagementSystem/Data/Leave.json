@@ -1,0 +1,92 @@
+[
+    {
+        "leaveId": "LV001",
+        "employeeId": "P001",
+        "startDate": "2025-03-20T00:00:00",
+        "endDate": "2025-03-22T00:00:00",
+        "type": 0,
+        "status": 1,
+        "remarks": "Family vacation"
+    },
+    {
+        "leaveId": "LV002",
+        "employeeId": "P002",
+        "startDate": "2025-03-18T00:00:00",
+        "endDate": "2025-03-18T00:00:00",
+        "type": 1,
+        "status": 1,
+        "remarks": "Doctor appointment"
+    },
+    {
+        "leaveId": "LV003",
+        "employeeId": "P003",
+        "startDate": "2025-04-01T00:00:00",
+        "endDate": "2025-04-05T00:00:00",
+        "type": 0,
+        "status": 0,
+        "remarks": "Planned family gathering"
+    },
+    {
+        "leaveId": "LV004",
+        "employeeId": "P003",
+        "startDate": "2025-03-17T00:00:00",
+        "endDate": "2025-03-17T00:00:00",
+        "type": 2,
+        "status": 1,
+        "remarks": "Personal reasons"
+    },
+    {
+        "leaveId": "LV005",
+        "employeeId": "P004",
+        "startDate": "2025-03-16T00:00:00",
+        "endDate": "2025-03-19T00:00:00",
+        "type": 3,
+        "status": 1,
+        "remarks": "Sick - doctor's note provided"
+    },
+    {
+        "leaveId": "LV006",
+        "employeeId": "P005",
+        "startDate": "2025-03-25T00:00:00",
+        "endDate": "2025-03-25T00:00:00",
+        "type": 1,
+        "status": 0,
+        "remarks": "Half-day for dental checkup"
+    },
+    {
+        "leaveId": "LV007",
+        "employeeId": "P002",
+        "startDate": "2025-04-10T00:00:00",
+        "endDate": "2025-04-17T00:00:00",
+        "type": 0,
+        "status": 2,
+        "remarks": "Annual leave request"
+    },
+    {
+        "leaveId": "LV008",
+        "employeeId": "P001",
+        "startDate": "2025-03-30T00:00:00",
+        "endDate": "2025-03-31T00:00:00",
+        "type": 4,
+        "status": 1,
+        "remarks": "Training workshop"
+    },
+    {
+        "leaveId": "LV009",
+        "employeeId": "P005",
+        "startDate": "2025-04-20T00:00:00",
+        "endDate": "2025-04-22T00:00:00",
+        "type": 0,
+        "status": 0,
+        "remarks": "Short trip"
+    },
+    {
+        "leaveId": "LV010",
+        "employeeId": "P004",
+        "startDate": "2025-05-01T00:00:00",
+        "endDate": "2025-05-03T00:00:00",
+        "type": 5,
+        "status": 2,
+        "remarks": "Compensatory leave for overtime"
+    }
+]

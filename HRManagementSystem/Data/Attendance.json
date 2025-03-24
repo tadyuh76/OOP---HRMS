@@ -1,0 +1,82 @@
+[
+    {
+        "attendanceId": "ATT001",
+        "employeeId": "P001",
+        "date": "2025-03-15T00:00:00",
+        "clockInTime": "2025-03-15T08:55:00",
+        "clockOutTime": "2025-03-15T17:30:00",
+        "status": 0
+    },
+    {
+        "attendanceId": "ATT002",
+        "employeeId": "P001",
+        "date": "2025-03-16T00:00:00",
+        "clockInTime": "2025-03-16T09:05:00",
+        "clockOutTime": "2025-03-16T18:00:00",
+        "status": 1
+    },
+    {
+        "attendanceId": "ATT003",
+        "employeeId": "P002",
+        "date": "2025-03-15T00:00:00",
+        "clockInTime": "2025-03-15T08:30:00",
+        "clockOutTime": "2025-03-15T16:45:00",
+        "status": 0
+    },
+    {
+        "attendanceId": "ATT004",
+        "employeeId": "P002",
+        "date": "2025-03-16T00:00:00",
+        "clockInTime": "2025-03-16T08:45:00",
+        "clockOutTime": "2025-03-16T17:30:00",
+        "status": 0
+    },
+    {
+        "attendanceId": "ATT005",
+        "employeeId": "P003",
+        "date": "2025-03-15T00:00:00",
+        "clockInTime": "2025-03-15T09:15:00",
+        "clockOutTime": "2025-03-15T18:30:00",
+        "status": 1
+    },
+    {
+        "attendanceId": "ATT006",
+        "employeeId": "P003",
+        "date": "2025-03-16T00:00:00",
+        "clockInTime": "2025-03-16T10:00:00",
+        "clockOutTime": "2025-03-16T19:00:00",
+        "status": 2
+    },
+    {
+        "attendanceId": "ATT007",
+        "employeeId": "P004",
+        "date": "2025-03-15T00:00:00",
+        "clockInTime": "2025-03-15T08:50:00",
+        "clockOutTime": "2025-03-15T17:15:00",
+        "status": 0
+    },
+    {
+        "attendanceId": "ATT008",
+        "employeeId": "P004",
+        "date": "2025-03-16T00:00:00",
+        "clockInTime": "2025-03-16T00:00:00",
+        "clockOutTime": "2025-03-16T00:00:00",
+        "status": 3
+    },
+    {
+        "attendanceId": "ATT009",
+        "employeeId": "P005",
+        "date": "2025-03-17T00:00:00",
+        "clockInTime": "2025-03-17T08:45:00",
+        "clockOutTime": "2025-03-17T17:30:00",
+        "status": 0
+    },
+    {
+        "attendanceId": "ATT010",
+        "employeeId": "P005",
+        "date": "2025-03-18T00:00:00",
+        "clockInTime": "2025-03-18T09:10:00",
+        "clockOutTime": "2025-03-18T18:15:00",
+        "status": 1
+    }
+]
