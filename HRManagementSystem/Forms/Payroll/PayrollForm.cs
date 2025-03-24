@@ -39,10 +39,10 @@ namespace HRManagementSystem
         {
             try
             {
-                
+
                 List<Payroll> allPayrolls = _payrollService.GetAllPayrolls();
 
-               
+
                 var distinctEmployees = allPayrolls
                     .GroupBy(p => p.EmployeeId)
                     .Select(g => new
@@ -52,10 +52,10 @@ namespace HRManagementSystem
                     })
                     .ToList();
 
-                
+
                 distinctEmployees.Insert(0, new { Id = "", Name = "-- Choose Employee --" });
 
-               
+
                 cboEmployee.DisplayMember = "Name";
                 cboEmployee.ValueMember = "Id";
                 cboEmployee.DataSource = distinctEmployees;
@@ -69,17 +69,17 @@ namespace HRManagementSystem
 
         private void SetupForm()
         {
-           
+
             this.Text = _isEditMode ? "Update Payslip" : "Add Payslip";
 
-           
+
             LoadEmployeeList();
 
-           
+
             dtpPayPeriodStart.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             dtpPayPeriodEnd.Value = dtpPayPeriodStart.Value.AddMonths(1).AddDays(-1);
 
-           
+
             txtBaseSalary.TextChanged += SalaryField_TextChanged;
             txtAllowances.TextChanged += SalaryField_TextChanged;
             txtDeductions.TextChanged += SalaryField_TextChanged;
@@ -88,7 +88,7 @@ namespace HRManagementSystem
 
         private void LoadPayrollData()
         {
-           
+
             for (int i = 0; i < cboEmployee.Items.Count; i++)
             {
                 dynamic item = cboEmployee.Items[i];
@@ -136,7 +136,7 @@ namespace HRManagementSystem
             if (string.IsNullOrWhiteSpace(value))
                 return 0;
 
-            
+
             string numericValue = new string(value.Where(c => char.IsDigit(c) || c == '.').ToArray());
 
             if (decimal.TryParse(numericValue, out decimal result))
@@ -151,10 +151,10 @@ namespace HRManagementSystem
             {
                 try
                 {
-                   
+
                     dynamic selectedEmployee = cboEmployee.SelectedItem;
 
-                    
+
                     _payroll.EmployeeId = selectedEmployee.Id;
                     _payroll.EmployeeName = selectedEmployee.Name;
                     _payroll.PayPeriodStart = dtpPayPeriodStart.Value;
@@ -188,8 +188,8 @@ namespace HRManagementSystem
 
         private bool ValidateInput()
         {
-            
-            if (cboEmployee.SelectedIndex <= 0) 
+
+            if (cboEmployee.SelectedIndex <= 0)
             {
                 MessageBox.Show("Vui lòng chọn nhân viên", "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -197,7 +197,7 @@ namespace HRManagementSystem
                 return false;
             }
 
-            
+
             if (dtpPayPeriodEnd.Value < dtpPayPeriodStart.Value)
             {
                 MessageBox.Show("Ngày kết thúc kỳ lương phải sau ngày bắt đầu", "Lỗi",
@@ -206,7 +206,7 @@ namespace HRManagementSystem
                 return false;
             }
 
-           
+
             if (string.IsNullOrWhiteSpace(txtBaseSalary.Text) || ParseCurrency(txtBaseSalary.Text) <= 0)
             {
                 MessageBox.Show("Vui lòng nhập lương cơ bản hợp lệ", "Lỗi",
@@ -227,7 +227,7 @@ namespace HRManagementSystem
 
         private void dtpPayPeriodStart_ValueChanged(object sender, EventArgs e)
         {
-           
+
             dtpPayPeriodEnd.Value = new DateTime(
                 dtpPayPeriodStart.Value.Year,
                 dtpPayPeriodStart.Value.Month,
