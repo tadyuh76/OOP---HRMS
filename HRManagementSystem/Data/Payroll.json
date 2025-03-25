@@ -48,30 +48,6 @@
     "isPaid": true
   },
   {
-    "payrollId": "PR-2025-005",
-    "employeeId": "p001",
-    "employeeName": "James Wilson",
-    "payPeriodStart": "2025-03-01T00:00:00",
-    "payPeriodEnd": "2025-03-31T23:59:59",
-    "baseSalary": 4500.00,
-    "allowances": 750.00,
-    "deductions": 850.00,
-    "netSalary": 4400.00,
-    "isPaid": false
-  },
-  {
-    "payrollId": "PR-2025-006",
-    "employeeId": "o002",
-    "employeeName": "Jessica Lee",
-    "payPeriodStart": "2025-03-01T00:00:00",
-    "payPeriodEnd": "2025-03-31T23:59:59",
-    "baseSalary": 3800.00,
-    "allowances": 500.00,
-    "deductions": 750.00,
-    "netSalary": 3550.00,
-    "isPaid": false
-  },
-  {
     "payrollId": "PR-2025-007",
     "employeeId": "p005",
     "employeeName": "David Martinez",
@@ -93,6 +69,30 @@
     "allowances": 120,
     "deductions": 50,
     "netSalary": 5070,
+    "isPaid": true
+  },
+  {
+    "payrollId": "PR-2025-006",
+    "employeeId": "o002",
+    "employeeName": "Emily Johnson",
+    "payPeriodStart": "2025-03-01T00:00:00",
+    "payPeriodEnd": "2025-03-31T23:59:59",
+    "baseSalary": 3800,
+    "allowances": 1500,
+    "deductions": 750,
+    "netSalary": 4550,
+    "isPaid": true
+  },
+  {
+    "payrollId": "PR-2025-005",
+    "employeeId": "p001",
+    "employeeName": "John Smith",
+    "payPeriodStart": "2025-03-01T00:00:00",
+    "payPeriodEnd": "2025-03-31T23:59:59",
+    "baseSalary": 4500,
+    "allowances": 700,
+    "deductions": 850,
+    "netSalary": 4350,
     "isPaid": true
   }
 ]

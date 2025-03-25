@@ -131,6 +131,7 @@ namespace HRManagementSystem
                 if (this.payrolls[i].PayrollId == payroll.PayrollId)
                 {
                     this.payrolls[i] = payroll;
+                    this.payrolls.RemoveAt(i);
                     // Thêm dữ liệu mới vào danh sách
                     payrolls.Add(payroll);
 
