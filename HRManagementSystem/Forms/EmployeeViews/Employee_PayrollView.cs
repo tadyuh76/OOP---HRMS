@@ -16,7 +16,7 @@ namespace HRManagementSystem
         private readonly PayrollService _payrollService;
         private string _selectedEmployeeName;
         private List<HRManagementSystem.Payroll> _currentPayrolls;
-        private readonly string payrollDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Payroll.json");
+        private readonly string payrollDataPath = @"C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\Data\Payroll.json";
         public Employee_PayrollView()
         {
             InitializeComponent();

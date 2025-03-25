@@ -121,7 +121,7 @@ namespace HRManagementSystem
         {
             try
             {
-                string payrollDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Payroll.json");
+                string payrollDataPath = @"C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\Data\Payroll.json"; 
 
                 if (File.Exists(payrollDataPath))
                 {
