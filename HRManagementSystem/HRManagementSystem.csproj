@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="iTextSharp" Version="5.5.13.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Data\Payroll.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

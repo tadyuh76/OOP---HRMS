@@ -7,6 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using iTextSharp.text.pdf;
+using iTextSharp.text;
+using System.Text.Json;
 
 namespace HRManagementSystem
 {
@@ -118,17 +121,25 @@ namespace HRManagementSystem
         {
             try
             {
-            
-                _payrolls = _payrollService.GetAllPayrolls();
-                foreach(var payroll in _payrolls)
+                string payrollDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Payroll.json");
+
+                if (File.Exists(payrollDataPath))
                 {
-              
+                    string jsonData = File.ReadAllText(payrollDataPath);
+                    _payrolls = JsonSerializer.Deserialize<List<Payroll>>(jsonData) ?? new List<Payroll>();
+                }
+                else
+                {
+                    _payrolls = new List<Payroll>();
+                }
+
+                foreach (var payroll in _payrolls)
+                {
                     if (payroll.Allowances == null) payroll.Allowances = 0;
                     if (payroll.Deductions == null) payroll.Deductions = 0;
                 }
-                dgvPayrolls.DataSource = _payrolls;
 
-           
+                dgvPayrolls.DataSource = _payrolls;
                 UpdateSummary();
             }
             catch (Exception ex)
@@ -137,6 +148,7 @@ namespace HRManagementSystem
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
         private void UpdateSummary()
         {
             if (_payrolls != null && _payrolls.Count > 0)
@@ -167,15 +179,47 @@ namespace HRManagementSystem
 
             SaveFileDialog saveDialog = new SaveFileDialog
             {
-                Filter = "Excel Files (*.xlsx)|*.xlsx|CSV Files (*.csv)|*.csv",
-                Title = "Xuất báo cáo"
+                Filter = "PDF Files (*.pdf)|*.pdf",
+                Title = "Xuất báo cáo thành PDF"
             };
 
             if (saveDialog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                 
+                    string filePath = saveDialog.FileName;
+
+
+                    Document pdfDoc = new Document(PageSize.A4, 10f, 10f, 20f, 20f);
+                    PdfWriter.GetInstance(pdfDoc, new FileStream(filePath, FileMode.Create));
+                    pdfDoc.Open();
+
+
+                    iTextSharp.text.Font titleFont = FontFactory.GetFont("Arial", 16, iTextSharp.text.Font.BOLD);
+                    Paragraph title = new Paragraph("PAYROLL REPORT\n\n", titleFont)
+                    {
+                        Alignment = Element.ALIGN_CENTER
+                    };
+                    pdfDoc.Add(title);
+
+                    PdfPTable table = new PdfPTable(5) { WidthPercentage = 100 };
+                    table.AddCell("PayrollId");
+                    table.AddCell("EmployeeName");
+                    table.AddCell("BaseSalary");
+                    table.AddCell("Allowances");
+                    table.AddCell("NetSalary");
+
+                    foreach (var payroll in _payrolls)
+                    {
+                        table.AddCell(payroll.PayrollId);
+                        table.AddCell(payroll.EmployeeName);
+                        table.AddCell(payroll.BaseSalary.ToString());
+                        table.AddCell(payroll.Allowances.ToString());
+                        table.AddCell(payroll.NetSalary.ToString());
+                    }
+
+                    pdfDoc.Add(table);
+                    pdfDoc.Close();
 
                     MessageBox.Show("Xuất báo cáo thành công!", "Thông báo",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -187,6 +231,7 @@ namespace HRManagementSystem
                 }
             }
         }
+
 
         private void dgvPayrolls_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {

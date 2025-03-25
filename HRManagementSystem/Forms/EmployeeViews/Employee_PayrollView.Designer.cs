@@ -198,7 +198,6 @@ namespace HRManagementSystem
             Name = "Employee_PayrollView";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "My Payslip";
-            Load += PayrollManagement_Load;
             panelTop.ResumeLayout(false);
             panelTop.PerformLayout();
             panelButtons.ResumeLayout(false);

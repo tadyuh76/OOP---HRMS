@@ -145,7 +145,8 @@
             // 
             // dtpToDate
             // 
-            dtpToDate.Format = DateTimePickerFormat.Short;
+            dtpToDate.CustomFormat = "dd/MM/yyyy";
+            dtpToDate.Format = DateTimePickerFormat.Custom;
             dtpToDate.Location = new Point(120, 81);
             dtpToDate.Margin = new Padding(3, 4, 3, 4);
             dtpToDate.Name = "dtpToDate";
@@ -163,7 +164,8 @@
             // 
             // dtpFromDate
             // 
-            dtpFromDate.Format = DateTimePickerFormat.Short;
+            dtpFromDate.CustomFormat = "dd/MM/yyyy";
+            dtpFromDate.Format = DateTimePickerFormat.Custom;
             dtpFromDate.Location = new Point(120, 36);
             dtpFromDate.Margin = new Padding(3, 4, 3, 4);
             dtpFromDate.Name = "dtpFromDate";

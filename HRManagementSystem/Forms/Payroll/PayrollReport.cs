@@ -26,7 +26,7 @@ namespace HRManagementSystem
         {
             try
             {
-                
+
                 dtpFromDate.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
                 dtpToDate.Value = DateTime.Now;
 
@@ -36,10 +36,10 @@ namespace HRManagementSystem
                 cboPaymentStatus.Items.Add("UnPaid");
                 cboPaymentStatus.SelectedIndex = 0;
 
-               
+
                 ConfigureDataGridView();
 
-                
+
                 LoadEmployees();
             }
             catch (Exception ex)
@@ -53,13 +53,13 @@ namespace HRManagementSystem
         {
             try
             {
-               
+
                 dgvPayroll.Columns.Clear();
 
-                
+
                 dgvPayroll.AutoGenerateColumns = false;
 
-               
+
                 dgvPayroll.Columns.Add(new DataGridViewTextBoxColumn
                 {
                     Name = "EmployeeId",
@@ -138,7 +138,7 @@ namespace HRManagementSystem
                     Width = 100
                 });
 
-                
+
                 dgvPayroll.AllowUserToAddRows = false;
                 dgvPayroll.AllowUserToDeleteRows = false;
                 dgvPayroll.ReadOnly = true;
@@ -156,10 +156,10 @@ namespace HRManagementSystem
         {
             try
             {
-                
-                var payrolls = _payrollService.GetAllPayrolls();
 
-                
+                var payrolls = _payrollService.GetAll();
+
+
                 var allEmployees = new List<object>
                 {
                     new { Id = "", Name = "All Employee" }
@@ -167,7 +167,7 @@ namespace HRManagementSystem
 
                 if (payrolls != null && payrolls.Any())
                 {
-                   
+
                     var employees = payrolls
                         .GroupBy(p => p.EmployeeId)
                         .Select(g => new
@@ -178,11 +178,11 @@ namespace HRManagementSystem
                         .OrderBy(e => e.Name)
                         .ToList();
 
-                    
+
                     allEmployees.AddRange(employees);
                 }
 
-               
+
                 cboEmployee.DisplayMember = "Name";
                 cboEmployee.ValueMember = "Id";
                 cboEmployee.DataSource = allEmployees;
@@ -192,7 +192,7 @@ namespace HRManagementSystem
                 MessageBox.Show($"Lỗi khi tải danh sách nhân viên: {ex.Message}", "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-               
+
                 var defaultList = new List<object>
                 {
                     new { Id = "", Name = "All Employee" }
@@ -213,47 +213,47 @@ namespace HRManagementSystem
         {
             try
             {
-                
+
                 DateTime fromDate = dtpFromDate.Value.Date;
-                DateTime toDate = dtpToDate.Value.Date.AddDays(1).AddSeconds(-1); 
+                DateTime toDate = dtpToDate.Value.Date.AddDays(1).AddSeconds(-1);
                 string employeeId = cboEmployee.SelectedValue?.ToString() ?? "";
                 bool? isPaid = null;
 
-                if (cboPaymentStatus.SelectedIndex == 1) 
+                if (cboPaymentStatus.SelectedIndex == 1)
                     isPaid = true;
-                else if (cboPaymentStatus.SelectedIndex == 2) 
+                else if (cboPaymentStatus.SelectedIndex == 2)
                     isPaid = false;
 
-               
-                var allPayrolls = _payrollService.GetAllPayrolls();
+
+                var allPayrolls = _payrollService.GetAll();
 
                 if (allPayrolls == null || !allPayrolls.Any())
                 {
                     MessageBox.Show("Không có dữ liệu phiếu lương nào trong hệ thống.", "Thông báo",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                   
+
                     dgvPayroll.DataSource = null;
 
-                    
+
                     CalculateSummary(new List<Payroll>());
 
                     return;
                 }
 
-               
+
                 var payrolls = allPayrolls
                     .Where(p => p.PayPeriodStart.Date >= fromDate && p.PayPeriodEnd.Date <= toDate)
                     .Where(p => string.IsNullOrEmpty(employeeId) || p.EmployeeId == employeeId)
                     .Where(p => isPaid == null || p.IsPaid == isPaid)
                     .ToList();
 
-               
+
                 BindingSource bindingSource = new BindingSource();
                 bindingSource.DataSource = payrolls;
                 dgvPayroll.DataSource = bindingSource;
 
-               
+
                 CalculateSummary(payrolls);
             }
             catch (Exception ex)
@@ -277,14 +277,14 @@ namespace HRManagementSystem
                     return;
                 }
 
-               
+
                 int totalCount = payrolls.Count();
                 decimal totalBaseSalary = payrolls.Sum(p => p.BaseSalary);
                 decimal totalAllowances = payrolls.Sum(p => p.Allowances);
                 decimal totalDeductions = payrolls.Sum(p => p.Deductions);
                 decimal totalNetSalary = payrolls.Sum(p => p.NetSalary);
 
-               
+
                 lblTotalCount.Text = totalCount.ToString();
                 lblTotalBaseSalary.Text = totalBaseSalary.ToString("N0");
                 lblTotalAllowances.Text = totalAllowances.ToString("N0");
@@ -293,11 +293,11 @@ namespace HRManagementSystem
             }
             catch (Exception ex)
             {
-                
+
                 MessageBox.Show($"Lỗi khi tính tổng: {ex.Message}", "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-               
+
                 lblTotalCount.Text = "0";
                 lblTotalBaseSalary.Text = "0";
                 lblTotalAllowances.Text = "0";
@@ -308,7 +308,7 @@ namespace HRManagementSystem
 
         private void dgvPayroll_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            
+
             if (e.Value == null) return;
 
             if (dgvPayroll.Columns[e.ColumnIndex].Name == "IsPaid" && dgvPayroll.Columns[e.ColumnIndex] is DataGridViewTextBoxColumn)
@@ -323,7 +323,7 @@ namespace HRManagementSystem
 
         private void PayrollReport_Load(object sender, EventArgs e)
         {
-          
+
             LoadPayrollData();
         }
     }

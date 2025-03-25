@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -248,7 +248,7 @@ namespace HRManagementSystem
             if (dgvPayrolls.SelectedRows.Count > 0)
             {
                 string payrollId = dgvPayrolls.SelectedRows[0].Cells["PayrollId"].Value.ToString();
-                HRManagementSystem.Payroll selectedPayroll = _payrollService.GetPayrollById(payrollId);
+                HRManagementSystem.Payroll selectedPayroll = _payrollService.GetById(payrollId);
 
                 if (selectedPayroll != null)
                 {
@@ -282,7 +282,7 @@ namespace HRManagementSystem
                 {
                     try
                     {
-                        _payrollService.DeletePayroll(payrollId);
+                        _payrollService.Delete(payrollId);
                         LoadPayrollData();
                     }
                     catch (Exception ex)
@@ -304,7 +304,7 @@ namespace HRManagementSystem
             if (dgvPayrolls.SelectedRows.Count > 0)
             {
                 string payrollId = dgvPayrolls.SelectedRows[0].Cells["PayrollId"].Value.ToString();
-                HRManagementSystem.Payroll selectedPayroll = _payrollService.GetPayrollById(payrollId);
+                HRManagementSystem.Payroll selectedPayroll = _payrollService.GetById(payrollId);
 
                 if (selectedPayroll != null)
                 {
@@ -337,19 +337,10 @@ namespace HRManagementSystem
         private void PayrollManagement_Load(object sender, EventArgs e)
         {
             
-            if (_payrollService.GetAllPayrolls().Count == 0)
-            {
-                _payrollService.CreateSampleData();
+            
                
                 LoadPayrollData();
-            }
-            else
-            {
-               
-                LoadPayrollData();
-            }
+            
         }
     }
 }
-
-

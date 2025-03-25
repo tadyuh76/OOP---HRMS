@@ -103,7 +103,8 @@
             // 
             // dtpPayPeriodEnd
             // 
-            dtpPayPeriodEnd.Format = DateTimePickerFormat.Short;
+            dtpPayPeriodEnd.CustomFormat = "dd/MM/yyyy";
+            dtpPayPeriodEnd.Format = DateTimePickerFormat.Custom;
             dtpPayPeriodEnd.Location = new Point(155, 74);
             dtpPayPeriodEnd.Margin = new Padding(3, 4, 3, 4);
             dtpPayPeriodEnd.Name = "dtpPayPeriodEnd";
@@ -121,7 +122,8 @@
             // 
             // dtpPayPeriodStart
             // 
-            dtpPayPeriodStart.Format = DateTimePickerFormat.Short;
+            dtpPayPeriodStart.CustomFormat = "dd/MM/yyyy";
+            dtpPayPeriodStart.Format = DateTimePickerFormat.Custom;
             dtpPayPeriodStart.Location = new Point(155, 34);
             dtpPayPeriodStart.Margin = new Padding(3, 4, 3, 4);
             dtpPayPeriodStart.Name = "dtpPayPeriodStart";

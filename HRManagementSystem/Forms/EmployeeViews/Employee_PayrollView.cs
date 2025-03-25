@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -15,11 +16,11 @@ namespace HRManagementSystem
         private readonly PayrollService _payrollService;
         private string _selectedEmployeeName;
         private List<HRManagementSystem.Payroll> _currentPayrolls;
-
+        private readonly string payrollDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Payroll.json");
         public Employee_PayrollView()
         {
             InitializeComponent();
-            
+
             _payrollService = new PayrollService();
             _selectedEmployeeName = string.Empty;
             _currentPayrolls = new List<HRManagementSystem.Payroll>();
@@ -27,7 +28,7 @@ namespace HRManagementSystem
             SetupDataGridView();
             LoadEmployeeNames();
 
-            
+
             btnSearch.Click += BtnSearch_Click;
         }
 
@@ -41,7 +42,7 @@ namespace HRManagementSystem
             SetupDataGridView();
             LoadEmployeeNames();
 
-            
+
             btnSearch.Click += BtnSearch_Click;
         }
 
@@ -49,17 +50,18 @@ namespace HRManagementSystem
         {
             try
             {
-                
-                var allPayrolls = _payrollService.GetAllPayrolls();
+                string jsonData = File.ReadAllText(payrollDataPath);
+                List<Payroll> Payrolls = JsonSerializer.Deserialize<List<Payroll>>(jsonData);
+                var allPayrolls = Payrolls;
 
-               
+
                 var employeeNames = allPayrolls
                     .Select(p => p.EmployeeName)
                     .Where(name => !string.IsNullOrEmpty(name))
                     .Distinct()
                     .ToList();
 
-               
+
                 cboEmployee.Items.Clear();
                 cboEmployee.Items.Add("-- Choose Employee --");
 
@@ -189,10 +191,10 @@ namespace HRManagementSystem
         {
             try
             {
-               
+
                 if (string.IsNullOrWhiteSpace(_selectedEmployeeName) || _selectedEmployeeName == "-- Choose Employee --")
                 {
-                    
+
                     dgvPayrolls.DataSource = null;
                     lblTotalPayroll.Text = "Total: 0 $";
                     lblAverageSalary.Text = "Average: 0 $";
@@ -202,10 +204,10 @@ namespace HRManagementSystem
                     return;
                 }
 
-                
+
                 _currentPayrolls = _payrollService.GetPayrollsByEmployee(_selectedEmployeeName);
 
-                
+
                 if (_currentPayrolls.Count == 0)
                 {
                     MessageBox.Show($"Không tìm thấy phiếu lương cho nhân viên: {_selectedEmployeeName}", "Thông báo",
@@ -217,7 +219,7 @@ namespace HRManagementSystem
                     return;
                 }
 
-                
+
                 var payrollViewModels = _currentPayrolls.Select(payroll => new
                 {
                     PayrollId = payroll.PayrollId,
@@ -232,7 +234,7 @@ namespace HRManagementSystem
                     IsPaid = payroll.IsPaid
                 }).ToList();
 
-                
+
                 dgvPayrolls.DataSource = null;
                 dgvPayrolls.DataSource = payrollViewModels;
                 UpdateStatistics();
@@ -265,10 +267,10 @@ namespace HRManagementSystem
             }
         }
 
-       
+
         private void CboEmployee_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cboEmployee.SelectedIndex > 0) 
+            if (cboEmployee.SelectedIndex > 0)
             {
                 _selectedEmployeeName = cboEmployee.SelectedItem.ToString();
                 Console.WriteLine($"Đã chọn nhân viên: {_selectedEmployeeName}");
@@ -279,7 +281,7 @@ namespace HRManagementSystem
             }
         }
 
-       
+
         private void BtnSearch_Click(object sender, EventArgs e)
         {
             Console.WriteLine("Đã nhấn nút Xem");
@@ -287,14 +289,14 @@ namespace HRManagementSystem
             LoadPayrollData();
         }
 
-       
+
         private void btnNewPayroll_Click(object sender, EventArgs e)
         {
-           
+
             PayrollForm payrollForm = new PayrollForm(_payrollService);
             if (payrollForm.ShowDialog() == DialogResult.OK)
             {
-                LoadEmployeeNames(); 
+                LoadEmployeeNames();
                 LoadPayrollData();
             }
         }
@@ -304,7 +306,7 @@ namespace HRManagementSystem
             if (dgvPayrolls.SelectedRows.Count > 0)
             {
                 string payrollId = dgvPayrolls.SelectedRows[0].Cells["PayrollId"].Value.ToString();
-                HRManagementSystem.Payroll selectedPayroll = _payrollService.GetPayrollById(payrollId);
+                HRManagementSystem.Payroll selectedPayroll = _payrollService.GetById(payrollId);
 
                 if (selectedPayroll != null)
                 {
@@ -338,7 +340,7 @@ namespace HRManagementSystem
                 {
                     try
                     {
-                        _payrollService.DeletePayroll(payrollId);
+                        _payrollService.Delete(payrollId);
                         LoadPayrollData();
                     }
                     catch (Exception ex)
@@ -360,11 +362,11 @@ namespace HRManagementSystem
             if (dgvPayrolls.SelectedRows.Count > 0)
             {
                 string payrollId = dgvPayrolls.SelectedRows[0].Cells["PayrollId"].Value.ToString();
-                HRManagementSystem.Payroll selectedPayroll = _payrollService.GetPayrollById(payrollId);
+                HRManagementSystem.Payroll selectedPayroll = _payrollService.GetById(payrollId);
 
                 if (selectedPayroll != null)
                 {
-                   
+
                     MessageBox.Show("Chức năng in phiếu lương đang được phát triển", "Thông báo",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -378,20 +380,18 @@ namespace HRManagementSystem
 
         private void btnReport_Click(object sender, EventArgs e)
         {
-           
+
             PayrollReport reportForm = new PayrollReport(_payrollService);
             reportForm.ShowDialog();
         }
 
         private void PayrollManagement_Load(object sender, EventArgs e)
         {
-            
-            if (_payrollService.GetAllPayrolls().Count == 0)
-            {
-                _payrollService.CreateSampleData();
-                
+
+          
+
                 LoadEmployeeNames();
-            }
+            
         }
     }
 }

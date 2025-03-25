@@ -40,7 +40,7 @@ namespace HRManagementSystem
             try
             {
 
-                List<Payroll> allPayrolls = _payrollService.GetAllPayrolls();
+                List<Payroll> allPayrolls = _payrollService.GetAll();
 
 
                 var distinctEmployees = allPayrolls
@@ -167,11 +167,11 @@ namespace HRManagementSystem
 
                     if (_isEditMode)
                     {
-                        _payrollService.UpdatePayroll(_payroll);
+                        _payrollService.Update(_payroll);
                     }
                     else
                     {
-                        _payrollService.AddPayroll(_payroll);
+                        _payrollService.Add(_payroll);
                     }
 
                     DialogResult = DialogResult.OK;

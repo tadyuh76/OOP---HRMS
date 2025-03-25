@@ -1,73 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text.Json;
-
+using HRManagementSystem; 
 namespace HRManagementSystem
 {
-    public interface IPayrollService
-    {
-        List<Payroll> GetAllPayrolls();
-        List<Payroll> GetPayrollsByMonth(DateTime month);
-        Payroll GetPayrollById(string id);
-        List<Payroll> GetPayrollsByEmployee(string employeeName);
-        void AddPayroll(Payroll payroll);
-        void UpdatePayroll(Payroll payroll);
-        void DeletePayroll(string id);
-        decimal CalculateNetSalary(decimal baseSalary, decimal allowances, decimal deductions);
-        decimal CalculateTotalPayroll(List<Payroll> payrolls);
-        decimal CalculateAverageSalary(List<Payroll> payrolls);
-        void GetSalaryRange(List<Payroll> payrolls, out decimal minSalary, out decimal maxSalary);
-        void CreateSampleData();
-    
-    }
-    public class PayrollService : IPayrollService
+
+    public class PayrollService : IService<Payroll>
     {
         private List<Payroll> payrolls;
-        private readonly JsonFileStorage _fileStorage;
-        private readonly string _dataDirectory = "Data";
-        private readonly string PAYROLL_FILE_PATH;
-
+        private readonly string payrollDataPath = @"C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\Data\Payroll.json"; 
         public PayrollService()
         {
-            this._fileStorage = new JsonFileStorage();
-
-            // Lấy đường dẫn thư mục thực thi
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-
-            // Tạo đường dẫn đến thư mục Data
-            _dataDirectory = Path.Combine(baseDirectory, "Data");
-
-            // Đảm bảo thư mục tồn tại
-            if (!Directory.Exists(_dataDirectory))
+            if (File.Exists(payrollDataPath))
             {
-                Directory.CreateDirectory(_dataDirectory);
+                string jsonData = File.ReadAllText(payrollDataPath);
+                this.payrolls = JsonSerializer.Deserialize<List<Payroll>>(jsonData);
+            }
+            else
+            {
+                this.payrolls = new List<Payroll>();
             }
 
-            // Tạo đường dẫn đầy đủ đến file
-            PAYROLL_FILE_PATH = Path.Combine(_dataDirectory, "Payroll.json");
-            this.payrolls = this.LoadPayrolls();
         }
 
-        private List<Payroll> LoadPayrolls()
-        {
-            try
-            {
-                return this._fileStorage.LoadData<List<Payroll>>(PAYROLL_FILE_PATH) ?? new List<Payroll>();
-            }
-            catch
-            {
-                return new List<Payroll>();
-            }
-        }
-
-        private void SavePayrolls()
-        {
-            string jsonData = System.Text.Json.JsonSerializer.Serialize(this.payrolls);
-            this._fileStorage.SaveData(jsonData, PAYROLL_FILE_PATH);
-        }
-
-        public List<Payroll> GetAllPayrolls()
+        public List<Payroll> GetAll()
         {
             return new List<Payroll>(this.payrolls);
         }
@@ -75,8 +31,9 @@ namespace HRManagementSystem
         public List<Payroll> GetPayrollsByMonth(DateTime month)
         {
             List<Payroll> result = new List<Payroll>();
-            foreach (Payroll payroll in this.payrolls)
+            for (int i = 0; i < this.payrolls.Count; i++)
             {
+                Payroll payroll = this.payrolls[i];
                 if (payroll.PayPeriodStart.Year == month.Year &&
                     payroll.PayPeriodStart.Month == month.Month)
                 {
@@ -86,10 +43,11 @@ namespace HRManagementSystem
             return result;
         }
 
-        public Payroll GetPayrollById(string id)
+        public Payroll GetById(string id)
         {
-            foreach (Payroll payroll in this.payrolls)
+            for (int i = 0; i < this.payrolls.Count; i++)
             {
+                Payroll payroll = this.payrolls[i];
                 if (payroll.PayrollId == id)
                 {
                     return payroll;
@@ -101,8 +59,9 @@ namespace HRManagementSystem
         public List<Payroll> GetPayrollsByEmployee(string employeeName)
         {
             List<Payroll> result = new List<Payroll>();
-            foreach (Payroll payroll in this.payrolls)
+            for (int i = 0; i < this.payrolls.Count; i++)
             {
+                Payroll payroll = this.payrolls[i];
                 if (payroll.EmployeeName == employeeName)
                 {
                     result.Add(payroll);
@@ -111,26 +70,56 @@ namespace HRManagementSystem
             return result;
         }
 
-        public void AddPayroll(Payroll payroll)
+        public bool Add(Payroll payroll)
         {
             if (payroll == null)
             {
                 throw new ArgumentNullException("payroll");
             }
 
-            foreach (Payroll p in this.payrolls)
+            if (string.IsNullOrEmpty(payroll.PayrollId))
             {
-                if (p.PayrollId == payroll.PayrollId)
+                int maxId = 0;
+                for (int i = 0; i < this.payrolls.Count; i++)
+                {
+                    Payroll existingPayroll = this.payrolls[i];
+                    if (!string.IsNullOrEmpty(existingPayroll.PayrollId))
+                    {
+                        string[] parts = existingPayroll.PayrollId.Split('-');
+                        if (parts.Length == 3)
+                        {
+                            int currentId;
+                            if (int.TryParse(parts[2], out currentId) && currentId > maxId)
+                            {
+                                maxId = currentId;
+                            }
+                        }
+                    }
+                }
+                payroll.PayrollId = "PR-" + DateTime.Now.Year + "-" + (maxId + 1).ToString("D3");
+               
+            }
+
+            for (int i = 0; i < this.payrolls.Count; i++)
+            {
+                Payroll existingPayroll = this.payrolls[i];
+                if (existingPayroll.PayrollId == payroll.PayrollId)
                 {
                     throw new InvalidOperationException("Payroll ID already exists");
+                    return false;
                 }
             }
 
-            this.payrolls.Add(payroll);
-            this.SavePayrolls();
+            this.payrolls.Add(payroll); 
+
+            // Ghi danh sách cập nhật trở lại tệp
+            string jsonData = JsonSerializer.Serialize(payrolls, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(payrollDataPath, jsonData);
+            return true;
+
         }
 
-        public void UpdatePayroll(Payroll payroll)
+        public bool Update(Payroll payroll)
         {
             if (payroll == null)
             {
@@ -142,25 +131,36 @@ namespace HRManagementSystem
                 if (this.payrolls[i].PayrollId == payroll.PayrollId)
                 {
                     this.payrolls[i] = payroll;
-                    this.SavePayrolls();
-                    return;
+                    // Thêm dữ liệu mới vào danh sách
+                    payrolls.Add(payroll);
+
+                    // Ghi danh sách cập nhật trở lại tệp
+                    string jsonData = JsonSerializer.Serialize(payrolls, new JsonSerializerOptions { WriteIndented = true });
+                    File.WriteAllText(payrollDataPath, jsonData);
+                    return true;
                 }
             }
             throw new InvalidOperationException("Payroll not found");
+            return false;
+
         }
 
-        public void DeletePayroll(string id)
+        public bool Delete(string id)
         {
             for (int i = 0; i < this.payrolls.Count; i++)
             {
                 if (this.payrolls[i].PayrollId == id)
                 {
                     this.payrolls.RemoveAt(i);
-                    this.SavePayrolls();
-                    return;
+                    
+                    // Ghi danh sách cập nhật trở lại tệp
+                    string jsonData = JsonSerializer.Serialize(payrolls, new JsonSerializerOptions { WriteIndented = true });
+                    File.WriteAllText(payrollDataPath, jsonData);
+                    return true;
                 }
             }
             throw new InvalidOperationException("Payroll not found");
+            return false;
         }
 
         public decimal CalculateNetSalary(decimal baseSalary, decimal allowances, decimal deductions)
@@ -171,9 +171,9 @@ namespace HRManagementSystem
         public decimal CalculateTotalPayroll(List<Payroll> payrolls)
         {
             decimal total = 0;
-            foreach (Payroll payroll in payrolls)
+            for (int i = 0; i < payrolls.Count; i++)
             {
-                total += payroll.NetSalary;
+                total += payrolls[i].NetSalary;
             }
             return total;
         }
@@ -199,8 +199,9 @@ namespace HRManagementSystem
                 return;
             }
 
-            foreach (Payroll payroll in payrolls)
+            for (int i = 0; i < payrolls.Count; i++)
             {
+                Payroll payroll = payrolls[i];
                 if (payroll.NetSalary < minSalary)
                 {
                     minSalary = payroll.NetSalary;
@@ -210,121 +211,6 @@ namespace HRManagementSystem
                     maxSalary = payroll.NetSalary;
                 }
             }
-        }
-
-        public void CreateSampleData()
-        {
-            PayrollService employeeService = new PayrollService();
-
-            List<Payroll> samplePayrolls = new List<Payroll>
-            {
-            new Payroll
-            {
-                PayrollId = "PR-2025-001",
-                EmployeeId = "p001",
-                EmployeeName = "John Smith",
-                PayPeriodStart=  new DateTime(2025, 02, 01),
-                PayPeriodEnd = new DateTime(2025,02,28),
-                BaseSalary = 4500,
-                Allowances = 750,
-                Deductions = 850,
-                NetSalary =  4400,
-                IsPaid = true
-            },
-            new Payroll
-            {
-                PayrollId = "PR-2025-002",
-                EmployeeId = "o002",
-                EmployeeName = "Emily Johnson",
-                PayPeriodStart = new DateTime(2025, 02, 01),
-                PayPeriodEnd = new DateTime(2025,02,28),
-                BaseSalary = 3800,
-                Allowances = 500,
-                Deductions = 750,
-                NetSalary =  3550,
-                IsPaid = true
-            },
-            new Payroll
-            {
-                PayrollId = "PR-2025-003",
-                EmployeeId = "p003",
-                EmployeeName = "Michael Brown",
-                PayPeriodStart = new DateTime(2025, 02, 01),
-                PayPeriodEnd = new DateTime(2025,02,28),
-                BaseSalary = 5200,
-                Allowances = 850,
-                Deductions = 1200,
-                NetSalary = 4850,
-                IsPaid = true
-            },
-            new Payroll
-            {
-                PayrollId = "PR-2025-004",
-                EmployeeId = "o004",
-                EmployeeName = "Sarah Davis",
-                PayPeriodStart = new DateTime(2025, 02, 01),
-                PayPeriodEnd = new DateTime(2025,02,28),
-                BaseSalary = 4000,
-                Allowances = 600,
-                Deductions = 780,
-                NetSalary = 3820,
-                IsPaid = true
-            },
-            new Payroll
-            {
-                PayrollId = "PR-2025-005",
-                EmployeeId = "p001",
-                EmployeeName = "James Wilson",
-                PayPeriodStart = new DateTime(2025,03,01),
-                PayPeriodEnd = new DateTime(2025,03,31),
-                BaseSalary = 4500,
-                Allowances = 750,
-                Deductions = 850,
-                NetSalary = 4400,
-                IsPaid = false
-            },
-            new Payroll
-            {
-                PayrollId = "PR-2025-006",
-                EmployeeId = "o002",
-                EmployeeName = "Jessica Lee",
-                PayPeriodStart = new DateTime(2025,03,01),
-                PayPeriodEnd = new DateTime(2025,03,31),
-                BaseSalary = 3800,
-                Allowances = 500,
-                Deductions = 750,
-                NetSalary =  3550,
-                IsPaid = false
-            },
-            new Payroll
-            {
-                PayrollId = "PR-2025-007",
-                EmployeeId = "p005",
-                EmployeeName = "David Martinez",
-                PayPeriodStart = new DateTime(2025,03,01),
-                PayPeriodEnd = new DateTime(2025,03,31),
-                BaseSalary = 10500000,
-                Allowances = 2000000,
-                Deductions = 1050000,
-                NetSalary = 11450000,
-                IsPaid = false
-            },
-            new Payroll
-            {
-                PayrollId = "PAY008",
-                EmployeeId = "EMP004",
-                EmployeeName = "Vũ Tiến Hoàng",
-                PayPeriodStart = new DateTime(2025,03,01),
-                PayPeriodEnd = new DateTime(2025,03,31),
-                BaseSalary = 4800,
-                Allowances = 900,
-                Deductions = 1050,
-                NetSalary = 4650,
-                IsPaid = false
-            }
-        };
-            this.payrolls = samplePayrolls;
-            SavePayrolls();
         }
     }
 }
