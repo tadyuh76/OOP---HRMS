@@ -221,6 +221,7 @@
             roleMenu.Show(btnRoleSwitcher, new Point(0, btnRoleSwitcher.Height));
         }
 
+            
         private void SwitchRole(UserRole role)
         {
             roleService.SwitchRole(role);
