@@ -48,18 +48,6 @@
     "isPaid": true
   },
   {
-    "payrollId": "PR-2025-007",
-    "employeeId": "p005",
-    "employeeName": "David Martinez",
-    "payPeriodStart": "2025-03-01T00:00:00",
-    "payPeriodEnd": "2025-03-31T23:59:59",
-    "baseSalary": 4800.00,
-    "allowances": 900.00,
-    "deductions": 1050.00,
-    "netSalary": 4650.00,
-    "isPaid": false
-  },
-  {
     "payrollId": "PR-2025-008",
     "employeeId": "p001",
     "employeeName": "John Smith",
@@ -93,6 +81,18 @@
     "allowances": 700,
     "deductions": 850,
     "netSalary": 4350,
+    "isPaid": true
+  },
+  {
+    "payrollId": "PR-2025-007",
+    "employeeId": "p005",
+    "employeeName": "David Martinez",
+    "payPeriodStart": "2025-03-01T00:00:00",
+    "payPeriodEnd": "2025-03-31T23:59:59",
+    "baseSalary": 4800,
+    "allowances": 900,
+    "deductions": 1050,
+    "netSalary": 4650,
     "isPaid": true
   }
 ]

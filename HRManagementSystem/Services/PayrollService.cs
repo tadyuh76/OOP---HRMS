@@ -8,18 +8,14 @@ namespace HRManagementSystem
     public class PayrollService : IService<Payroll>
     {
         private List<Payroll> payrolls;
-        private readonly string payrollDataPath = @"C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\Data\Payroll.json"; 
-        public PayrollService()
+        private readonly string payrollDataPath = @"C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\Data\Payroll.json";
+        private readonly FileManager _fileManager;
+        public PayrollService(FileManager fileManager)
         {
-            if (File.Exists(payrollDataPath))
-            {
-                string jsonData = File.ReadAllText(payrollDataPath);
-                this.payrolls = JsonSerializer.Deserialize<List<Payroll>>(jsonData);
-            }
-            else
-            {
-                this.payrolls = new List<Payroll>();
-            }
+            _fileManager = fileManager ?? throw new ArgumentNullException(nameof(fileManager));
+
+            // Sử dụng FileManager để tải dữ liệu
+            this.payrolls = _fileManager.LoadPayrolls() ?? new List<Payroll>();
 
         }
 
@@ -110,12 +106,9 @@ namespace HRManagementSystem
                 }
             }
 
-            this.payrolls.Add(payroll); 
+            this.payrolls.Add(payroll);
 
-            // Ghi danh sách cập nhật trở lại tệp
-            string jsonData = JsonSerializer.Serialize(payrolls, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(payrollDataPath, jsonData);
-            return true;
+            return _fileManager.SavePayrolls(payrolls);
 
         }
 
@@ -135,10 +128,8 @@ namespace HRManagementSystem
                     // Thêm dữ liệu mới vào danh sách
                     payrolls.Add(payroll);
 
-                    // Ghi danh sách cập nhật trở lại tệp
-                    string jsonData = JsonSerializer.Serialize(payrolls, new JsonSerializerOptions { WriteIndented = true });
-                    File.WriteAllText(payrollDataPath, jsonData);
-                    return true;
+                    // Sử dụng FileManager để lưu dữ liệu
+                    return _fileManager.SavePayrolls(payrolls);
                 }
             }
             throw new InvalidOperationException("Payroll not found");
@@ -153,11 +144,9 @@ namespace HRManagementSystem
                 if (this.payrolls[i].PayrollId == id)
                 {
                     this.payrolls.RemoveAt(i);
-                    
-                    // Ghi danh sách cập nhật trở lại tệp
-                    string jsonData = JsonSerializer.Serialize(payrolls, new JsonSerializerOptions { WriteIndented = true });
-                    File.WriteAllText(payrollDataPath, jsonData);
-                    return true;
+
+                    // Sử dụng FileManager để lưu dữ liệu
+                    return _fileManager.SavePayrolls(payrolls);
                 }
             }
             throw new InvalidOperationException("Payroll not found");
