@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using HRManagementSystem; 
+using HRManagementSystem;
 namespace HRManagementSystem
 {
 
@@ -9,15 +9,31 @@ namespace HRManagementSystem
     {
         private List<Payroll> payrolls;
         private readonly string payrollDataPath = @"C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\Data\Payroll.json";
-        private readonly FileManager _fileManager;
-        public PayrollService(FileManager fileManager)
+        private readonly FileManager fileManager;
+        public PayrollService()
         {
-            _fileManager = fileManager ?? throw new ArgumentNullException(nameof(fileManager));
+            IFileStorage fileStorage = new JsonFileStorage(); 
 
-            // Sử dụng FileManager để tải dữ liệu
-            this.payrolls = _fileManager.LoadPayrolls() ?? new List<Payroll>();
+            this.fileManager = new FileManager(fileStorage);
 
+            try
+            {
+                List<Payroll> loadedData = (List<Payroll>)this.fileManager.LoadPayrolls();
+                if (loadedData != null)
+                {
+                    this.payrolls = loadedData;
+                }
+                else
+                {
+                    this.payrolls = new List<Payroll>();
+                }
+            }
+            catch (Exception)
+            {
+                this.payrolls = new List<Payroll>();
+            }
         }
+
 
         public List<Payroll> GetAll()
         {
@@ -93,7 +109,7 @@ namespace HRManagementSystem
                     }
                 }
                 payroll.PayrollId = "PR-" + DateTime.Now.Year + "-" + (maxId + 1).ToString("D3");
-               
+
             }
 
             for (int i = 0; i < this.payrolls.Count; i++)
@@ -108,7 +124,9 @@ namespace HRManagementSystem
 
             this.payrolls.Add(payroll);
 
-            return _fileManager.SavePayrolls(payrolls);
+            // Ghi danh sách cập nhật trở lại tệp
+            this.fileManager.SavePayrolls(this.payrolls);
+            return true;
 
         }
 
@@ -128,8 +146,9 @@ namespace HRManagementSystem
                     // Thêm dữ liệu mới vào danh sách
                     payrolls.Add(payroll);
 
-                    // Sử dụng FileManager để lưu dữ liệu
-                    return _fileManager.SavePayrolls(payrolls);
+                    // Ghi danh sách cập nhật trở lại tệp
+                    this.fileManager.SavePayrolls(this.payrolls);
+                    return true;
                 }
             }
             throw new InvalidOperationException("Payroll not found");
@@ -145,13 +164,115 @@ namespace HRManagementSystem
                 {
                     this.payrolls.RemoveAt(i);
 
-                    // Sử dụng FileManager để lưu dữ liệu
-                    return _fileManager.SavePayrolls(payrolls);
+                    // Ghi danh sách cập nhật trở lại tệp
+                    this.fileManager.SavePayrolls(this.payrolls);
+                    return true;
                 }
             }
             throw new InvalidOperationException("Payroll not found");
             return false;
         }
+        public int GeneratePayslip(DateTime month)
+        {
+            int count = 0;
+            List<Payroll> uniqueEmployees = new List<Payroll>();
+            for (int i = 0; i < this.payrolls.Count; i++)
+            {
+                Payroll currentPayroll = this.payrolls[i];
+                string employeeId = currentPayroll.EmployeeId;
+                int existingIndex = -1;
+                for (int j = 0; j < uniqueEmployees.Count; j++)
+                {
+                    if (uniqueEmployees[j].EmployeeId == employeeId)
+                    {
+                        existingIndex = j;
+                        break;
+                    }
+                }
+
+                if (existingIndex == -1)
+                {
+                    uniqueEmployees.Add(currentPayroll);
+                }
+                else
+                {
+                    if (currentPayroll.PayPeriodEnd > uniqueEmployees[existingIndex].PayPeriodEnd)
+                    {
+                        uniqueEmployees[existingIndex] = currentPayroll;
+                    }
+                }
+            }
+
+            DateTime startDate = new DateTime(month.Year, month.Month, 1);
+            DateTime endDate = startDate.AddMonths(1).AddDays(-1);
+
+            List<Payroll> existingPayrolls = new List<Payroll>();
+            for (int i = 0; i < this.payrolls.Count; i++)
+            {
+                Payroll payroll = this.payrolls[i];
+                if (payroll.PayPeriodStart.Year == month.Year &&
+                    payroll.PayPeriodStart.Month == month.Month)
+                {
+                    existingPayrolls.Add(payroll);
+                }
+            }
+
+            for (int i = 0; i < existingPayrolls.Count; i++)
+            {
+                this.payrolls.Remove(existingPayrolls[i]);
+            }
+            int maxId = 0;
+            for (int i = 0; i < this.payrolls.Count; i++)
+            {
+                Payroll existingPayroll = this.payrolls[i];
+                if (!string.IsNullOrEmpty(existingPayroll.PayrollId))
+                {
+                    string[] parts = existingPayroll.PayrollId.Split('-');
+                    if (parts.Length == 3)
+                    {
+                        int currentId;
+                        if (int.TryParse(parts[2], out currentId) && currentId > maxId)
+                        {
+                            maxId = currentId;
+                        }
+                    }
+                }
+            }
+            for (int i = 0; i < uniqueEmployees.Count; i++)
+            {
+                Payroll lastPayroll = uniqueEmployees[i];
+                try
+                {
+                    maxId++;
+
+                    Payroll newPayroll = new Payroll
+                    {
+                        PayrollId = "PR-" + DateTime.Now.Year + "-" + (maxId + 1).ToString("D3"),
+                        EmployeeId = lastPayroll.EmployeeId,
+                        EmployeeName = lastPayroll.EmployeeName,
+                        PayPeriodStart = startDate,
+                        PayPeriodEnd = endDate,
+                        BaseSalary = lastPayroll.BaseSalary,
+                        Allowances = lastPayroll.Allowances,
+                        Deductions = lastPayroll.Deductions,
+                        IsPaid = false
+                    };
+
+                    newPayroll.NetSalary = newPayroll.BaseSalary + newPayroll.Allowances - newPayroll.Deductions;
+                    this.payrolls.Add(newPayroll);
+                    count++;
+                }
+                catch (Exception ex)
+                {
+                    // Ghi log lỗi nếu cần
+                    Console.WriteLine("Lỗi khi tạo phiếu lương cho nhân viên " + lastPayroll.EmployeeId + ": " + ex.Message);
+                }
+            }
+            this.fileManager.SavePayrolls(this.payrolls);
+            return count;
+        }
+
+
 
         public decimal CalculateNetSalary(decimal baseSalary, decimal allowances, decimal deductions)
         {

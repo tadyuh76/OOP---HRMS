@@ -74,8 +74,8 @@
 
         public List<Payroll> LoadPayrolls()
         {
-            string filePath = Path.Combine(_dataDirectory, "payrolls.json");
-            return _fileStorage.LoadData<List<Payroll>>("payrolls.json") ?? new List<Payroll>();
+            string payrollDataPath = @"C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\Data\Payroll.json";
+            return _fileStorage.LoadData<List<Payroll>>(payrollDataPath) ?? new List<Payroll>();
         }
 
         public bool SavePayrolls(List<Payroll> payrolls)
@@ -84,8 +84,8 @@
             {
                 throw new ArgumentNullException(nameof(payrolls));
             }
-            string filePath = Path.Combine(_dataDirectory, "payrolls.json");
-            return _fileStorage.SaveData("payrolls.json", payrolls);
+            string payrollDataPath = @"C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\Data\Payroll.json";
+            return _fileStorage.SaveData(payrollDataPath, payrolls);
         }
         public List<Payroll> LoadPayrollsByEmployeeId(string employeeId)
         {

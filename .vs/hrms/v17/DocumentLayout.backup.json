@@ -3,16 +3,43 @@
   "WorkspaceRootPath": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\source\\repos\\oop-4\\hrmanagementsystem\\forms\\payroll\\payrollmanagement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\forms\\payroll\\payrollmanagement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\source\\repos\\oop-4\\hrmanagementsystem\\forms\\payroll\\payrollmanagement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\forms\\payroll\\payrollmanagement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\source\\repos\\oop-4\\hrmanagementsystem\\services\\payrollservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\services\\payrollservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\source\\repos\\oop-4\\hrmanagementsystem\\forms\\payroll\\payrollform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\forms\\payroll\\payrollform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\source\\repos\\oop-4\\hrmanagementsystem\\storage\\filemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\storage\\filemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\source\\repos\\oop-4\\hrmanagementsystem\\forms\\payroll\\payrollmanagement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\forms\\payroll\\payrollmanagement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\source\\repos\\oop-4\\hrmanagementsystem\\storage\\jsonfilestorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\storage\\jsonfilestorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\source\\repos\\oop-4\\hrmanagementsystem\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\source\\repos\\oop-4\\hrmanagementsystem\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\ADMIN\\AppData\\Local\\SourceServer\\7371822942f7a190e2a3e733cb46885da0eb8c66bc74b76354d7949dd61ba44a\\HRManagementSystem\\MainForm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\source\\repos\\oop-4\\hrmanagementsystem\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\source\\repos\\oop-4\\hrmanagementsystem\\forms\\payroll\\payrollform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\forms\\payroll\\payrollform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\source\\repos\\oop-4\\hrmanagementsystem\\forms\\payroll\\payrollsearch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -30,7 +57,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,32 +65,122 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
+              "Title": "PayrollManagement.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs [Design]*",
+              "RelativeToolTip": "HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs [Design]*",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-27T05:47:22.573Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "PayrollService.cs",
               "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Services\\PayrollService.cs",
               "RelativeDocumentMoniker": "HRManagementSystem\\Services\\PayrollService.cs",
               "ToolTip": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Services\\PayrollService.cs",
               "RelativeToolTip": "HRManagementSystem\\Services\\PayrollService.cs",
-              "ViewState": "AgIAAMAAAAAAAAAAAAAiwHwAAAANAAAAAAAAAA==",
+              "ViewState": "AgIAAP0AAAAAAAAAAAAYwA4BAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-25T16:40:28.9Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "PayrollManagement.cs",
               "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs",
               "RelativeDocumentMoniker": "HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs",
-              "ToolTip": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs",
-              "RelativeToolTip": "HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs",
-              "ViewState": "AgIAAO8AAAAAAAAAAAAgwBUAAAAiAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs*",
+              "RelativeToolTip": "HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs*",
+              "ViewState": "AgIAAKUAAAAAAAAAAAAwwK0AAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-25T16:37:21.801Z"
+              "WhenOpened": "2025-03-25T16:37:21.801Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
+              "Title": "JSONFileStorage.cs",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Storage\\JSONFileStorage.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\Storage\\JSONFileStorage.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Storage\\JSONFileStorage.cs",
+              "RelativeToolTip": "HRManagementSystem\\Storage\\JSONFileStorage.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAQwBgAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-27T05:57:42.594Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "FileManager.cs",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Storage\\FileManager.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\Storage\\FileManager.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Storage\\FileManager.cs",
+              "RelativeToolTip": "HRManagementSystem\\Storage\\FileManager.cs",
+              "ViewState": "AgIAAFgAAAAAAAAAAAAcwGoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-27T06:33:36.081Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "MainForm.cs",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\MainForm.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\MainForm.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\MainForm.cs",
+              "RelativeToolTip": "HRManagementSystem\\MainForm.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-27T06:02:14.568Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "MainForm.cs",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\AppData\\Local\\SourceServer\\7371822942f7a190e2a3e733cb46885da0eb8c66bc74b76354d7949dd61ba44a\\HRManagementSystem\\MainForm.cs",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\SourceServer\\7371822942f7a190e2a3e733cb46885da0eb8c66bc74b76354d7949dd61ba44a\\HRManagementSystem\\MainForm.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\AppData\\Local\\SourceServer\\7371822942f7a190e2a3e733cb46885da0eb8c66bc74b76354d7949dd61ba44a\\HRManagementSystem\\MainForm.cs",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\SourceServer\\7371822942f7a190e2a3e733cb46885da0eb8c66bc74b76354d7949dd61ba44a\\HRManagementSystem\\MainForm.cs",
+              "ViewState": "AgIAAM8AAAAAAAAAAAAAABcAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-27T06:08:00.656Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "MainForm.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\MainForm.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\MainForm.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\MainForm.cs [Design]",
+              "RelativeToolTip": "HRManagementSystem\\MainForm.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-27T06:07:25.062Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Program.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\Program.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Program.cs",
+              "RelativeToolTip": "HRManagementSystem\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-27T06:16:53.107Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
               "Title": "PayrollForm.cs",
               "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Forms\\Payroll\\PayrollForm.cs",
               "RelativeDocumentMoniker": "HRManagementSystem\\Forms\\Payroll\\PayrollForm.cs",
@@ -75,7 +192,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 11,
               "Title": "Employee_PayrollView.cs",
               "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Forms\\EmployeeViews\\Employee_PayrollView.cs",
               "RelativeDocumentMoniker": "HRManagementSystem\\Forms\\EmployeeViews\\Employee_PayrollView.cs",
@@ -87,7 +204,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 10,
               "Title": "PayrollSearch.cs",
               "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Forms\\Payroll\\PayrollSearch.cs",
               "RelativeDocumentMoniker": "HRManagementSystem\\Forms\\Payroll\\PayrollSearch.cs",

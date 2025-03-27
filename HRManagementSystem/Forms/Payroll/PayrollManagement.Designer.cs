@@ -44,6 +44,7 @@
             lblSalaryRange = new Label();
             lblAverageSalary = new Label();
             lblTotalPayroll = new Label();
+            RunPayrollbtn = new Button();
             panelTop.SuspendLayout();
             panelButtons.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvPayrolls).BeginInit();
@@ -53,6 +54,7 @@
             // panelTop
             // 
             panelTop.BackColor = Color.White;
+            panelTop.Controls.Add(RunPayrollbtn);
             panelTop.Controls.Add(btnNextMonth);
             panelTop.Controls.Add(lblMonth);
             panelTop.Controls.Add(btnPreviousMonth);
@@ -61,7 +63,7 @@
             panelTop.Location = new Point(0, 0);
             panelTop.Margin = new Padding(3, 4, 3, 4);
             panelTop.Name = "panelTop";
-            panelTop.Size = new Size(800, 75);
+            panelTop.Size = new Size(801, 75);
             panelTop.TabIndex = 0;
             // 
             // btnNextMonth
@@ -123,7 +125,7 @@
             panelButtons.Location = new Point(0, 75);
             panelButtons.Margin = new Padding(3, 4, 3, 4);
             panelButtons.Name = "panelButtons";
-            panelButtons.Size = new Size(800, 62);
+            panelButtons.Size = new Size(801, 62);
             panelButtons.TabIndex = 1;
             // 
             // btnSearch
@@ -207,7 +209,7 @@
             dgvPayrolls.RowHeadersWidth = 51;
             dgvPayrolls.RowTemplate.Height = 24;
             dgvPayrolls.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvPayrolls.Size = new Size(800, 363);
+            dgvPayrolls.Size = new Size(801, 363);
             dgvPayrolls.TabIndex = 2;
             // 
             // panelBottom
@@ -220,7 +222,7 @@
             panelBottom.Location = new Point(0, 500);
             panelBottom.Margin = new Padding(3, 4, 3, 4);
             panelBottom.Name = "panelBottom";
-            panelBottom.Size = new Size(800, 62);
+            panelBottom.Size = new Size(801, 62);
             panelBottom.TabIndex = 3;
             // 
             // lblSalaryRange
@@ -253,11 +255,26 @@
             lblTotalPayroll.TabIndex = 0;
             lblTotalPayroll.Text = "TOTAL: 0 VND";
             // 
+            // RunPayrollbtn
+            // 
+            RunPayrollbtn.BackColor = Color.Navy;
+            RunPayrollbtn.FlatStyle = FlatStyle.Popup;
+            RunPayrollbtn.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            RunPayrollbtn.ForeColor = SystemColors.ButtonHighlight;
+            RunPayrollbtn.Location = new Point(651, 20);
+            RunPayrollbtn.Margin = new Padding(3, 4, 3, 4);
+            RunPayrollbtn.Name = "RunPayrollbtn";
+            RunPayrollbtn.Size = new Size(100, 38);
+            RunPayrollbtn.TabIndex = 6;
+            RunPayrollbtn.Text = "RunPayrroll";
+            RunPayrollbtn.UseVisualStyleBackColor = false;
+            RunPayrollbtn.Click += RunPayrollbtn_Click;
+            // 
             // PayrollManagement
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 562);
+            ClientSize = new Size(801, 562);
             Controls.Add(dgvPayrolls);
             Controls.Add(panelBottom);
             Controls.Add(panelButtons);
@@ -294,5 +311,6 @@
         private System.Windows.Forms.Button btnPreviousMonth;
         private System.Windows.Forms.Button btnReport;
         private System.Windows.Forms.Button btnSearch;
+        private Button RunPayrollbtn;
     }
 }

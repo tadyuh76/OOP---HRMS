@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,7 +20,7 @@ namespace HRManagementSystem
         public PayrollManagement()
         {
             InitializeComponent();
-            _payrollService = new PayrollService(); 
+            _payrollService = new PayrollService();
             _currentMonth = DateTime.Now;
             _currentPayrolls = new List<HRManagementSystem.Payroll>();
 
@@ -133,7 +133,7 @@ namespace HRManagementSystem
                 Width = 80
             };
 
-            
+
             dgvPayrolls.Columns.Add(idColumn);
             dgvPayrolls.Columns.Add(employeeIdColumn);
             dgvPayrolls.Columns.Add(employeeNameColumn);
@@ -150,46 +150,14 @@ namespace HRManagementSystem
         {
             lblMonth.Text = _currentMonth.ToString("MM/yyyy");
         }
-        public class PayrollViewModel
-        {
-            public string PayrollId { get; set; }
-            public string EmployeeId { get; set; }
-            public string EmployeeName { get; set; }
-            public DateTime PayPeriodStart { get; set; }
-            public DateTime PayPeriodEnd { get; set; }
-            public decimal BaseSalary { get; set; }
-            public decimal Allowances { get; set; }
-            public decimal Deductions { get; set; }
-            public decimal NetSalary { get; set; }
-            public bool IsPaid { get; set; }
-        }
+        
         private void LoadPayrollData()
         {
             try
             {
-                _currentPayrolls = _payrollService.GetPayrollsByMonth(_currentMonth);
-                List<PayrollViewModel> payrollViewModels = new List<PayrollViewModel>();
-
-                foreach (var payroll in _currentPayrolls)
-                {
-
-                    payrollViewModels.Add(new PayrollViewModel
-                    {
-                        PayrollId = payroll.PayrollId,
-                        EmployeeId = payroll.EmployeeId,
-                        EmployeeName = payroll.EmployeeName ?? "[Không tìm thấy]",
-                        PayPeriodStart = payroll.PayPeriodStart,
-                        PayPeriodEnd = payroll.PayPeriodEnd,
-                        BaseSalary = payroll.BaseSalary,
-                        Allowances = payroll.Allowances,
-                        Deductions = payroll.Deductions,
-                        NetSalary = payroll.NetSalary,
-                        IsPaid = payroll.IsPaid
-                    });
-                }
-
+                _currentPayrolls = _payrollService.GetPayrollsByMonth(_currentMonth);                           
                 dgvPayrolls.DataSource = null;
-                dgvPayrolls.DataSource = payrollViewModels;
+                dgvPayrolls.DataSource = _currentPayrolls;
                 UpdateStatistics();
             }
             catch (Exception ex)
@@ -235,7 +203,7 @@ namespace HRManagementSystem
 
         private void btnNewPayroll_Click(object sender, EventArgs e)
         {
-            
+
             PayrollForm payrollForm = new PayrollForm(_payrollService);
             if (payrollForm.ShowDialog() == DialogResult.OK)
             {
@@ -308,7 +276,7 @@ namespace HRManagementSystem
 
                 if (selectedPayroll != null)
                 {
-                    
+
                     MessageBox.Show("Chức năng in phiếu lương đang được phát triển", "Thông báo",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -322,25 +290,63 @@ namespace HRManagementSystem
 
         private void btnReport_Click(object sender, EventArgs e)
         {
-            
+
             PayrollReport reportForm = new PayrollReport(_payrollService);
             reportForm.ShowDialog();
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
-           
+
             PayrollSearch searchForm = new PayrollSearch(_payrollService);
             searchForm.ShowDialog();
         }
 
         private void PayrollManagement_Load(object sender, EventArgs e)
         {
-            
-            
-               
-                LoadPayrollData();
-            
+
+
+
+            LoadPayrollData();
+
+        }
+
+        private void RunPayrollbtn_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                DialogResult confirmation = MessageBox.Show(
+                    $"Bạn có chắc chắn muốn tạo phiếu lương cho tất cả nhân viên trong tháng {_currentMonth.ToString("MM/yyyy")}?\n\n" +
+                    "Lưu ý: Quá trình này có thể ghi đè lên các phiếu lương hiện có trong kỳ này.",
+                    "Xác nhận tạo phiếu lương",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (confirmation == DialogResult.Yes)
+                {
+                    Cursor = Cursors.WaitCursor;
+
+                    int count = _payrollService.GeneratePayslip(_currentMonth);
+
+                    Cursor = Cursors.Default;
+                    MessageBox.Show(
+                        $"Đã tạo thành công {count} phiếu lương cho tháng {_currentMonth.ToString("MM/yyyy")}.",
+                        "Tạo phiếu lương thành công",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+
+                    LoadPayrollData();
+                }
+            }
+            catch (Exception ex)
+            {
+                Cursor = Cursors.Default;
+                MessageBox.Show(
+                    $"Lỗi khi tạo phiếu lương: {ex.Message}\n\n{ex.StackTrace}",
+                    "Lỗi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
         }
     }
 }
