@@ -179,6 +179,7 @@ namespace HRManagementSystem
             {
                 Payroll currentPayroll = this.payrolls[i];
                 string employeeId = currentPayroll.EmployeeId;
+
                 int existingIndex = -1;
                 for (int j = 0; j < uniqueEmployees.Count; j++)
                 {
@@ -220,6 +221,7 @@ namespace HRManagementSystem
             {
                 this.payrolls.Remove(existingPayrolls[i]);
             }
+
             int maxId = 0;
             for (int i = 0; i < this.payrolls.Count; i++)
             {
@@ -237,33 +239,20 @@ namespace HRManagementSystem
                     }
                 }
             }
+
             for (int i = 0; i < uniqueEmployees.Count; i++)
             {
                 Payroll lastPayroll = uniqueEmployees[i];
                 try
                 {
+                    Payroll newPayroll = lastPayroll.GeneratePayslip(month);
                     maxId++;
-
-                    Payroll newPayroll = new Payroll
-                    {
-                        PayrollId = "PR-" + DateTime.Now.Year + "-" + (maxId + 1).ToString("D3"),
-                        EmployeeId = lastPayroll.EmployeeId,
-                        EmployeeName = lastPayroll.EmployeeName,
-                        PayPeriodStart = startDate,
-                        PayPeriodEnd = endDate,
-                        BaseSalary = lastPayroll.BaseSalary,
-                        Allowances = lastPayroll.Allowances,
-                        Deductions = lastPayroll.Deductions,
-                        IsPaid = false
-                    };
-
-                    newPayroll.NetSalary = newPayroll.BaseSalary + newPayroll.Allowances - newPayroll.Deductions;
+                    newPayroll.PayrollId = "PR-" + DateTime.Now.Year + "-" + (maxId).ToString("D3");
                     this.payrolls.Add(newPayroll);
                     count++;
                 }
                 catch (Exception ex)
                 {
-                    // Ghi log lỗi nếu cần
                     Console.WriteLine("Lỗi khi tạo phiếu lương cho nhân viên " + lastPayroll.EmployeeId + ": " + ex.Message);
                 }
             }

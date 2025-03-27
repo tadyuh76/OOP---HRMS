@@ -120,12 +120,31 @@ namespace HRManagementSystem
             netSalary = baseSalary + allowances - deductions;
         }
 
-        public void GeneratePayslip()
+        public Payroll GeneratePayslip(DateTime month)
         {
-            // This would typically generate a document or report
-            // For simplicity, just marking the payroll as paid
-            isPaid = true;
+
+            DateTime startDate = new DateTime(month.Year, month.Month, 1);
+            DateTime endDate = startDate.AddMonths(1).AddDays(-1);
+
+            
+            Payroll newPayroll = new Payroll
+            {
+                // PayrollId sẽ được tạo bởi service
+                EmployeeId = this.EmployeeId,
+                EmployeeName = this.EmployeeName,
+                PayPeriodStart = startDate,
+                PayPeriodEnd = endDate,
+                BaseSalary = this.BaseSalary,
+                Allowances = this.Allowances,
+                Deductions = this.Deductions,
+                IsPaid = false
+            };
+
+            
+            newPayroll.NetSalary = newPayroll.BaseSalary + newPayroll.Allowances - newPayroll.Deductions;
+
+            return newPayroll;
         }
-        
+
     }
 }

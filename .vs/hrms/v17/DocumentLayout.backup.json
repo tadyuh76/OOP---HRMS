@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\source\\repos\\oop-4\\hrmanagementsystem\\forms\\payroll\\payrollmanagement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\forms\\payroll\\payrollmanagement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\source\\repos\\oop-4\\hrmanagementsystem\\forms\\payroll\\payrollmanagement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\forms\\payroll\\payrollmanagement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\admin\\source\\repos\\oop-4\\hrmanagementsystem\\forms\\payroll\\payrollsearch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\forms\\payroll\\payrollsearch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -31,6 +39,31 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "PayrollManagement.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs [Design]*",
+              "RelativeToolTip": "HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs [Design]*",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-27T07:39:08.504Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PayrollManagement.cs",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs*",
+              "RelativeToolTip": "HRManagementSystem\\Forms\\Payroll\\PayrollManagement.cs*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-27T07:39:04.944Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "PayrollSearch.cs",
               "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Forms\\Payroll\\PayrollSearch.cs",
               "RelativeDocumentMoniker": "HRManagementSystem\\Forms\\Payroll\\PayrollSearch.cs",
@@ -43,7 +76,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "PayrollReport.cs",
               "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Forms\\Payroll\\PayrollReport.cs",
               "RelativeDocumentMoniker": "HRManagementSystem\\Forms\\Payroll\\PayrollReport.cs",
@@ -56,7 +89,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "PayrollService.cs",
               "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\OOP-4\\HRManagementSystem\\Services\\PayrollService.cs",
               "RelativeDocumentMoniker": "HRManagementSystem\\Services\\PayrollService.cs",
