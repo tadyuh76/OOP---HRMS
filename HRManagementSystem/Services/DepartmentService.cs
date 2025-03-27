@@ -2,95 +2,120 @@ using System.Text.Json;
 
 namespace HRManagementSystem
 {
-    public class DepartmentService
+    public class DepartmentService : IService<Department>
     {
-        private readonly string _filePath;
+        private readonly FileManager _fileManager;
+        private List<Department> _departments;
 
+        // Singleton instance
+        private static DepartmentService _instance;
+
+        // Default constructor that doesn't require FileManager
         public DepartmentService()
         {
-            _filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Departments.json");
-        }
+            _fileManager = null;
 
-        public async Task<List<Department>> GetAllDepartmentsAsync()
-        {
-            if (!File.Exists(_filePath))
+            try
             {
-                return new List<Department>();
+                // Try to load departments directly from the JSON file
+                if (File.Exists(FileManager.departmentDataPath))
+                {
+                    JsonFileStorage storage = new JsonFileStorage();
+                    _departments = storage.LoadData<List<Department>>(FileManager.departmentDataPath) ?? new List<Department>();
+                }
+                else
+                {
+                    _departments = new List<Department>();
+                }
             }
-
-            string json = await File.ReadAllTextAsync(_filePath);
-            return JsonSerializer.Deserialize<List<Department>>(json) ?? new List<Department>();
-        }
-
-        public async Task<Department> GetDepartmentByIdAsync(string id)
-        {
-            var departments = await GetAllDepartmentsAsync();
-            return departments.FirstOrDefault(d => d.DepartmentId == id);
-        }
-
-        public async Task<bool> AddDepartmentAsync(Department department)
-        {
-            var departments = await GetAllDepartmentsAsync();
-
-            // Check if department with same ID already exists
-            if (departments.Any(d => d.DepartmentId == department.DepartmentId))
+            catch
             {
-                return false;
+                // If anything goes wrong, initialize with an empty list
+                _departments = new List<Department>();
             }
-
-            departments.Add(department);
-            await SaveDepartmentsAsync(departments);
-            return true;
         }
 
-        public async Task<bool> UpdateDepartmentAsync(Department department)
+        public DepartmentService(FileManager fileManager)
         {
-            var departments = await GetAllDepartmentsAsync();
-            int index = departments.FindIndex(d => d.DepartmentId == department.DepartmentId);
+            _fileManager = fileManager;
+            _departments = _fileManager?.LoadDepartments() ?? new List<Department>();
+        }
 
+        // Singleton pattern
+        public static DepartmentService GetInstance()
+        {
+            if (_instance == null)
+            {
+                _instance = new DepartmentService();
+            }
+            return _instance;
+        }
+
+        public List<Department> GetAll()
+        {
+            return _departments;
+        }
+
+        public Department GetById(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                throw new ArgumentNullException(nameof(id));
+
+            return _departments.FirstOrDefault(d => d.DepartmentId == id);
+        }
+
+        public bool Add(Department entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            _departments.Add(entity);
+            return SaveChanges();
+        }
+
+        public bool Update(Department entity)
+        {
+            if (entity == null || string.IsNullOrEmpty(entity.DepartmentId))
+                throw new ArgumentNullException(nameof(entity));
+
+            int index = _departments.FindIndex(d => d.DepartmentId == entity.DepartmentId);
             if (index == -1)
-            {
                 return false;
-            }
 
-            departments[index] = department;
-            await SaveDepartmentsAsync(departments);
-            return true;
+            _departments[index] = entity;
+            return SaveChanges();
         }
 
-        public async Task<bool> DeleteDepartmentAsync(string departmentId)
+        public bool Delete(string id)
         {
-            var departments = await GetAllDepartmentsAsync();
-            int count = departments.RemoveAll(d => d.DepartmentId == departmentId);
+            if (string.IsNullOrEmpty(id))
+                throw new ArgumentNullException(nameof(id));
 
-            if (count == 0)
-            {
+            int index = _departments.FindIndex(d => d.DepartmentId == id);
+            if (index == -1)
                 return false;
-            }
 
-            await SaveDepartmentsAsync(departments);
-            return true;
+            _departments.RemoveAt(index);
+            return SaveChanges();
         }
 
-        private async Task SaveDepartmentsAsync(List<Department> departments)
+        private bool SaveChanges()
         {
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string json = JsonSerializer.Serialize(departments, options);
+            // If FileManager is not available, just return success without saving
+            if (_fileManager == null)
+                return true;
 
-            Directory.CreateDirectory(Path.GetDirectoryName(_filePath));
-            await File.WriteAllTextAsync(_filePath, json);
+            return _fileManager.SaveDepartments(_departments);
         }
 
-        public async Task<string> GenerateNewDepartmentId()
+        public string GenerateNewDepartmentId()
         {
-            var departments = await GetAllDepartmentsAsync();
-
-            if (!departments.Any())
+            if (!_departments.Any())
             {
                 return "DEP001";
             }
 
-            var lastId = departments.Max(d => d.DepartmentId);
+            string? lastId = _departments.Max(d => d.DepartmentId);
             if (int.TryParse(lastId.Substring(3), out int id))
             {
                 return $"DEP{(id + 1):D3}";

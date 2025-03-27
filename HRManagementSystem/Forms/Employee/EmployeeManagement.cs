@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Text.Json;
 
 namespace HRManagementSystem
 {
@@ -6,11 +7,15 @@ namespace HRManagementSystem
     {
         private List<Employee> employees;
         private List<Department> departments;
+        private EmployeeService employeeService;
+        private DepartmentService departmentService;
 
         public EmployeeManagement()
         {
             InitializeComponent();
-            LoadSampleData();
+            employeeService = EmployeeService.GetInstance();
+            departmentService = DepartmentService.GetInstance();
+            LoadData();
             PopulateEmployeeDataGridView();
         }
 
@@ -113,9 +118,11 @@ namespace HRManagementSystem
                 Location = new Point(0, 10),
                 Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point),
                 BorderStyle = BorderStyle.FixedSingle,
-                Padding = new Padding(5)
+                Padding = new Padding(5),
+                Name = "txtSearch" // Add name for the search box so we can find it later
             };
             txtSearch.SetBounds(txtSearch.Left, txtSearch.Top, txtSearch.Width, 35);
+            txtSearch.TextChanged += TxtSearch_TextChanged; // Add event handler for text changed
             searchPanel.Controls.Add(txtSearch);
 
             // Search icon (can be improved with an actual icon)
@@ -133,13 +140,14 @@ namespace HRManagementSystem
             {
                 Location = new Point(txtSearch.Right + 20, 10),
                 Height = 35,
-                Width = 300,
-                BorderStyle = BorderStyle.FixedSingle
+                Width = 450, // Increased width to accommodate more buttons
+                BorderStyle = BorderStyle.FixedSingle,
+                Name = "filterPanel"
             };
             searchPanel.Controls.Add(filterPanel);
 
-            // Filter buttons
-            string[] filterOptions = { "All", "Active", "On Leave" };
+            // Filter buttons - updated to include all status types
+            string[] filterOptions = { "All", "Active", "On Leave", "Terminated", "Suspended" };
             int buttonWidth = filterPanel.Width / filterOptions.Length;
 
             for (int i = 0; i < filterOptions.Length; i++)
@@ -151,10 +159,10 @@ namespace HRManagementSystem
                     Size = new Size(buttonWidth, filterPanel.Height - 2),
                     Location = new Point(i * buttonWidth, 0),
                     BackColor = i == 0 ? Color.White : Color.FromArgb(245, 245, 245),
-                    ForeColor = i == 0 ? Color.FromArgb(68, 93, 233) : Color.FromArgb(100, 100, 100)
+                    ForeColor = i == 0 ? Color.FromArgb(68, 93, 233) : Color.FromArgb(100, 100, 100),
+                    Tag = filterOptions[i]
                 };
                 btnFilter.FlatAppearance.BorderSize = 0;
-                btnFilter.Tag = filterOptions[i];
                 btnFilter.Click += BtnFilter_Click;
                 filterPanel.Controls.Add(btnFilter);
             }
@@ -190,15 +198,15 @@ namespace HRManagementSystem
 
             directoryLayout.Controls.Add(dgvEmployees, 0, 2);
 
-            // Set up columns for the DataGridView
+            // Set up columns for the DataGridView - remove DataPropertyName to handle data binding manually
             DataGridViewTextBoxColumn[] columns = new[]
             {
-                new DataGridViewTextBoxColumn { Name = "ID", HeaderText = "ID", DataPropertyName = "EmployeeId", Width = 80 },
-                new DataGridViewTextBoxColumn { Name = "Name", HeaderText = "Name", DataPropertyName = "Name", Width = 150 },
-                new DataGridViewTextBoxColumn { Name = "Department", HeaderText = "Department", DataPropertyName = "DepartmentName", Width = 150 },
-                new DataGridViewTextBoxColumn { Name = "Position", HeaderText = "Position", DataPropertyName = "Position", Width = 180 },
-                new DataGridViewTextBoxColumn { Name = "DateHired", HeaderText = "Date Hired", DataPropertyName = "HireDate", Width = 120 },
-                new DataGridViewTextBoxColumn { Name = "Status", HeaderText = "Status", DataPropertyName = "Status", Width = 100 }
+                new DataGridViewTextBoxColumn { Name = "ID", HeaderText = "ID", Width = 80 },
+                new DataGridViewTextBoxColumn { Name = "Name", HeaderText = "Name", Width = 150 },
+                new DataGridViewTextBoxColumn { Name = "Department", HeaderText = "Department", Width = 150 },
+                new DataGridViewTextBoxColumn { Name = "Position", HeaderText = "Position", Width = 180 },
+                new DataGridViewTextBoxColumn { Name = "DateHired", HeaderText = "Date Hired", Width = 120 },
+                new DataGridViewTextBoxColumn { Name = "Status", HeaderText = "Status", Width = 100 }
             };
 
             foreach (DataGridViewTextBoxColumn? column in columns)
@@ -251,81 +259,128 @@ namespace HRManagementSystem
             clickedButton.BackColor = Color.White;
             clickedButton.ForeColor = Color.FromArgb(68, 93, 233);
 
-            // Apply filter
+            // Apply filter with current search text
             string filter = (string)clickedButton.Tag;
-            ApplyFilter(filter);
+            TextBox txtSearch = Controls.Find("txtSearch", true).FirstOrDefault() as TextBox;
+            string searchText = txtSearch?.Text?.ToLower() ?? "";
+
+            ApplySearchAndFilter(searchText, filter);
         }
 
-        private void ApplyFilter(string filter)
+        // Add search text changed event handler
+        private void TxtSearch_TextChanged(object sender, EventArgs e)
+        {
+            string searchText = ((TextBox)sender).Text.ToLower();
+            ApplySearchAndFilter(searchText, GetCurrentFilter());
+        }
+
+        // Get the current filter from the selected filter button
+        private string GetCurrentFilter()
+        {
+            Panel filterPanel = Controls.Find("filterPanel", true).FirstOrDefault() as Panel;
+            if (filterPanel == null) return "All";
+
+            foreach (Control control in filterPanel.Controls)
+            {
+                if (control is Button button && button.BackColor == Color.White)
+                {
+                    return (string)button.Tag;
+                }
+            }
+
+            return "All";
+        }
+
+        // Combined method to handle both search and filter
+        private void ApplySearchAndFilter(string searchText, string filter)
         {
             DataGridView dgvEmployees = (DataGridView)Controls.Find("dgvEmployees", true)[0];
-            dgvEmployees.DataSource = null;
-
+            
+            // First apply status filter
             List<Employee> filteredEmployees = filter switch
             {
                 "Active" => employees.Where(e => e.Status == EmployeeStatus.Active).ToList(),
                 "On Leave" => employees.Where(e => e.Status == EmployeeStatus.OnLeave).ToList(),
+                "Terminated" => employees.Where(e => e.Status == EmployeeStatus.Terminated).ToList(),
+                "Suspended" => employees.Where(e => e.Status == EmployeeStatus.Suspended).ToList(),
                 _ => employees.ToList(),
             };
 
-            var employeeData = filteredEmployees.Select(e => new
+            // Then apply search text filter if it's not empty
+            if (!string.IsNullOrWhiteSpace(searchText))
             {
-                e.EmployeeId,
-                e.Name,
-                DepartmentName = GetDepartmentName(e.DepartmentId),
-                e.Position,
-                HireDate = e.HireDate.ToString("yyyy-MM-dd"),
-                Status = e.Status.ToString()
-            }).ToList();
+                filteredEmployees = filteredEmployees.Where(e => 
+                    e.Name.ToLower().Contains(searchText) ||
+                    e.EmployeeId.ToLower().Contains(searchText) ||
+                    e.Position.ToLower().Contains(searchText) ||
+                    GetDepartmentName(e.DepartmentId).ToLower().Contains(searchText)
+                ).ToList();
+            }
 
-            dgvEmployees.DataSource = employeeData;
-            FormatStatusColumn(dgvEmployees);
+            // Apply the filtered data to the grid using our own method instead of binding
+            PopulateEmployeeDataGridWithFilteredData(dgvEmployees, filteredEmployees);
         }
 
-        private void LoadSampleData()
+        // Method to manually populate DataGridView to keep column order consistent
+        private void PopulateEmployeeDataGridWithFilteredData(DataGridView dgv, List<Employee> filteredEmployees)
         {
-            // Load departments
-            departments = new List<Department>
+            dgv.Rows.Clear();
+
+            foreach (var employee in filteredEmployees)
             {
-                new Department { DepartmentId = "D001", Name = "Engineering", Description = "Engineering Department" },
-                new Department { DepartmentId = "D002", Name = "Marketing", Description = "Marketing Department" },
-                new Department { DepartmentId = "D003", Name = "Finance", Description = "Finance Department" },
-                new Department { DepartmentId = "D004", Name = "Human Resources", Description = "HR Department" }
-            };
+                // Ensure department name is set
+                if (string.IsNullOrEmpty(employee.DepartmentName))
+                {
+                    employee.DepartmentName = GetDepartmentName(employee.DepartmentId);
+                }
 
-            // Load employees
-            employees = new List<Employee>
+                int rowIndex = dgv.Rows.Add(
+                    employee.EmployeeId,
+                    employee.Name,
+                    employee.DepartmentName, // Use the department name property
+                    employee.Position,
+                    employee.HireDate.ToString("yyyy-MM-dd"),
+                    employee.Status.ToString()
+                );
+
+                // Store the employee object in the row's Tag for later retrieval
+                dgv.Rows[rowIndex].Tag = employee;
+            }
+        }
+
+        private void LoadData()
+        {
+            // Load departments from the service
+            departments = departmentService.GetAll();
+
+            // If no departments were loaded, create some sample data (fallback)
+            if (departments == null || departments.Count == 0)
             {
-                new Employee(
-                    "P001", "John Doe", "john.doe@example.com", "123-456-7890",
-                    new DateTime(1985, 5, 15), "123 Main St",
-                    "E001", new DateTime(2020, 1, 15), "Software Engineer",
-                    85000, "D001", EmployeeStatus.Active),
+                departments = new List<Department>
+                {
+                    new Department { DepartmentId = "DEP001", Name = "Engineering", Description = "Engineering Department" },
+                    new Department { DepartmentId = "DEP002", Name = "Marketing", Description = "Marketing Department" },
+                    new Department { DepartmentId = "DEP003", Name = "Finance", Description = "Finance Department" },
+                    new Department { DepartmentId = "DEP004", Name = "Human Resources", Description = "HR Department" }
+                };
+            }
 
-                new Employee(
-                    "P002", "Jane Smith", "jane.smith@example.com", "234-567-8901",
-                    new DateTime(1990, 8, 22), "456 Oak St",
-                    "E002", new DateTime(2019, 5, 20), "Marketing Manager",
-                    92000, "D002", EmployeeStatus.Active),
+            // Load employees from the service
+            employees = employeeService.GetAll();
 
-                new Employee(
-                    "P003", "Robert Johnson", "robert.johnson@example.com", "345-678-9012",
-                    new DateTime(1982, 3, 10), "789 Pine St",
-                    "E003", new DateTime(2021, 3, 10), "Financial Analyst",
-                    78000, "D003", EmployeeStatus.Active),
-
-                new Employee(
-                    "P004", "Emily Davis", "emily.davis@example.com", "456-789-0123",
-                    new DateTime(1988, 11, 5), "321 Elm St",
-                    "E004", new DateTime(2018, 11, 5), "HR Specialist",
-                    75000, "D004", EmployeeStatus.OnLeave),
-
-                new Employee(
-                    "P005", "Michael Wilson", "michael.wilson@example.com", "567-890-1234",
-                    new DateTime(1977, 8, 22), "654 Maple St",
-                    "E005", new DateTime(2017, 8, 22), "Senior Developer",
-                    105000, "D001", EmployeeStatus.Active)
-            };
+            // If no employees were loaded, create some sample data (fallback)
+            if (employees == null || employees.Count == 0)
+            {
+                employees = new List<Employee> { };
+            }
+            else
+            {
+                // Associate department names with employees
+                foreach (var employee in employees)
+                {
+                    employee.DepartmentName = GetDepartmentName(employee.DepartmentId);
+                }
+            }
         }
 
         private string GetDepartmentName(string departmentId)
@@ -337,17 +392,10 @@ namespace HRManagementSystem
         {
             DataGridView dgvEmployees = (DataGridView)Controls.Find("dgvEmployees", true)[0];
 
-            var employeeData = employees.Select(e => new
-            {
-                e.EmployeeId,
-                e.Name,
-                DepartmentName = GetDepartmentName(e.DepartmentId),
-                e.Position,
-                HireDate = e.HireDate.ToString("yyyy-MM-dd"),
-                Status = e.Status.ToString()
-            }).ToList();
+            // Use the new method to populate the grid manually
+            PopulateEmployeeDataGridWithFilteredData(dgvEmployees, employees);
 
-            dgvEmployees.DataSource = employeeData;
+            // Apply formatting
             FormatStatusColumn(dgvEmployees);
         }
 
@@ -356,9 +404,6 @@ namespace HRManagementSystem
             // Ensure we have the Status column
             if (dgvEmployees.Columns.Contains("Status"))
             {
-                // Store the DataGridView's current data
-                object dataSource = dgvEmployees.DataSource;
-
                 // Handle status cell formatting through CellFormatting event
                 dgvEmployees.CellFormatting += (sender, e) =>
                 {
@@ -367,16 +412,28 @@ namespace HRManagementSystem
                         if (e.Value != null)
                         {
                             string status = e.Value.ToString();
-                            if (status == "Active")
+
+                            switch (status)
                             {
-                                e.CellStyle.ForeColor = Color.Green;
-                                e.CellStyle.BackColor = Color.FromArgb(230, 255, 230);
-                            }
-                            else if (status == "OnLeave")
-                            {
-                                e.CellStyle.ForeColor = Color.Orange;
-                                e.CellStyle.BackColor = Color.FromArgb(255, 250, 230);
-                                e.Value = "On Leave";
+                                case "Active":
+                                    e.CellStyle.ForeColor = Color.Green;
+                                    e.CellStyle.BackColor = Color.FromArgb(230, 255, 230);
+                                    break;
+                                case "OnLeave":
+                                    e.CellStyle.ForeColor = Color.Orange;
+                                    e.CellStyle.BackColor = Color.FromArgb(255, 250, 230);
+                                    e.Value = "On Leave";
+                                    break;
+                                case "Terminated":
+                                    e.CellStyle.ForeColor = Color.Red;
+                                    e.CellStyle.BackColor = Color.FromArgb(255, 230, 230);
+                                    break;
+                                case "Suspended":
+                                    e.CellStyle.ForeColor = Color.DarkOrange;
+                                    e.CellStyle.BackColor = Color.FromArgb(255, 240, 230);
+                                    break;
+                                default:
+                                    break;
                             }
                         }
                     }
@@ -394,16 +451,28 @@ namespace HRManagementSystem
                 if (e.Value != null)
                 {
                     string status = e.Value.ToString();
-                    if (status == "Active")
+
+                    switch (status)
                     {
-                        e.CellStyle.ForeColor = Color.Green;
-                        e.CellStyle.BackColor = Color.FromArgb(230, 255, 230);
-                    }
-                    else if (status == "OnLeave")
-                    {
-                        e.CellStyle.ForeColor = Color.Orange;
-                        e.CellStyle.BackColor = Color.FromArgb(255, 250, 230);
-                        e.Value = "On Leave";
+                        case "Active":
+                            e.CellStyle.ForeColor = Color.Green;
+                            e.CellStyle.BackColor = Color.FromArgb(230, 255, 230);
+                            break;
+                        case "OnLeave":
+                            e.CellStyle.ForeColor = Color.Orange;
+                            e.CellStyle.BackColor = Color.FromArgb(255, 250, 230);
+                            e.Value = "On Leave";
+                            break;
+                        case "Terminated":
+                            e.CellStyle.ForeColor = Color.Red;
+                            e.CellStyle.BackColor = Color.FromArgb(255, 230, 230);
+                            break;
+                        case "Suspended":
+                            e.CellStyle.ForeColor = Color.DarkOrange;
+                            e.CellStyle.BackColor = Color.FromArgb(255, 240, 230);
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
@@ -416,30 +485,90 @@ namespace HRManagementSystem
             // Check if click is on a button column
             if (e.RowIndex >= 0)
             {
+                // Use the Employee object attached to the row's Tag
+                Employee selectedEmployee = dgv.Rows[e.RowIndex].Tag as Employee;
+                if (selectedEmployee == null) return;
+
                 if (dgv.Columns[e.ColumnIndex].Name == "Edit")
                 {
-                    // Get the employee ID from the row
-                    string employeeId = dgv.Rows[e.RowIndex].Cells["ID"].Value.ToString();
-                    MessageBox.Show($"Edit employee with ID: {employeeId}");
-                    // Here you would open an edit form for the employee
+                    // Open the edit form with the selected employee
+                    EditEmployeeForm editForm = new EditEmployeeForm(selectedEmployee, departments);
+                    DialogResult result = editForm.ShowDialog();
+
+                    if (result == DialogResult.OK)
+                    {
+                        try {
+                            // Update employee in the service
+                            bool success = employeeService.Update(editForm.UpdatedEmployee);
+                            
+                            if (success) {
+                                // Ensure data is saved to JSON by forcing a file write
+                                JsonFileStorage storage = new JsonFileStorage();
+                                List<Employee> updatedEmployees = employeeService.GetAll();
+                                storage.SaveData(FileManager.employeeDataPath, updatedEmployees);
+                                
+                                // Refresh the employee list and grid
+                                employees = employeeService.GetAll();
+
+                                // Reapply current search and filter
+                                TextBox txtSearch = Controls.Find("txtSearch", true).FirstOrDefault() as TextBox;
+                                string searchText = txtSearch?.Text?.ToLower() ?? "";
+                                ApplySearchAndFilter(searchText, GetCurrentFilter());
+
+                                MessageBox.Show("Employee updated successfully!", "Success",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                            else {
+                                MessageBox.Show("Failed to update employee.", "Error", 
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                        catch (Exception ex) {
+                            MessageBox.Show($"Error updating employee: {ex.Message}", "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
                 }
                 else if (dgv.Columns[e.ColumnIndex].Name == "Delete")
                 {
-                    // Get the employee ID from the row
-                    string employeeId = dgv.Rows[e.RowIndex].Cells["ID"].Value.ToString();
                     DialogResult result = MessageBox.Show(
-                        $"Are you sure you want to delete employee with ID: {employeeId}?",
+                        $"Are you sure you want to delete employee with ID: {selectedEmployee.EmployeeId}?",
                         "Confirm Delete",
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Question);
 
                     if (result == DialogResult.Yes)
                     {
-                        // Delete the employee
-                        MessageBox.Show($"Employee with ID: {employeeId} deleted!");
-                        // Actually remove the employee from the data source and refresh
-                        employees.RemoveAll(e => e.EmployeeId == employeeId);
-                        PopulateEmployeeDataGridView();
+                        try {
+                            // Delete the employee from the service
+                            bool success = employeeService.Delete(selectedEmployee.Id);
+                            
+                            if (success) {
+                                // Ensure data is saved to JSON by forcing a file write
+                                JsonFileStorage storage = new JsonFileStorage();
+                                List<Employee> updatedEmployees = employeeService.GetAll();
+                                storage.SaveData(FileManager.employeeDataPath, updatedEmployees);
+                                
+                                // Refresh the employee list and grid
+                                employees = employeeService.GetAll();
+
+                                // Reapply current search and filter
+                                TextBox txtSearch = Controls.Find("txtSearch", true).FirstOrDefault() as TextBox;
+                                string searchText = txtSearch?.Text?.ToLower() ?? "";
+                                ApplySearchAndFilter(searchText, GetCurrentFilter());
+
+                                MessageBox.Show($"Employee with ID: {selectedEmployee.EmployeeId} deleted!", "Success",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                            else {
+                                MessageBox.Show("Failed to delete employee.", "Error", 
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                        catch (Exception ex) {
+                            MessageBox.Show($"Error deleting employee: {ex.Message}", "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
                     }
                 }
             }
@@ -447,8 +576,78 @@ namespace HRManagementSystem
 
         private void BtnAddEmployee_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Add New Employee button clicked!");
-            // Here you would open a form to add a new employee
+            // Create a new employee
+            Employee newEmployee = new Employee
+            {
+                Id = Guid.NewGuid().ToString(),
+                EmployeeId = GenerateNewEmployeeId(),
+                Status = EmployeeStatus.Active,
+                HireDate = DateTime.Now
+            };
+
+            // Open the edit form for a new employee
+            EditEmployeeForm addForm = new EditEmployeeForm(newEmployee, departments, true);
+            DialogResult result = addForm.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                try {
+                    // Ensure department name is set before adding
+                    if (string.IsNullOrEmpty(addForm.UpdatedEmployee.DepartmentName))
+                    {
+                        addForm.UpdatedEmployee.DepartmentName = GetDepartmentName(addForm.UpdatedEmployee.DepartmentId);
+                    }
+
+                    // Add the new employee
+                    bool success = employeeService.Add(addForm.UpdatedEmployee);
+                    
+                    if (success) {
+                        // Ensure data is saved to JSON by forcing a file write
+                        JsonFileStorage storage = new JsonFileStorage();
+                        List<Employee> updatedEmployees = employeeService.GetAll();
+                        storage.SaveData(FileManager.employeeDataPath, updatedEmployees);
+                        
+                        // Refresh the employee list and grid
+                        employees = employeeService.GetAll();
+
+                        // Reapply current search and filter
+                        TextBox txtSearch = Controls.Find("txtSearch", true).FirstOrDefault() as TextBox;
+                        string searchText = txtSearch?.Text?.ToLower() ?? "";
+                        ApplySearchAndFilter(searchText, GetCurrentFilter());
+
+                        MessageBox.Show("New employee added successfully!", "Success",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else {
+                        MessageBox.Show("Failed to add employee.", "Error", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                catch (Exception ex) {
+                    MessageBox.Show($"Error adding employee: {ex.Message}", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private string GenerateNewEmployeeId()
+        {
+            // Find the highest employee ID number and increment by 1
+            int highestNumber = 0;
+
+            foreach (var employee in employees)
+            {
+                if (employee.EmployeeId != null && employee.EmployeeId.StartsWith("EMP"))
+                {
+                    if (int.TryParse(employee.EmployeeId.Substring(3), out int idNumber))
+                    {
+                        highestNumber = Math.Max(highestNumber, idNumber);
+                    }
+                }
+            }
+
+            // Format the new ID with leading zeros (EMP001, EMP002, etc.)
+            return $"EMP{(highestNumber + 1):D3}";
         }
     }
 

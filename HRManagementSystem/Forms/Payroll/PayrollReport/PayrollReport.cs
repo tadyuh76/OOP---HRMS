@@ -149,10 +149,10 @@ namespace HRManagementSystem
             try
             {
 
-                var payrolls = _payrollService.GetAll();
+                List<Payroll> payrolls = _payrollService.GetAll();
 
 
-                var allEmployees = new List<object>
+                List<object> allEmployees = new List<object>
                 {
                     new { Id = "", Name = "All Employee" }
                 };
@@ -185,7 +185,7 @@ namespace HRManagementSystem
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
 
 
-                var defaultList = new List<object>
+                List<object> defaultList = new List<object>
                 {
                     new { Id = "", Name = "All Employee" }
                 };
@@ -217,7 +217,7 @@ namespace HRManagementSystem
                     isPaid = false;
 
 
-                var allPayrolls = _payrollService.GetAll();
+                List<Payroll> allPayrolls = _payrollService.GetAll();
 
                 if (allPayrolls == null || !allPayrolls.Any())
                 {
@@ -234,7 +234,7 @@ namespace HRManagementSystem
                 }
 
 
-                var payrolls = allPayrolls
+                List<Payroll> payrolls = allPayrolls
                     .Where(p => p.PayPeriodStart.Date >= fromDate && p.PayPeriodEnd.Date <= toDate)
                     .Where(p => string.IsNullOrEmpty(employeeId) || p.EmployeeId == employeeId)
                     .Where(p => isPaid == null || p.IsPaid == isPaid)

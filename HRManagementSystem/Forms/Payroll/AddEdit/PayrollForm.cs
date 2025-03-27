@@ -8,8 +8,6 @@ namespace HRManagementSystem
         private readonly EmployeeService _employeeService;
         private Payroll _payroll;
         private bool _isEditMode = false;
-        // Add a field to store the original employee name for validation
-        private string _originalEmployeeName;
 
         public PayrollForm(PayrollService payrollService, EmployeeService employeeService)
         {
@@ -37,22 +35,16 @@ namespace HRManagementSystem
         {
             try
             {
-                if (_employeeService == null)
-                {
-                    throw new InvalidOperationException("Employee service is not initialized.");
-                }
-
                 // Get employees from EmployeeService instead of payroll records
-                List<Employee> employees = _employeeService.GetAll() ?? new List<Employee>();
+                List<Employee> employees = _employeeService.GetAll();
 
-                // Create a list for the combo box, with null checks
+                // Create a list for the combo box
                 var employeeList = employees
-                    .Where(e => e != null) // Filter out any null employees
                     .Select(e => new
                     {
-                        Id = e.Id ?? string.Empty,
-                        EmployeeId = e.EmployeeId ?? string.Empty,
-                        Name = e.Name ?? "[No Name]"
+                        Id = e.Id,                 // Use the primary Id (needed for GetById)
+                        EmployeeId = e.EmployeeId, // Keep track of EmployeeId too
+                        Name = $"{e.Name}"
                     })
                     .ToList();
 
@@ -64,8 +56,7 @@ namespace HRManagementSystem
                 cboEmployee.ValueMember = "Id";
                 cboEmployee.DataSource = employeeList;
 
-                // Add event handler for employee selection - only add if not already added
-                cboEmployee.SelectedIndexChanged -= CboEmployee_SelectedIndexChanged; // Remove first to avoid duplicates
+                // Add event handler for employee selection
                 cboEmployee.SelectedIndexChanged += CboEmployee_SelectedIndexChanged;
             }
             catch (Exception ex)
@@ -77,42 +68,22 @@ namespace HRManagementSystem
 
         private void CboEmployee_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cboEmployee.SelectedIndex > 0 && cboEmployee.SelectedItem != null)
+            if (cboEmployee.SelectedIndex > 0)
             {
                 try
                 {
                     dynamic selectedEmployee = cboEmployee.SelectedItem;
-                    string id = selectedEmployee.Id;
+                    string id = selectedEmployee.Id;  // Use the primary Id for lookup
 
-                    if (string.IsNullOrEmpty(id))
-                    {
-                        throw new InvalidOperationException("Selected employee has no ID");
-                    }
-
-                    // Find the employee with matching Id
+                    // Find the employee with matching Id, not EmployeeId
                     Employee employee = _employeeService.GetById(id);
 
                     if (employee != null)
                     {
-                        // Store the employee name - should not be editable
-                        _originalEmployeeName = employee.Name;
-
-                        // Prefill base salary from employee data with proper formatting
-                        decimal baseSalary = employee.BaseSalary;
-                        txtBaseSalary.Text = baseSalary.ToString("N0");
-                        
-                        // Prefill allowances and deductions with zeros if they're empty
-                        if (string.IsNullOrWhiteSpace(txtAllowances.Text))
-                            txtAllowances.Text = "0";
-                        if (string.IsNullOrWhiteSpace(txtDeductions.Text))
-                            txtDeductions.Text = "0";
-                            
+                        // Prefill base salary from employee data
+                        txtBaseSalary.Text = employee.BaseSalary.ToString("N0");
                         // Recalculate net salary based on the new base salary
                         CalculateNetSalary();
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException($"Employee with ID {id} not found");
                     }
                 }
                 catch (Exception ex)
@@ -121,12 +92,6 @@ namespace HRManagementSystem
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-            else
-            {
-                // If no employee is selected or the default option is selected, clear fields
-                txtBaseSalary.Text = "0";
-                txtNetSalary.Text = "0";
-            }
         }
 
         private void SetupForm()
@@ -134,20 +99,6 @@ namespace HRManagementSystem
             this.Text = _isEditMode ? "Update Payslip" : "Add Payslip";
 
             LoadEmployeeList();
-
-            // Disable employee selection when in edit mode
-            if (_isEditMode)
-            {
-                cboEmployee.Enabled = false;
-            }
-            else
-            {
-                // In add mode, make sure to clear fields
-                txtBaseSalary.Text = "0";
-                txtAllowances.Text = "0";
-                txtDeductions.Text = "0";
-                txtNetSalary.Text = "0";
-            }
 
             dtpPayPeriodStart.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             dtpPayPeriodEnd.Value = dtpPayPeriodStart.Value.AddMonths(1).AddDays(-1);
@@ -159,25 +110,14 @@ namespace HRManagementSystem
 
         private void LoadPayrollData()
         {
-            // Find and select the correct employee in the dropdown
-            bool employeeFound = false;
             for (int i = 0; i < cboEmployee.Items.Count; i++)
             {
                 dynamic item = cboEmployee.Items[i];
                 if (item.EmployeeId == _payroll.EmployeeId)  // Match by EmployeeId
                 {
                     cboEmployee.SelectedIndex = i;
-                    // Store the original employee name
-                    _originalEmployeeName = _payroll.EmployeeName;
-                    employeeFound = true;
                     break;
                 }
-            }
-
-            // If employee wasn't found in the dropdown, handle gracefully
-            if (!employeeFound && !string.IsNullOrEmpty(_payroll.EmployeeName))
-            {
-                _originalEmployeeName = _payroll.EmployeeName;
             }
 
             dtpPayPeriodStart.Value = _payroll.PayPeriodStart;
@@ -233,19 +173,7 @@ namespace HRManagementSystem
                     dynamic selectedEmployee = cboEmployee.SelectedItem;
 
                     _payroll.EmployeeId = selectedEmployee.EmployeeId;  // Use EmployeeId for payroll
-
-                    // Always use the original employee name, never allow editing
-                    if (_isEditMode && !string.IsNullOrEmpty(_payroll.EmployeeName))
-                    {
-                        // In edit mode, preserve the existing employee name
-                        // No change needed to _payroll.EmployeeName
-                    }
-                    else
-                    {
-                        // In add mode, use the name from the selected employee
-                        _payroll.EmployeeName = selectedEmployee.Name;
-                    }
-
+                    _payroll.EmployeeName = selectedEmployee.Name;
                     _payroll.PayPeriodStart = dtpPayPeriodStart.Value;
                     _payroll.PayPeriodEnd = dtpPayPeriodEnd.Value;
                     _payroll.BaseSalary = ParseCurrency(txtBaseSalary.Text);

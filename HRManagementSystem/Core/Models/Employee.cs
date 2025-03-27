@@ -89,6 +89,10 @@ namespace HRManagementSystem
         [JsonPropertyName("department")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Department Department { get; set; }
+        
+        // Add a new property for department name that isn't serialized
+        [JsonIgnore]
+        public string DepartmentName { get; set; }
 
         public int CalculateYearsOfService()
         {

@@ -124,7 +124,7 @@ namespace HRManagementSystem
                     _payrolls = new List<Payroll>();
                 }
 
-                foreach (var payroll in _payrolls)
+                foreach (Payroll payroll in _payrolls)
                 {
                     if (payroll.Allowances == null) payroll.Allowances = 0;
                     if (payroll.Deductions == null) payroll.Deductions = 0;
@@ -200,7 +200,7 @@ namespace HRManagementSystem
                     table.AddCell("Allowances");
                     table.AddCell("NetSalary");
 
-                    foreach (var payroll in _payrolls)
+                    foreach (Payroll payroll in _payrolls)
                     {
                         table.AddCell(payroll.PayrollId);
                         table.AddCell(payroll.EmployeeName);
@@ -228,7 +228,7 @@ namespace HRManagementSystem
         {
             if (e.RowIndex >= 0 && e.RowIndex < _payrolls.Count)
             {
-                var selectedPayroll = _payrolls[e.RowIndex];
+                Payroll selectedPayroll = _payrolls[e.RowIndex];
 
             }
         }

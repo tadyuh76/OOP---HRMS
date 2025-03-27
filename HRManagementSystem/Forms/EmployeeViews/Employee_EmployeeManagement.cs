@@ -1,4 +1,3 @@
-using System.Text.Json;
 using System.Drawing.Drawing2D;
 
 namespace HRManagementSystem
@@ -38,7 +37,7 @@ namespace HRManagementSystem
         {
             employeeService = EmployeeService.GetInstance();
             allEmployees = employeeService.GetAll();
-            
+
             InitializeComponent();
             PopulateEmployeeSelector();
             LoadEmployeeData(employeeId);
@@ -343,7 +342,7 @@ namespace HRManagementSystem
         private void PopulateEmployeeSelector()
         {
             cmbEmployeeSelector.Items.Clear();
-            foreach (var employee in allEmployees)
+            foreach (Employee employee in allEmployees)
             {
                 cmbEmployeeSelector.Items.Add(new EmployeeSelectionItem
                 {
@@ -357,7 +356,7 @@ namespace HRManagementSystem
         {
             if (cmbEmployeeSelector.SelectedItem != null)
             {
-                var selectedEmployee = (EmployeeSelectionItem)cmbEmployeeSelector.SelectedItem;
+                EmployeeSelectionItem selectedEmployee = (EmployeeSelectionItem)cmbEmployeeSelector.SelectedItem;
                 LoadEmployeeData(selectedEmployee.EmployeeId);
             }
         }
@@ -452,7 +451,7 @@ namespace HRManagementSystem
                     // Select the correct item in the dropdown if it exists
                     for (int i = 0; i < cmbEmployeeSelector.Items.Count; i++)
                     {
-                        var item = (EmployeeSelectionItem)cmbEmployeeSelector.Items[i];
+                        EmployeeSelectionItem? item = (EmployeeSelectionItem)cmbEmployeeSelector.Items[i];
                         if (item.EmployeeId == employeeId)
                         {
                             cmbEmployeeSelector.SelectedIndex = i;

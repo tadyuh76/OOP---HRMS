@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-
 namespace HRManagementSystem
 {
     public class EmployeeService : IService<Employee>
@@ -17,13 +12,13 @@ namespace HRManagementSystem
         public EmployeeService()
         {
             _fileManager = null;
-            
-            try 
+
+            try
             {
                 // Try to load employees directly from the JSON file
                 if (File.Exists(FileManager.employeeDataPath))
                 {
-                    var storage = new JsonFileStorage();
+                    JsonFileStorage storage = new JsonFileStorage();
                     _employees = storage.LoadData<List<Employee>>(FileManager.employeeDataPath) ?? new List<Employee>();
                 }
                 else
@@ -34,7 +29,7 @@ namespace HRManagementSystem
             catch
             {
                 // If anything goes wrong, initialize with an empty list
-_employees = new List<Employee>();
+                _employees = new List<Employee>();
             }
         }
 
@@ -62,6 +57,20 @@ _employees = new List<Employee>();
 
         public List<Employee> GetAll()
         {
+            // Load department data to populate department names
+            DepartmentService departmentService = DepartmentService.GetInstance();
+            List<Department> departments = departmentService.GetAll();
+            
+            // Associate department names with employees
+            foreach (var employee in _employees)
+            {
+                var department = departments.FirstOrDefault(d => d.DepartmentId == employee.DepartmentId);
+                if (department != null)
+                {
+                    employee.DepartmentName = department.Name;
+                }
+            }
+            
             return _employees;
         }
 

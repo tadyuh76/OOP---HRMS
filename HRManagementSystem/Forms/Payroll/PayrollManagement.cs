@@ -171,7 +171,7 @@
                 _currentPayrolls = _payrollService.GetPayrollsByMonth(_currentMonth);
                 List<PayrollViewModel> payrollViewModels = new List<PayrollViewModel>();
 
-                foreach (var payroll in _currentPayrolls)
+                foreach (Payroll payroll in _currentPayrolls)
                 {
 
                     payrollViewModels.Add(new PayrollViewModel

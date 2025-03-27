@@ -7,7 +7,7 @@
     "departmentId": "DEP001",
     "status": "Active",
     "id": "p001",
-    "name": "John Smith",
+    "name": "Dat Huy",
     "email": "john.smith@company.com",
     "phone": "0914804685",
     "dateOfBirth": "1985-06-15T00:00:00",
@@ -208,5 +208,19 @@
     "phone": "555-567-8901",
     "dateOfBirth": "1993-12-05T00:00:00",
     "address": "1212 Cherry Ln, Newton, MA 02458"
+  },
+  {
+    "employeeId": "EMP016",
+    "hireDate": "2025-03-27T23:34:29.9000278+07:00",
+    "position": "Chief Technology Officer",
+    "baseSalary": 5000,
+    "departmentId": "DEP001",
+    "status": "Active",
+    "id": "513651c5-cd7f-45e3-a5bf-721c726c82c7",
+    "name": "Tad Yuh",
+    "email": "tadyuh76@gmail.com",
+    "phone": "0914398183",
+    "dateOfBirth": "2005-06-07T23:34:29.909",
+    "address": "Rainbow Way"
   }
 ]

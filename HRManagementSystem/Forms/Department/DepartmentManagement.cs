@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Data;
+﻿using System.Data;
 
 namespace HRManagementSystem
 {
@@ -9,537 +8,469 @@ namespace HRManagementSystem
         private TextBox txtSearch;
         private Button btnSearch;
         private Button btnAdd;
-        private Button btnEdit;
-        private Button btnDelete;
         private Button btnRefresh;
-        private Panel pnlDetails;
-
-        private TextBox txtDepartmentId;
-        private TextBox txtName;
-        private TextBox txtDescription;
-        private NumericUpDown nudBudget;
-        private ComboBox cmbManager;
-        private TextBox txtManagerName;
-        private Button btnSave;
-        private Button btnCancel;
 
         private DepartmentService _departmentService;
+        private EmployeeService _employeeService;
         private List<Department> _departments;
-        private bool _isNewDepartment = false;
+        private List<Employee> _employees;
+        private FileManager _fileManager;
 
         public DepartmentManagement()
         {
             InitializeComponent();
-            _departmentService = new DepartmentService();
-            LoadDepartmentsAsync();
+            // Initialize FileManager with JsonFileStorage
+            _fileManager = new FileManager(new JsonFileStorage());
+            
+            // Initialize services with FileManager to ensure data persistence
+            _departmentService = new DepartmentService(_fileManager);
+            _employeeService = new EmployeeService();
+            
+            LoadData();
         }
 
         private void InitializeComponent()
         {
-            this.BackColor = Color.WhiteSmoke;
-            this.Dock = DockStyle.Fill;
-            this.Size = new Size(1000, 600);
+            this.Text = "Department Management";
+            this.Size = new Size(1200, 700);
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
 
-            // Title
-            Label lblTitle = new Label();
-            lblTitle.Text = "Department Management";
-            lblTitle.Font = new Font("Segoe UI", 16, FontStyle.Bold);
-            lblTitle.Location = new Point(20, 20);
-            lblTitle.AutoSize = true;
-            this.Controls.Add(lblTitle);
+            // Main layout panel
+            TableLayoutPanel mainLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(20),
+                RowCount = 2,
+                ColumnCount = 1
+            };
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            this.Controls.Add(mainLayout);
 
-            // Description
-            Label lblDescription = new Label();
-            lblDescription.Text = "Create and manage departments, assign managers and employees";
-            lblDescription.Font = new Font("Segoe UI", 10);
-            lblDescription.Location = new Point(20, 60);
-            lblDescription.AutoSize = true;
-            this.Controls.Add(lblDescription);
+            // Header panel with title and add button
+            Panel headerPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Height = 60
+            };
+            mainLayout.Controls.Add(headerPanel, 0, 0);
 
-            // Search panel
-            Panel pnlSearch = new Panel();
-            pnlSearch.Location = new Point(20, 100);
-            pnlSearch.Size = new Size(960, 40);
-            this.Controls.Add(pnlSearch);
+            // Title label
+            Label lblTitle = new Label
+            {
+                Text = "Department Management",
+                Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point),
+                AutoSize = true,
+                Location = new Point(0, 10)
+            };
+            headerPanel.Controls.Add(lblTitle);
 
-            txtSearch = new TextBox();
-            txtSearch.Location = new Point(0, 5);
-            txtSearch.Size = new Size(250, 30);
-            txtSearch.PlaceholderText = "Search departments...";
-            pnlSearch.Controls.Add(txtSearch);
-
-            btnSearch = new Button();
-            btnSearch.Location = new Point(260, 5);
-            btnSearch.Size = new Size(80, 30);
-            btnSearch.Text = "Search";
-            btnSearch.Click += BtnSearch_Click;
-            pnlSearch.Controls.Add(btnSearch);
-
-            btnRefresh = new Button();
-            btnRefresh.Location = new Point(350, 5);
-            btnRefresh.Size = new Size(80, 30);
-            btnRefresh.Text = "Refresh";
-            btnRefresh.Click += BtnRefresh_Click;
-            pnlSearch.Controls.Add(btnRefresh);
-
-            // Action buttons
-            btnAdd = new Button();
-            btnAdd.Location = new Point(700, 5);
-            btnAdd.Size = new Size(80, 30);
-            btnAdd.Text = "Add New";
-            btnAdd.BackColor = Color.ForestGreen;
-            btnAdd.ForeColor = Color.White;
+            // Add New Department button
+            btnAdd = new Button
+            {
+                Text = "+ Add New Department",
+                BackColor = Color.FromArgb(68, 93, 233),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Size = new Size(200, 40),
+                Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point),
+                Location = new Point(headerPanel.Width - 220, 10),
+                Anchor = AnchorStyles.Right | AnchorStyles.Top
+            };
+            btnAdd.FlatAppearance.BorderSize = 0;
             btnAdd.Click += BtnAdd_Click;
-            pnlSearch.Controls.Add(btnAdd);
+            headerPanel.Controls.Add(btnAdd);
 
-            btnEdit = new Button();
-            btnEdit.Location = new Point(790, 5);
-            btnEdit.Size = new Size(80, 30);
-            btnEdit.Text = "Edit";
-            btnEdit.BackColor = Color.RoyalBlue;
-            btnEdit.ForeColor = Color.White;
-            btnEdit.Click += BtnEdit_Click;
-            pnlSearch.Controls.Add(btnEdit);
+            // Directory panel (second row)
+            Panel directoryPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+            mainLayout.Controls.Add(directoryPanel, 0, 1);
 
-            btnDelete = new Button();
-            btnDelete.Location = new Point(880, 5);
-            btnDelete.Size = new Size(80, 30);
-            btnDelete.Text = "Delete";
-            btnDelete.BackColor = Color.Crimson;
-            btnDelete.ForeColor = Color.White;
-            btnDelete.Click += BtnDelete_Click;
-            pnlSearch.Controls.Add(btnDelete);
+            // Directory layout
+            TableLayoutPanel directoryLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(20),
+                RowCount = 3,
+                ColumnCount = 1
+            };
+            directoryLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            directoryLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            directoryLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            directoryPanel.Controls.Add(directoryLayout);
 
-            // DataGridView
-            dgvDepartments = new DataGridView();
-            dgvDepartments.Location = new Point(20, 150);
-            dgvDepartments.Size = new Size(600, 400);
-            dgvDepartments.AutoGenerateColumns = false;
-            dgvDepartments.AllowUserToAddRows = false;
-            dgvDepartments.AllowUserToDeleteRows = false;
-            dgvDepartments.ReadOnly = true;
-            dgvDepartments.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvDepartments.MultiSelect = false;
-            dgvDepartments.CellDoubleClick += DgvDepartments_CellDoubleClick;
-            dgvDepartments.SelectionChanged += DgvDepartments_SelectionChanged;
+            // Directory header
+            Label lblDirectory = new Label
+            {
+                Text = "Department Directory",
+                Font = new Font("Segoe UI", 14F, FontStyle.Bold, GraphicsUnit.Point),
+                AutoSize = true,
+                Margin = new Padding(0, 0, 0, 15)
+            };
+            directoryLayout.Controls.Add(lblDirectory, 0, 0);
 
-            // Define columns
-            DataGridViewTextBoxColumn colId = new DataGridViewTextBoxColumn();
-            colId.DataPropertyName = "DepartmentId";
-            colId.HeaderText = "ID";
-            colId.Width = 80;
+            // Search and action panel
+            Panel searchPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Height = 60
+            };
+            directoryLayout.Controls.Add(searchPanel, 0, 1);
+
+            // Search box
+            txtSearch = new TextBox
+            {
+                Size = new Size(500, 30),
+                Location = new Point(0, 10),
+                Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point),
+                BorderStyle = BorderStyle.FixedSingle,
+                Padding = new Padding(5),
+                PlaceholderText = "Search departments..."
+            };
+            txtSearch.SetBounds(txtSearch.Left, txtSearch.Top, txtSearch.Width, 35);
+            searchPanel.Controls.Add(txtSearch);
+
+            // Search icon
+            Label lblSearchIcon = new Label
+            {
+                Text = "🔍",
+                AutoSize = true,
+                Location = new Point(10, 17)
+            };
+            txtSearch.Controls.Add(lblSearchIcon);
+            txtSearch.Padding = new Padding(25, 5, 5, 5);
+
+            // Search button
+            btnSearch = new Button
+            {
+                Text = "Search",
+                Location = new Point(txtSearch.Right + 10, 10),
+                Size = new Size(80, 35),
+                BackColor = Color.FromArgb(240, 240, 240)
+            };
+            btnSearch.Click += BtnSearch_Click;
+            searchPanel.Controls.Add(btnSearch);
+
+            // Refresh button
+            btnRefresh = new Button
+            {
+                Text = "Refresh",
+                Location = new Point(btnSearch.Right + 10, 10),
+                Size = new Size(80, 35),
+                BackColor = Color.FromArgb(240, 240, 240)
+            };
+            btnRefresh.Click += BtnRefresh_Click;
+            searchPanel.Controls.Add(btnRefresh);
+
+            // DataGridView for departments
+            dgvDepartments = new DataGridView
+            {
+                Dock = DockStyle.Fill,
+                BackgroundColor = Color.White,
+                BorderStyle = BorderStyle.None,
+                RowHeadersVisible = false,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                AllowUserToResizeRows = false,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
+                GridColor = Color.FromArgb(230, 230, 230),
+                ReadOnly = true
+            };
+
+            // DataGridView style
+            dgvDepartments.ColumnHeadersDefaultCellStyle.BackColor = Color.White;
+            dgvDepartments.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(100, 100, 100);
+            dgvDepartments.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
+            dgvDepartments.ColumnHeadersDefaultCellStyle.Padding = new Padding(10);
+            dgvDepartments.ColumnHeadersHeight = 50;
+            dgvDepartments.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dgvDepartments.RowTemplate.Height = 50;
+            dgvDepartments.DefaultCellStyle.Padding = new Padding(10);
+            dgvDepartments.DefaultCellStyle.SelectionBackColor = Color.FromArgb(245, 245, 245);
+            dgvDepartments.DefaultCellStyle.SelectionForeColor = Color.Black;
+
+            directoryLayout.Controls.Add(dgvDepartments, 0, 2);
+
+            // Define columns - no description, will be shown in edit form
+            DataGridViewTextBoxColumn colId = new DataGridViewTextBoxColumn
+            {
+                Name = "DepartmentId",
+                HeaderText = "ID",
+                DataPropertyName = "DepartmentId"
+            };
             dgvDepartments.Columns.Add(colId);
 
-            DataGridViewTextBoxColumn colName = new DataGridViewTextBoxColumn();
-            colName.DataPropertyName = "Name";
-            colName.HeaderText = "Name";
-            colName.Width = 150;
+            DataGridViewTextBoxColumn colName = new DataGridViewTextBoxColumn
+            {
+                Name = "Name",
+                HeaderText = "Name",
+                DataPropertyName = "Name"
+            };
             dgvDepartments.Columns.Add(colName);
 
-            DataGridViewTextBoxColumn colDescription = new DataGridViewTextBoxColumn();
-            colDescription.DataPropertyName = "Description";
-            colDescription.HeaderText = "Description";
-            colDescription.Width = 200;
-            dgvDepartments.Columns.Add(colDescription);
-
-            DataGridViewTextBoxColumn colBudget = new DataGridViewTextBoxColumn();
-            colBudget.DataPropertyName = "Budget";
-            colBudget.HeaderText = "Budget";
-            colBudget.Width = 100;
-            colBudget.DefaultCellStyle.Format = "C2";
+            DataGridViewTextBoxColumn colBudget = new DataGridViewTextBoxColumn
+            {
+                Name = "Budget",
+                HeaderText = "Budget",
+                DataPropertyName = "Budget",
+                DefaultCellStyle = { Format = "C2" }
+            };
             dgvDepartments.Columns.Add(colBudget);
+            
+            DataGridViewTextBoxColumn colEmployeeCount = new DataGridViewTextBoxColumn
+            {
+                Name = "EmployeeCount",
+                HeaderText = "Employee Count",
+                DataPropertyName = "EmployeeCount"
+            };
+            dgvDepartments.Columns.Add(colEmployeeCount);
 
-            DataGridViewTextBoxColumn colManagerId = new DataGridViewTextBoxColumn();
-            colManagerId.DataPropertyName = "ManagerId";
-            colManagerId.HeaderText = "Manager ID";
-            colManagerId.Width = 90;
+            DataGridViewTextBoxColumn colManagerId = new DataGridViewTextBoxColumn
+            {
+                Name = "ManagerId",
+                HeaderText = "Manager ID",
+                DataPropertyName = "ManagerId"
+            };
             dgvDepartments.Columns.Add(colManagerId);
 
-            DataGridViewTextBoxColumn colManagerName = new DataGridViewTextBoxColumn();
-            colManagerName.DataPropertyName = "ManagerName";
-            colManagerName.HeaderText = "Manager";
-            colManagerName.Width = 150;
+            DataGridViewTextBoxColumn colManagerName = new DataGridViewTextBoxColumn
+            {
+                Name = "ManagerName",
+                HeaderText = "Manager",
+                DataPropertyName = "ManagerName"
+            };
             dgvDepartments.Columns.Add(colManagerName);
 
-            this.Controls.Add(dgvDepartments);
+            // Add action buttons column
+            DataGridViewButtonColumn editColumn = new DataGridViewButtonColumn
+            {
+                HeaderText = "Actions",
+                Name = "Edit",
+                Text = "✏️",
+                UseColumnTextForButtonValue = true,
+                FlatStyle = FlatStyle.Flat
+            };
+            dgvDepartments.Columns.Add(editColumn);
 
-            // Details Panel
-            pnlDetails = new Panel();
-            pnlDetails.Location = new Point(640, 150);
-            pnlDetails.Size = new Size(340, 400);
-            pnlDetails.BorderStyle = BorderStyle.FixedSingle;
-            pnlDetails.BackColor = Color.WhiteSmoke;
-            this.Controls.Add(pnlDetails);
+            DataGridViewButtonColumn deleteColumn = new DataGridViewButtonColumn
+            {
+                HeaderText = "",
+                Name = "Delete",
+                Text = "🗑️",
+                UseColumnTextForButtonValue = true,
+                FlatStyle = FlatStyle.Flat
+            };
+            dgvDepartments.Columns.Add(deleteColumn);
 
-            Label lblDetailsTitle = new Label();
-            lblDetailsTitle.Text = "Department Details";
-            lblDetailsTitle.Font = new Font("Segoe UI", 12, FontStyle.Bold);
-            lblDetailsTitle.Location = new Point(10, 10);
-            lblDetailsTitle.AutoSize = true;
-            pnlDetails.Controls.Add(lblDetailsTitle);
-
-            Label lblId = new Label();
-            lblId.Text = "Department ID:";
-            lblId.Location = new Point(10, 50);
-            lblId.AutoSize = true;
-            pnlDetails.Controls.Add(lblId);
-
-            txtDepartmentId = new TextBox();
-            txtDepartmentId.Location = new Point(130, 50);
-            txtDepartmentId.Size = new Size(190, 25);
-            txtDepartmentId.ReadOnly = true;
-            pnlDetails.Controls.Add(txtDepartmentId);
-
-            Label lblName = new Label();
-            lblName.Text = "Name:";
-            lblName.Location = new Point(10, 90);
-            lblName.AutoSize = true;
-            pnlDetails.Controls.Add(lblName);
-
-            txtName = new TextBox();
-            txtName.Location = new Point(130, 90);
-            txtName.Size = new Size(190, 25);
-            pnlDetails.Controls.Add(txtName);
-
-            Label lblDescr = new Label();
-            lblDescr.Text = "Description:";
-            lblDescr.Location = new Point(10, 130);
-            lblDescr.AutoSize = true;
-            pnlDetails.Controls.Add(lblDescr);
-
-            txtDescription = new TextBox();
-            txtDescription.Location = new Point(130, 130);
-            txtDescription.Size = new Size(190, 25);
-            txtDescription.Multiline = true;
-            txtDescription.Height = 60;
-            pnlDetails.Controls.Add(txtDescription);
-
-            Label lblBudget = new Label();
-            lblBudget.Text = "Budget:";
-            lblBudget.Location = new Point(10, 210);
-            lblBudget.AutoSize = true;
-            pnlDetails.Controls.Add(lblBudget);
-
-            nudBudget = new NumericUpDown();
-            nudBudget.Location = new Point(130, 210);
-            nudBudget.Size = new Size(190, 25);
-            nudBudget.Maximum = 10000000;
-            nudBudget.Increment = 10000;
-            nudBudget.ThousandsSeparator = true;
-            nudBudget.DecimalPlaces = 2;
-            pnlDetails.Controls.Add(nudBudget);
-
-            Label lblManager = new Label();
-            lblManager.Text = "Manager ID:";
-            lblManager.Location = new Point(10, 250);
-            lblManager.AutoSize = true;
-            pnlDetails.Controls.Add(lblManager);
-
-            cmbManager = new ComboBox();
-            cmbManager.Location = new Point(130, 250);
-            cmbManager.Size = new Size(190, 25);
-            cmbManager.Items.AddRange(new object[] { "EMP001", "EMP002", "EMP003", "EMP005", "EMP007", "EMP010", "EMP011" });
-            cmbManager.SelectedIndexChanged += CmbManager_SelectedIndexChanged;
-            pnlDetails.Controls.Add(cmbManager);
-
-            Label lblManagerName = new Label();
-            lblManagerName.Text = "Manager Name:";
-            lblManagerName.Location = new Point(10, 290);
-            lblManagerName.AutoSize = true;
-            pnlDetails.Controls.Add(lblManagerName);
-
-            txtManagerName = new TextBox();
-            txtManagerName.Location = new Point(130, 290);
-            txtManagerName.Size = new Size(190, 25);
-            txtManagerName.ReadOnly = true;
-            pnlDetails.Controls.Add(txtManagerName);
-
-            btnSave = new Button();
-            btnSave.Location = new Point(130, 330);
-            btnSave.Size = new Size(90, 30);
-            btnSave.Text = "Save";
-            btnSave.BackColor = Color.ForestGreen;
-            btnSave.ForeColor = Color.White;
-            btnSave.Click += BtnSave_Click;
-            pnlDetails.Controls.Add(btnSave);
-
-            btnCancel = new Button();
-            btnCancel.Location = new Point(230, 330);
-            btnCancel.Size = new Size(90, 30);
-            btnCancel.Text = "Cancel";
-            btnCancel.BackColor = Color.Gray;
-            btnCancel.ForeColor = Color.White;
-            btnCancel.Click += BtnCancel_Click;
-            pnlDetails.Controls.Add(btnCancel);
-
-            // Initially disable fields
-            SetDetailsEnabled(false);
+            dgvDepartments.CellClick += DgvDepartments_CellClick;
         }
 
-        private void SetDetailsEnabled(bool enabled)
-        {
-            txtName.Enabled = enabled;
-            txtDescription.Enabled = enabled;
-            nudBudget.Enabled = enabled;
-            cmbManager.Enabled = enabled;
-            btnSave.Enabled = enabled;
-            btnCancel.Enabled = enabled;
-            // txtManagerName is always read-only
-        }
-
-        private void ClearDetails()
-        {
-            txtDepartmentId.Text = string.Empty;
-            txtName.Text = string.Empty;
-            txtDescription.Text = string.Empty;
-            nudBudget.Value = 0;
-            cmbManager.SelectedIndex = -1;
-            txtManagerName.Text = string.Empty;
-        }
-
-        private async void LoadDepartmentsAsync()
+        private void LoadData()
         {
             try
             {
-                _departments = await _departmentService.GetAllDepartmentsAsync();
-                dgvDepartments.DataSource = null;
-                dgvDepartments.DataSource = new BindingList<Department>(_departments);
+                // Load departments using the department service
+                _departments = _departmentService.GetAll();
+
+                // Load employees to populate manager dropdown
+                _employees = _employeeService.GetAll();
+
+                // Instead of using DataSource binding, we'll populate the grid manually
+                PopulateDepartmentsGrid(_departments);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading departments: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error loading data: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void DisplayDepartmentDetails(Department department)
+        private void PopulateDepartmentsGrid(List<Department> departments)
         {
-            if (department == null)
+            // Clear existing rows without affecting columns
+            dgvDepartments.Rows.Clear();
+
+            // Add each department to the grid in the order we want
+            foreach (var dept in departments)
             {
-                ClearDetails();
-                return;
+                // Calculate employee count for this department
+                int employeeCount = _employees.Count(e => e.DepartmentId == dept.DepartmentId);
+                
+                int rowIndex = dgvDepartments.Rows.Add(
+                    dept.DepartmentId,
+                    dept.Name,
+                    dept.Budget,
+                    employeeCount,
+                    dept.ManagerId,
+                    dept.ManagerName
+                );
+
+                // Store the department object for later use
+                dgvDepartments.Rows[rowIndex].Tag = dept;
             }
-
-            txtDepartmentId.Text = department.DepartmentId;
-            txtName.Text = department.Name;
-            txtDescription.Text = department.Description;
-            nudBudget.Value = department.Budget;
-            cmbManager.Text = department.ManagerId;
-            txtManagerName.Text = department.ManagerName;
-        }
-
-        private Department GetDepartmentFromForm()
-        {
-            return new Department(
-                txtDepartmentId.Text,
-                txtName.Text,
-                txtDescription.Text,
-                nudBudget.Value,
-                cmbManager.Text,
-                txtManagerName.Text
-            );
         }
 
         private void BtnSearch_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtSearch.Text))
             {
-                dgvDepartments.DataSource = new BindingList<Department>(_departments);
+                PopulateDepartmentsGrid(_departments);
                 return;
             }
 
             string searchTerm = txtSearch.Text.ToLower();
-            var filteredList = _departments.Where(d =>
+            List<Department> filteredList = _departments.Where(d =>
                 d.DepartmentId.ToLower().Contains(searchTerm) ||
                 d.Name.ToLower().Contains(searchTerm) ||
-                d.Description.ToLower().Contains(searchTerm) ||
-                d.ManagerId.ToLower().Contains(searchTerm) ||
-                d.ManagerName.ToLower().Contains(searchTerm)
+                (d.ManagerId?.ToLower()?.Contains(searchTerm) ?? false) ||
+                (d.ManagerName?.ToLower()?.Contains(searchTerm) ?? false)
             ).ToList();
 
-            dgvDepartments.DataSource = new BindingList<Department>(filteredList);
+            PopulateDepartmentsGrid(filteredList);
         }
 
         private void BtnRefresh_Click(object sender, EventArgs e)
         {
             txtSearch.Text = string.Empty;
-            LoadDepartmentsAsync();
+            LoadData();
         }
 
-        private async void BtnAdd_Click(object sender, EventArgs e)
+        private void BtnAdd_Click(object sender, EventArgs e)
         {
-            _isNewDepartment = true;
-            ClearDetails();
-            txtDepartmentId.Text = await _departmentService.GenerateNewDepartmentId();
-            SetDetailsEnabled(true);
-        }
-
-        private void BtnEdit_Click(object sender, EventArgs e)
-        {
-            if (dgvDepartments.SelectedRows.Count == 0)
+            // Create a new department with a generated ID
+            Department newDepartment = new Department
             {
-                MessageBox.Show("Please select a department to edit.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            _isNewDepartment = false;
-            SetDetailsEnabled(true);
-        }
-
-        private async void BtnDelete_Click(object sender, EventArgs e)
-        {
-            if (dgvDepartments.SelectedRows.Count == 0)
-            {
-                MessageBox.Show("Please select a department to delete.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            var department = (Department)dgvDepartments.SelectedRows[0].DataBoundItem;
-            var result = MessageBox.Show($"Are you sure you want to delete department {department.Name}?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
-            if (result == DialogResult.Yes)
-            {
-                try
-                {
-                    bool success = await _departmentService.DeleteDepartmentAsync(department.DepartmentId);
-                    if (success)
-                    {
-                        MessageBox.Show("Department deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadDepartmentsAsync();
-                        ClearDetails();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Failed to delete department.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
-        private async void BtnSave_Click(object sender, EventArgs e)
-        {
-            // Validate inputs
-            if (string.IsNullOrWhiteSpace(txtName.Text))
-            {
-                MessageBox.Show("Department name is required.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(cmbManager.Text))
-            {
-                MessageBox.Show("Manager ID is required.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            try
-            {
-                Department department = GetDepartmentFromForm();
-                bool success;
-
-                if (_isNewDepartment)
-                {
-                    success = await _departmentService.AddDepartmentAsync(department);
-                    if (success)
-                    {
-                        MessageBox.Show("Department added successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Failed to add department. ID may already exist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                }
-                else
-                {
-                    success = await _departmentService.UpdateDepartmentAsync(department);
-                    if (success)
-                    {
-                        MessageBox.Show("Department updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Failed to update department.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                }
-
-                LoadDepartmentsAsync();
-                SetDetailsEnabled(false);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void BtnCancel_Click(object sender, EventArgs e)
-        {
-            if (_isNewDepartment)
-            {
-                ClearDetails();
-            }
-            else if (dgvDepartments.SelectedRows.Count > 0)
-            {
-                DisplayDepartmentDetails((Department)dgvDepartments.SelectedRows[0].DataBoundItem);
-            }
-
-            SetDetailsEnabled(false);
-        }
-
-        private void DgvDepartments_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0)
-            {
-                _isNewDepartment = false;
-                SetDetailsEnabled(true);
-            }
-        }
-
-        private void DgvDepartments_SelectionChanged(object sender, EventArgs e)
-        {
-            if (dgvDepartments.SelectedRows.Count > 0)
-            {
-                DisplayDepartmentDetails((Department)dgvDepartments.SelectedRows[0].DataBoundItem);
-            }
-        }
-
-        private void CmbManager_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (cmbManager.SelectedIndex != -1)
-            {
-                // Get the corresponding manager name from employees
-                string managerId = cmbManager.SelectedItem.ToString();
-                // This is simplified - in a real implementation you'd fetch from an employee service
-                string managerName = GetManagerNameById(managerId);
-                txtManagerName.Text = managerName;
-            }
-        }
-
-        // Helper method to get manager name by ID
-        private string GetManagerNameById(string managerId)
-        {
-            // This is a simplified implementation
-            // In a real application, you would query the EmployeeService
-            Dictionary<string, string> managerMap = new Dictionary<string, string>
-            {
-                { "EMP001", "John Smith" },
-                { "EMP002", "Emily Johnson" },
-                { "EMP003", "Michael Brown" },
-                { "EMP005", "James Wilson" },
-                { "EMP007", "David Martinez" },
-                { "EMP010", "Lisa Anderson" },
-                { "EMP011", "Thomas Clark" }
+                DepartmentId = _departmentService.GenerateNewDepartmentId(),
+                Name = "",
+                Description = "",
+                Budget = 0,
+                ManagerId = "",
+                ManagerName = ""
             };
 
-            if (managerMap.ContainsKey(managerId))
+            // Open edit dialog for the new department
+            using (DepartmentEditDialog dialog = new DepartmentEditDialog(newDepartment, _employees, true))
             {
-                return managerMap[managerId];
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        bool success = _departmentService.Add(dialog.Department);
+                        if (success)
+                        {
+                            MessageBox.Show("Department added successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            LoadData();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Failed to add department.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
             }
+        }
 
-            return string.Empty;
+        private void DgvDepartments_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // Ignore header clicks
+            if (e.RowIndex < 0) return;
+
+            // Get the department object from the row's Tag
+            Department department = dgvDepartments.Rows[e.RowIndex].Tag as Department;
+            if (department == null) return;
+
+            // Handle Edit button click
+            if (dgvDepartments.Columns[e.ColumnIndex].Name == "Edit")
+            {
+                using (DepartmentEditDialog dialog = new DepartmentEditDialog(department, _employees, false))
+                {
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        try
+                        {
+                            bool success = _departmentService.Update(dialog.Department);
+                            if (success)
+                            {
+                                MessageBox.Show("Department updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                LoadData();
+                            }
+                            else
+                            {
+                                MessageBox.Show("Failed to update department.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+            }
+            // Handle Delete button click
+            else if (dgvDepartments.Columns[e.ColumnIndex].Name == "Delete")
+            {
+                // Check if department has employees assigned to it
+                if (DepartmentHasEmployees(department.DepartmentId))
+                {
+                    MessageBox.Show(
+                        $"Cannot delete department '{department.Name}' because it has employees assigned to it. " +
+                        "Please reassign or remove the employees first.",
+                        "Delete Restricted",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning
+                    );
+                    return;
+                }
+
+                DialogResult result = MessageBox.Show(
+                    $"Are you sure you want to delete department {department.Name}?",
+                    "Confirm Delete",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning
+                );
+
+                if (result == DialogResult.Yes)
+                {
+                    try
+                    {
+                        bool success = _departmentService.Delete(department.DepartmentId);
+                        if (success)
+                        {
+                            MessageBox.Show("Department deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            LoadData();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Failed to delete department.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        // Add new method to check if a department has employees
+        private bool DepartmentHasEmployees(string departmentId)
+        {
+            if (string.IsNullOrEmpty(departmentId))
+                return false;
+
+            // Check if any employees are assigned to this department
+            return _employees.Any(e => e.DepartmentId == departmentId);
         }
     }
+
+
 }

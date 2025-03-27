@@ -1,5 +1,4 @@
 using System.Data;
-using System.Text.Json;
 
 namespace HRManagementSystem
 {
@@ -51,18 +50,18 @@ namespace HRManagementSystem
                 List<Employee> employees = _employeeService.GetAll();
 
                 // Create a list of unique employee names from both payrolls and employee list
-                var employeeNamesFromPayrolls = allPayrolls
+                IEnumerable<string> employeeNamesFromPayrolls = allPayrolls
                     .Select(p => p.EmployeeName)
                     .Where(name => !string.IsNullOrEmpty(name))
                     .Distinct();
 
-                var employeeNamesFromEmployees = employees
+                IEnumerable<string> employeeNamesFromEmployees = employees
                     .Select(e => e.Name)
                     .Where(name => !string.IsNullOrEmpty(name))
                     .Distinct();
 
                 // Combine both lists and remove duplicates
-                var employeeNames = employeeNamesFromPayrolls
+                List<string> employeeNames = employeeNamesFromPayrolls
                     .Union(employeeNamesFromEmployees)
                     .OrderBy(name => name)
                     .ToList();
@@ -71,7 +70,7 @@ namespace HRManagementSystem
                 cboEmployee.Items.Clear();
                 cboEmployee.Items.Add("-- Choose Employee --");
 
-                foreach (var name in employeeNames)
+                foreach (string? name in employeeNames)
                 {
                     cboEmployee.Items.Add(name);
                 }
