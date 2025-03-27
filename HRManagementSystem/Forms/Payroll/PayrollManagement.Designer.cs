@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             panelTop = new Panel();
+            RunPayrollbtn = new Button();
             btnNextMonth = new Button();
             lblMonth = new Label();
             btnPreviousMonth = new Button();
@@ -44,7 +45,6 @@
             lblSalaryRange = new Label();
             lblAverageSalary = new Label();
             lblTotalPayroll = new Label();
-            RunPayrollbtn = new Button();
             panelTop.SuspendLayout();
             panelButtons.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvPayrolls).BeginInit();
@@ -65,6 +65,21 @@
             panelTop.Name = "panelTop";
             panelTop.Size = new Size(801, 75);
             panelTop.TabIndex = 0;
+            // 
+            // RunPayrollbtn
+            // 
+            RunPayrollbtn.BackColor = Color.DodgerBlue;
+            RunPayrollbtn.FlatStyle = FlatStyle.Popup;
+            RunPayrollbtn.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            RunPayrollbtn.ForeColor = SystemColors.ButtonHighlight;
+            RunPayrollbtn.Location = new Point(651, 20);
+            RunPayrollbtn.Margin = new Padding(3, 4, 3, 4);
+            RunPayrollbtn.Name = "RunPayrollbtn";
+            RunPayrollbtn.Size = new Size(100, 38);
+            RunPayrollbtn.TabIndex = 6;
+            RunPayrollbtn.Text = "RunPayrroll";
+            RunPayrollbtn.UseVisualStyleBackColor = false;
+            RunPayrollbtn.Click += RunPayrollbtn_Click;
             // 
             // btnNextMonth
             // 
@@ -254,21 +269,6 @@
             lblTotalPayroll.Size = new Size(145, 28);
             lblTotalPayroll.TabIndex = 0;
             lblTotalPayroll.Text = "TOTAL: 0 VND";
-            // 
-            // RunPayrollbtn
-            // 
-            RunPayrollbtn.BackColor = Color.Navy;
-            RunPayrollbtn.FlatStyle = FlatStyle.Popup;
-            RunPayrollbtn.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            RunPayrollbtn.ForeColor = SystemColors.ButtonHighlight;
-            RunPayrollbtn.Location = new Point(651, 20);
-            RunPayrollbtn.Margin = new Padding(3, 4, 3, 4);
-            RunPayrollbtn.Name = "RunPayrollbtn";
-            RunPayrollbtn.Size = new Size(100, 38);
-            RunPayrollbtn.TabIndex = 6;
-            RunPayrollbtn.Text = "RunPayrroll";
-            RunPayrollbtn.UseVisualStyleBackColor = false;
-            RunPayrollbtn.Click += RunPayrollbtn_Click;
             // 
             // PayrollManagement
             // 

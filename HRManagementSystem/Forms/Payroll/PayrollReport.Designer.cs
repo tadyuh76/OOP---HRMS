@@ -1,6 +1,6 @@
 ﻿namespace HRManagementSystem
 {
-    partial class PayrollReport
+    partial class PayrollSearch
     {
         /// <summary>
         /// Required designer variable.
@@ -28,358 +28,185 @@
         /// </summary>
         private void InitializeComponent()
         {
-            panel1 = new Panel();
-            groupBox1 = new GroupBox();
-            btnSearch = new Button();
-            cboPaymentStatus = new ComboBox();
-            label4 = new Label();
-            cboEmployee = new ComboBox();
-            label3 = new Label();
-            dtpToDate = new DateTimePicker();
-            label2 = new Label();
-            dtpFromDate = new DateTimePicker();
-            label1 = new Label();
-            panel2 = new Panel();
-            dgvPayroll = new DataGridView();
-            panel3 = new Panel();
-            lblTotalNetSalary = new Label();
-            label9 = new Label();
-            lblTotalDeductions = new Label();
-            label8 = new Label();
-            lblTotalAllowances = new Label();
-            label7 = new Label();
-            lblTotalBaseSalary = new Label();
-            label6 = new Label();
-            lblTotalCount = new Label();
-            label5 = new Label();
-            panel1.SuspendLayout();
-            groupBox1.SuspendLayout();
-            panel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)dgvPayroll).BeginInit();
-            panel3.SuspendLayout();
+            panelTop = new Panel();
+            lblTitle = new Label();
+            panelCenter = new Panel();
+            dgvPayrolls = new DataGridView();
+            panelBottom = new Panel();
+            btnExport = new Button();
+            btnClose = new Button();
+            lblAverageSalary = new Label();
+            lblTotalAmount = new Label();
+            lblTotalRecords = new Label();
+            panelTop.SuspendLayout();
+            panelCenter.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvPayrolls).BeginInit();
+            panelBottom.SuspendLayout();
             SuspendLayout();
             // 
-            // panel1
+            // panelTop
             // 
-            panel1.BackColor = Color.White;
-            panel1.Controls.Add(groupBox1);
-            panel1.Dock = DockStyle.Top;
-            panel1.Location = new Point(0, 0);
-            panel1.Margin = new Padding(3, 4, 3, 4);
-            panel1.Name = "panel1";
-            panel1.Size = new Size(984, 150);
-            panel1.TabIndex = 0;
+            panelTop.BackColor = Color.White;
+            panelTop.Controls.Add(lblTitle);
+            panelTop.Dock = DockStyle.Top;
+            panelTop.Location = new Point(0, 0);
+            panelTop.Margin = new Padding(4, 5, 4, 5);
+            panelTop.Name = "panelTop";
+            panelTop.Size = new Size(1176, 92);
+            panelTop.TabIndex = 0;
             // 
-            // groupBox1
+            // lblTitle
             // 
-            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            groupBox1.Controls.Add(btnSearch);
-            groupBox1.Controls.Add(cboPaymentStatus);
-            groupBox1.Controls.Add(label4);
-            groupBox1.Controls.Add(cboEmployee);
-            groupBox1.Controls.Add(label3);
-            groupBox1.Controls.Add(dtpToDate);
-            groupBox1.Controls.Add(label2);
-            groupBox1.Controls.Add(dtpFromDate);
-            groupBox1.Controls.Add(label1);
-            groupBox1.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            groupBox1.Location = new Point(12, 15);
-            groupBox1.Margin = new Padding(3, 4, 3, 4);
-            groupBox1.Name = "groupBox1";
-            groupBox1.Padding = new Padding(3, 4, 3, 4);
-            groupBox1.Size = new Size(960, 125);
-            groupBox1.TabIndex = 0;
-            groupBox1.TabStop = false;
-            groupBox1.Text = "SEARCH";
+            lblTitle.AutoSize = true;
+            lblTitle.Font = new Font("Microsoft Sans Serif", 19.8000011F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblTitle.Location = new Point(400, 26);
+            lblTitle.Margin = new Padding(4, 0, 4, 0);
+            lblTitle.Name = "lblTitle";
+            lblTitle.Size = new Size(340, 39);
+            lblTitle.TabIndex = 0;
+            lblTitle.Text = "PAYROLL REPORT";
             // 
-            // btnSearch
+            // panelCenter
             // 
-            btnSearch.FlatStyle = FlatStyle.Popup;
-            btnSearch.Location = new Point(849, 79);
-            btnSearch.Margin = new Padding(3, 4, 3, 4);
-            btnSearch.Name = "btnSearch";
-            btnSearch.Size = new Size(100, 35);
-            btnSearch.TabIndex = 8;
-            btnSearch.Text = "Search";
-            btnSearch.UseVisualStyleBackColor = true;
-            btnSearch.Click += btnSearch_Click;
+            panelCenter.Controls.Add(dgvPayrolls);
+            panelCenter.Dock = DockStyle.Fill;
+            panelCenter.Location = new Point(0, 92);
+            panelCenter.Margin = new Padding(4, 5, 4, 5);
+            panelCenter.Name = "panelCenter";
+            panelCenter.Padding = new Padding(13, 15, 13, 15);
+            panelCenter.Size = new Size(1176, 532);
+            panelCenter.TabIndex = 1;
             // 
-            // cboPaymentStatus
+            // dgvPayrolls
             // 
-            cboPaymentStatus.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboPaymentStatus.FormattingEnabled = true;
-            cboPaymentStatus.Location = new Point(617, 81);
-            cboPaymentStatus.Margin = new Padding(3, 4, 3, 4);
-            cboPaymentStatus.Name = "cboPaymentStatus";
-            cboPaymentStatus.Size = new Size(200, 28);
-            cboPaymentStatus.TabIndex = 7;
+            dgvPayrolls.AllowUserToAddRows = false;
+            dgvPayrolls.AllowUserToDeleteRows = false;
+            dgvPayrolls.BackgroundColor = Color.White;
+            dgvPayrolls.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvPayrolls.Dock = DockStyle.Fill;
+            dgvPayrolls.GridColor = Color.White;
+            dgvPayrolls.Location = new Point(13, 15);
+            dgvPayrolls.Margin = new Padding(4, 5, 4, 5);
+            dgvPayrolls.Name = "dgvPayrolls";
+            dgvPayrolls.ReadOnly = true;
+            dgvPayrolls.RowHeadersWidth = 51;
+            dgvPayrolls.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvPayrolls.Size = new Size(1150, 502);
+            dgvPayrolls.TabIndex = 0;
+            dgvPayrolls.CellDoubleClick += dgvPayrolls_CellDoubleClick;
             // 
-            // label4
+            // panelBottom
             // 
-            label4.AutoSize = true;
-            label4.Location = new Point(517, 85);
-            label4.Name = "label4";
-            label4.Size = new Size(53, 20);
-            label4.TabIndex = 6;
-            label4.Text = "Status";
+            panelBottom.BackColor = Color.White;
+            panelBottom.Controls.Add(btnExport);
+            panelBottom.Controls.Add(btnClose);
+            panelBottom.Controls.Add(lblAverageSalary);
+            panelBottom.Controls.Add(lblTotalAmount);
+            panelBottom.Controls.Add(lblTotalRecords);
+            panelBottom.Dock = DockStyle.Bottom;
+            panelBottom.Location = new Point(0, 624);
+            panelBottom.Margin = new Padding(4, 5, 4, 5);
+            panelBottom.Name = "panelBottom";
+            panelBottom.Size = new Size(1176, 77);
+            panelBottom.TabIndex = 2;
             // 
-            // cboEmployee
+            // btnExport
             // 
-            cboEmployee.BackColor = Color.White;
-            cboEmployee.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboEmployee.FormattingEnabled = true;
-            cboEmployee.Location = new Point(617, 36);
-            cboEmployee.Margin = new Padding(3, 4, 3, 4);
-            cboEmployee.Name = "cboEmployee";
-            cboEmployee.Size = new Size(332, 28);
-            cboEmployee.TabIndex = 5;
+            btnExport.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnExport.FlatStyle = FlatStyle.Flat;
+            btnExport.Font = new Font("Segoe UI", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnExport.Location = new Point(896, 15);
+            btnExport.Margin = new Padding(4, 5, 4, 5);
+            btnExport.Name = "btnExport";
+            btnExport.Size = new Size(133, 46);
+            btnExport.TabIndex = 4;
+            btnExport.Text = "PRINT";
+            btnExport.UseVisualStyleBackColor = true;
+            btnExport.Click += btnExport_Click;
             // 
-            // label3
+            // btnClose
             // 
-            label3.AutoSize = true;
-            label3.Location = new Point(517, 40);
-            label3.Name = "label3";
-            label3.Size = new Size(77, 20);
-            label3.TabIndex = 4;
-            label3.Text = "Employee";
+            btnClose.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnClose.DialogResult = DialogResult.Cancel;
+            btnClose.FlatStyle = FlatStyle.Flat;
+            btnClose.Font = new Font("Segoe UI", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnClose.Location = new Point(1037, 15);
+            btnClose.Margin = new Padding(4, 5, 4, 5);
+            btnClose.Name = "btnClose";
+            btnClose.Size = new Size(133, 46);
+            btnClose.TabIndex = 3;
+            btnClose.Text = "CLOSED";
+            btnClose.UseVisualStyleBackColor = true;
             // 
-            // dtpToDate
+            // lblAverageSalary
             // 
-            dtpToDate.CustomFormat = "dd/MM/yyyy";
-            dtpToDate.Format = DateTimePickerFormat.Custom;
-            dtpToDate.Location = new Point(120, 81);
-            dtpToDate.Margin = new Padding(3, 4, 3, 4);
-            dtpToDate.Name = "dtpToDate";
-            dtpToDate.Size = new Size(200, 27);
-            dtpToDate.TabIndex = 3;
+            lblAverageSalary.AutoSize = true;
+            lblAverageSalary.Font = new Font("Segoe UI", 13.8F, FontStyle.Bold);
+            lblAverageSalary.Location = new Point(594, 23);
+            lblAverageSalary.Margin = new Padding(4, 0, 4, 0);
+            lblAverageSalary.Name = "lblAverageSalary";
+            lblAverageSalary.Size = new Size(146, 31);
+            lblAverageSalary.TabIndex = 2;
+            lblAverageSalary.Text = "Average: 0 đ";
             // 
-            // label2
+            // lblTotalAmount
             // 
-            label2.AutoSize = true;
-            label2.Location = new Point(20, 85);
-            label2.Name = "label2";
-            label2.Size = new Size(26, 20);
-            label2.TabIndex = 2;
-            label2.Text = "To";
+            lblTotalAmount.AutoSize = true;
+            lblTotalAmount.Font = new Font("Segoe UI", 13.8F, FontStyle.Bold);
+            lblTotalAmount.Location = new Point(316, 23);
+            lblTotalAmount.Margin = new Padding(4, 0, 4, 0);
+            lblTotalAmount.Name = "lblTotalAmount";
+            lblTotalAmount.Size = new Size(113, 31);
+            lblTotalAmount.TabIndex = 1;
+            lblTotalAmount.Text = "Total: 0 đ";
             // 
-            // dtpFromDate
+            // lblTotalRecords
             // 
-            dtpFromDate.CustomFormat = "dd/MM/yyyy";
-            dtpFromDate.Format = DateTimePickerFormat.Custom;
-            dtpFromDate.Location = new Point(120, 36);
-            dtpFromDate.Margin = new Padding(3, 4, 3, 4);
-            dtpFromDate.Name = "dtpFromDate";
-            dtpFromDate.Size = new Size(200, 27);
-            dtpFromDate.TabIndex = 1;
+            lblTotalRecords.AutoSize = true;
+            lblTotalRecords.Font = new Font("Segoe UI", 13.8F, FontStyle.Bold);
+            lblTotalRecords.Location = new Point(43, 23);
+            lblTotalRecords.Margin = new Padding(4, 0, 4, 0);
+            lblTotalRecords.Name = "lblTotalRecords";
+            lblTotalRecords.Size = new Size(231, 31);
+            lblTotalRecords.TabIndex = 0;
+            lblTotalRecords.Text = "Number of record: 0";
             // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(20, 40);
-            label1.Name = "label1";
-            label1.Size = new Size(46, 20);
-            label1.TabIndex = 0;
-            label1.Text = "From";
-            // 
-            // panel2
-            // 
-            panel2.BackColor = Color.White;
-            panel2.Controls.Add(dgvPayroll);
-            panel2.Dock = DockStyle.Fill;
-            panel2.Location = new Point(0, 150);
-            panel2.Margin = new Padding(3, 4, 3, 4);
-            panel2.Name = "panel2";
-            panel2.Padding = new Padding(12, 0, 12, 0);
-            panel2.Size = new Size(984, 551);
-            panel2.TabIndex = 1;
-            // 
-            // dgvPayroll
-            // 
-            dgvPayroll.AllowUserToAddRows = false;
-            dgvPayroll.AllowUserToDeleteRows = false;
-            dgvPayroll.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvPayroll.BackgroundColor = Color.White;
-            dgvPayroll.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvPayroll.Dock = DockStyle.Fill;
-            dgvPayroll.Location = new Point(12, 0);
-            dgvPayroll.Margin = new Padding(3, 4, 3, 4);
-            dgvPayroll.Name = "dgvPayroll";
-            dgvPayroll.ReadOnly = true;
-            dgvPayroll.RowHeadersWidth = 51;
-            dgvPayroll.RowTemplate.Height = 24;
-            dgvPayroll.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvPayroll.Size = new Size(960, 551);
-            dgvPayroll.TabIndex = 0;
-            dgvPayroll.CellFormatting += dgvPayroll_CellFormatting;
-            // 
-            // panel3
-            // 
-            panel3.BackColor = Color.White;
-            panel3.Controls.Add(lblTotalNetSalary);
-            panel3.Controls.Add(label9);
-            panel3.Controls.Add(lblTotalDeductions);
-            panel3.Controls.Add(label8);
-            panel3.Controls.Add(lblTotalAllowances);
-            panel3.Controls.Add(label7);
-            panel3.Controls.Add(lblTotalBaseSalary);
-            panel3.Controls.Add(label6);
-            panel3.Controls.Add(lblTotalCount);
-            panel3.Controls.Add(label5);
-            panel3.Dock = DockStyle.Bottom;
-            panel3.Location = new Point(0, 576);
-            panel3.Margin = new Padding(3, 4, 3, 4);
-            panel3.Name = "panel3";
-            panel3.Size = new Size(984, 125);
-            panel3.TabIndex = 2;
-            // 
-            // lblTotalNetSalary
-            // 
-            lblTotalNetSalary.AutoSize = true;
-            lblTotalNetSalary.Font = new Font("Microsoft Sans Serif", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblTotalNetSalary.Location = new Point(658, 84);
-            lblTotalNetSalary.Name = "lblTotalNetSalary";
-            lblTotalNetSalary.Size = new Size(15, 16);
-            lblTotalNetSalary.TabIndex = 9;
-            lblTotalNetSalary.Text = "0";
-            // 
-            // label9
-            // 
-            label9.AutoSize = true;
-            label9.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            label9.Location = new Point(517, 81);
-            label9.Name = "label9";
-            label9.Size = new Size(121, 20);
-            label9.TabIndex = 8;
-            label9.Text = "Total NetSalary:";
-            // 
-            // lblTotalDeductions
-            // 
-            lblTotalDeductions.AutoSize = true;
-            lblTotalDeductions.Font = new Font("Microsoft Sans Serif", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblTotalDeductions.Location = new Point(658, 52);
-            lblTotalDeductions.Name = "lblTotalDeductions";
-            lblTotalDeductions.Size = new Size(15, 16);
-            lblTotalDeductions.TabIndex = 7;
-            lblTotalDeductions.Text = "0";
-            // 
-            // label8
-            // 
-            label8.AutoSize = true;
-            label8.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            label8.Location = new Point(517, 48);
-            label8.Name = "label8";
-            label8.Size = new Size(131, 20);
-            label8.TabIndex = 6;
-            label8.Text = "Total Deductions:";
-            // 
-            // lblTotalAllowances
-            // 
-            lblTotalAllowances.AutoSize = true;
-            lblTotalAllowances.Font = new Font("Microsoft Sans Serif", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblTotalAllowances.Location = new Point(658, 18);
-            lblTotalAllowances.Name = "lblTotalAllowances";
-            lblTotalAllowances.Size = new Size(15, 16);
-            lblTotalAllowances.TabIndex = 5;
-            lblTotalAllowances.Text = "0";
-            // 
-            // label7
-            // 
-            label7.AutoSize = true;
-            label7.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            label7.Location = new Point(517, 14);
-            label7.Name = "label7";
-            label7.Size = new Size(135, 20);
-            label7.TabIndex = 4;
-            label7.Text = "Total Allowances: ";
-            // 
-            // lblTotalBaseSalary
-            // 
-            lblTotalBaseSalary.AutoSize = true;
-            lblTotalBaseSalary.Font = new Font("Microsoft Sans Serif", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblTotalBaseSalary.Location = new Point(154, 51);
-            lblTotalBaseSalary.Name = "lblTotalBaseSalary";
-            lblTotalBaseSalary.Size = new Size(15, 16);
-            lblTotalBaseSalary.TabIndex = 3;
-            lblTotalBaseSalary.Text = "0";
-            // 
-            // label6
-            // 
-            label6.AutoSize = true;
-            label6.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            label6.Location = new Point(20, 48);
-            label6.Name = "label6";
-            label6.Size = new Size(128, 20);
-            label6.TabIndex = 2;
-            label6.Text = "Total BaseSalary:";
-            // 
-            // lblTotalCount
-            // 
-            lblTotalCount.AutoSize = true;
-            lblTotalCount.Font = new Font("Microsoft Sans Serif", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblTotalCount.Location = new Point(142, 17);
-            lblTotalCount.Name = "lblTotalCount";
-            lblTotalCount.Size = new Size(15, 16);
-            lblTotalCount.TabIndex = 1;
-            lblTotalCount.Text = "0";
-            // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label5.Location = new Point(20, 14);
-            label5.Name = "label5";
-            label5.Size = new Size(116, 20);
-            label5.TabIndex = 0;
-            label5.Text = "Total of record:";
-            // 
-            // PayrollReport
+            // PayrollSearch
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(984, 701);
-            Controls.Add(panel3);
-            Controls.Add(panel2);
-            Controls.Add(panel1);
-            Margin = new Padding(3, 4, 3, 4);
-            MinimumSize = new Size(1000, 738);
-            Name = "PayrollReport";
-            StartPosition = FormStartPosition.CenterScreen;
-            Text = "SEARCH";
-            panel1.ResumeLayout(false);
-            groupBox1.ResumeLayout(false);
-            groupBox1.PerformLayout();
-            panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)dgvPayroll).EndInit();
-            panel3.ResumeLayout(false);
-            panel3.PerformLayout();
+            BackColor = Color.White;
+            CancelButton = btnClose;
+            ClientSize = new Size(1176, 701);
+            Controls.Add(panelCenter);
+            Controls.Add(panelBottom);
+            Controls.Add(panelTop);
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            Margin = new Padding(4, 5, 4, 5);
+            MinimumSize = new Size(1194, 748);
+            Name = "PayrollSearch";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "REPORT";
+            panelTop.ResumeLayout(false);
+            panelTop.PerformLayout();
+            panelCenter.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgvPayrolls).EndInit();
+            panelBottom.ResumeLayout(false);
+            panelBottom.PerformLayout();
             ResumeLayout(false);
         }
 
         #endregion
 
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Button btnSearch;
-        private System.Windows.Forms.ComboBox cboPaymentStatus;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.ComboBox cboEmployee;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.DateTimePicker dtpToDate;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.DateTimePicker dtpFromDate;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.DataGridView dgvPayroll;
-        private System.Windows.Forms.Panel panel3;
-        private System.Windows.Forms.Label lblTotalNetSalary;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label lblTotalDeductions;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Label lblTotalAllowances;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label lblTotalBaseSalary;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label lblTotalCount;
-        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Panel panelTop;
+        private System.Windows.Forms.Panel panelCenter;
+        private System.Windows.Forms.Panel panelBottom;
+        private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.DataGridView dgvPayrolls;
+        private System.Windows.Forms.Label lblTotalRecords;
+        private System.Windows.Forms.Label lblTotalAmount;
+        private System.Windows.Forms.Label lblAverageSalary;
+        private System.Windows.Forms.Button btnClose;
+        private System.Windows.Forms.Button btnExport;
     }
 }

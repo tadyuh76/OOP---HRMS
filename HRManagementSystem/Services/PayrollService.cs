@@ -8,7 +8,6 @@ namespace HRManagementSystem
     public class PayrollService : IService<Payroll>
     {
         private List<Payroll> payrolls;
-        private readonly string payrollDataPath = @"C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\Data\Payroll.json";
         private readonly FileManager fileManager;
         public PayrollService()
         {

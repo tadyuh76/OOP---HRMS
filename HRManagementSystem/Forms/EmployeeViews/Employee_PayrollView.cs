@@ -15,8 +15,7 @@ namespace HRManagementSystem
     {
         private readonly PayrollService _payrollService;
         private string _selectedEmployeeName;
-        private List<HRManagementSystem.Payroll> _currentPayrolls;
-        private readonly string payrollDataPath = @"C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\Data\Payroll.json";
+        private List<Payroll> _currentPayrolls;
         public Employee_PayrollView()
         {
             InitializeComponent();
@@ -50,9 +49,7 @@ namespace HRManagementSystem
         {
             try
             {
-                string jsonData = File.ReadAllText(payrollDataPath);
-                List<Payroll> Payrolls = JsonSerializer.Deserialize<List<Payroll>>(jsonData);
-                var allPayrolls = Payrolls;
+                var allPayrolls = _payrollService.GetAll();
 
 
                 var employeeNames = allPayrolls

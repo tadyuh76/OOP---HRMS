@@ -7,239 +7,324 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using iTextSharp.text.pdf;
-using iTextSharp.text;
-using System.Text.Json;
 
 namespace HRManagementSystem
 {
-    public partial class PayrollSearch : Form
+    public partial class PayrollReport : Form
     {
         private readonly PayrollService _payrollService;
-        private List<Payroll> _payrolls;
 
-        public PayrollSearch(PayrollService payrollService)
+        public PayrollReport(PayrollService payrollService)
         {
             InitializeComponent();
             _payrollService = payrollService ?? throw new ArgumentNullException(nameof(payrollService));
-            _payrolls = new List<Payroll>();
 
-            this.Text = "PAYROLL REPORT";
-            SetupDataGridView();
-            LoadPayrollData();
+            InitializeControls();
         }
 
-        private void SetupDataGridView()
+        private void InitializeControls()
         {
-            
-            dgvPayrolls.AutoGenerateColumns = false;
-            dgvPayrolls.Columns.Clear();
-
-           
-            dgvPayrolls.Columns.Add(new DataGridViewTextBoxColumn
+            try
             {
-                Name = "PayrollId",
-                HeaderText = "PayrollId",
-                DataPropertyName = "PayrollId",
-                Width = 100
-            });
 
-            dgvPayrolls.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "EmployeeName",
-                HeaderText = "EmployeeName",
-                DataPropertyName = "EmployeeName",
-                Width = 150
-            });
+                dtpFromDate.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                dtpToDate.Value = DateTime.Now;
 
-            dgvPayrolls.Columns.Add(new DataGridViewTextBoxColumn
+                cboPaymentStatus.Items.Clear();
+                cboPaymentStatus.Items.Add("All");
+                cboPaymentStatus.Items.Add("IsPaid");
+                cboPaymentStatus.Items.Add("UnPaid");
+                cboPaymentStatus.SelectedIndex = 0;
+
+
+                ConfigureDataGridView();
+
+
+                LoadEmployees();
+            }
+            catch (Exception ex)
             {
-                Name = "BaseSalary",
-                HeaderText = "BaseSalary",
-                DataPropertyName = "BaseSalary",
-                Width = 120,
-                DefaultCellStyle = new DataGridViewCellStyle
+                MessageBox.Show($"Lỗi khi khởi tạo điều khiển: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ConfigureDataGridView()
+        {
+            try
+            {
+
+                dgvPayroll.Columns.Clear();
+
+
+                dgvPayroll.AutoGenerateColumns = false;
+
+
+                dgvPayroll.Columns.Add(new DataGridViewTextBoxColumn
                 {
-                    Format = "N0",
-                    Alignment = DataGridViewContentAlignment.MiddleRight
-                }
-            });
+                    Name = "EmployeeId",
+                    DataPropertyName = "EmployeeId",
+                    HeaderText = "EmployeeId",
+                    Width = 80
+                });
 
-            dgvPayrolls.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "Allowances",
-                HeaderText = "Allowances",
-                DataPropertyName = "Allowances",
-                Width = 100,
-                DefaultCellStyle = new DataGridViewCellStyle
+                dgvPayroll.Columns.Add(new DataGridViewTextBoxColumn
                 {
-                    Format = "N0",
-                    Alignment = DataGridViewContentAlignment.MiddleRight,
-                    NullValue = 0
-                }
-            });
+                    Name = "EmployeeName",
+                    DataPropertyName = "EmployeeName",
+                    HeaderText = "EmployeeName",
+                    Width = 150
+                });
 
-           
-
-            dgvPayrolls.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "Deductions",
-                HeaderText = "Deductions",
-                DataPropertyName = "Deductions",
-                Width = 100,
-                DefaultCellStyle = new DataGridViewCellStyle
+                dgvPayroll.Columns.Add(new DataGridViewTextBoxColumn
                 {
-                    Format = "N0",
-                    Alignment = DataGridViewContentAlignment.MiddleRight,
-                    NullValue = 0
-                }
-            });
+                    Name = "PayPeriodStart",
+                    DataPropertyName = "PayPeriodStart",
+                    HeaderText = "PayPeriodStart",
+                    Width = 100,
+                    DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy" }
+                });
 
-            dgvPayrolls.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "NetSalary",
-                HeaderText = "NetSalary",
-                DataPropertyName = "NetSalary",
-                Width = 120,
-                DefaultCellStyle = new DataGridViewCellStyle
+                dgvPayroll.Columns.Add(new DataGridViewTextBoxColumn
                 {
-                    Format = "N0",
-                    Alignment = DataGridViewContentAlignment.MiddleRight
+                    Name = "PayPeriodEnd",
+                    DataPropertyName = "PayPeriodEnd",
+                    HeaderText = "PayPeriodEnd",
+                    Width = 100,
+                    DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy" }
+                });
+
+                dgvPayroll.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    Name = "BaseSalary",
+                    DataPropertyName = "BaseSalary",
+                    HeaderText = "BaseSalary",
+                    Width = 120,
+                    DefaultCellStyle = new DataGridViewCellStyle { Format = "N0", Alignment = DataGridViewContentAlignment.MiddleRight }
+                });
+
+                dgvPayroll.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    Name = "Allowances",
+                    DataPropertyName = "Allowances",
+                    HeaderText = "Allowances",
+                    Width = 120,
+                    DefaultCellStyle = new DataGridViewCellStyle { Format = "N0", Alignment = DataGridViewContentAlignment.MiddleRight }
+                });
+
+                dgvPayroll.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    Name = "Deductions",
+                    DataPropertyName = "Deductions",
+                    HeaderText = "Deductions",
+                    Width = 120,
+                    DefaultCellStyle = new DataGridViewCellStyle { Format = "N0", Alignment = DataGridViewContentAlignment.MiddleRight }
+                });
+
+                dgvPayroll.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    Name = "NetSalary",
+                    DataPropertyName = "NetSalary",
+                    HeaderText = "NetSalary",
+                    Width = 120,
+                    DefaultCellStyle = new DataGridViewCellStyle { Format = "N0", Alignment = DataGridViewContentAlignment.MiddleRight }
+                });
+
+                dgvPayroll.Columns.Add(new DataGridViewCheckBoxColumn
+                {
+                    Name = "IsPaid",
+                    DataPropertyName = "IsPaid",
+                    HeaderText = "IsPaid",
+                    Width = 100
+                });
+
+
+                dgvPayroll.AllowUserToAddRows = false;
+                dgvPayroll.AllowUserToDeleteRows = false;
+                dgvPayroll.ReadOnly = true;
+                dgvPayroll.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                dgvPayroll.MultiSelect = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi cấu hình DataGridView: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void LoadEmployees()
+        {
+            try
+            {
+
+                var payrolls = _payrollService.GetAll();
+
+
+                var allEmployees = new List<object>
+                {
+                    new { Id = "", Name = "All Employee" }
+                };
+
+                if (payrolls != null && payrolls.Any())
+                {
+
+                    var employees = payrolls
+                        .GroupBy(p => p.EmployeeId)
+                        .Select(g => new
+                        {
+                            Id = g.Key,
+                            Name = g.First().EmployeeName ?? g.Key
+                        })
+                        .OrderBy(e => e.Name)
+                        .ToList();
+
+
+                    allEmployees.AddRange(employees);
                 }
-            });
 
-            
 
-   
-            dgvPayrolls.AllowUserToAddRows = false;
-            dgvPayrolls.AllowUserToDeleteRows = false;
-            dgvPayrolls.ReadOnly = true;
-            dgvPayrolls.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                cboEmployee.DisplayMember = "Name";
+                cboEmployee.ValueMember = "Id";
+                cboEmployee.DataSource = allEmployees;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi tải danh sách nhân viên: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+
+                var defaultList = new List<object>
+                {
+                    new { Id = "", Name = "All Employee" }
+                };
+
+                cboEmployee.DisplayMember = "Name";
+                cboEmployee.ValueMember = "Id";
+                cboEmployee.DataSource = defaultList;
+            }
+        }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            LoadPayrollData();
         }
 
         private void LoadPayrollData()
         {
             try
             {
-                string payrollDataPath = @"C:\Users\ADMIN\source\repos\OOP-4\HRManagementSystem\Data\Payroll.json"; 
 
-                if (File.Exists(payrollDataPath))
+                DateTime fromDate = dtpFromDate.Value.Date;
+                DateTime toDate = dtpToDate.Value.Date.AddDays(1).AddSeconds(-1);
+                string employeeId = cboEmployee.SelectedValue?.ToString() ?? "";
+                bool? isPaid = null;
+
+                if (cboPaymentStatus.SelectedIndex == 1)
+                    isPaid = true;
+                else if (cboPaymentStatus.SelectedIndex == 2)
+                    isPaid = false;
+
+
+                var allPayrolls = _payrollService.GetAll();
+
+                if (allPayrolls == null || !allPayrolls.Any())
                 {
-                    string jsonData = File.ReadAllText(payrollDataPath);
-                    _payrolls = JsonSerializer.Deserialize<List<Payroll>>(jsonData) ?? new List<Payroll>();
-                }
-                else
-                {
-                    _payrolls = new List<Payroll>();
+                    MessageBox.Show("Không có dữ liệu phiếu lương nào trong hệ thống.", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+
+                    dgvPayroll.DataSource = null;
+
+
+                    CalculateSummary(new List<Payroll>());
+
+                    return;
                 }
 
-                foreach (var payroll in _payrolls)
-                {
-                    if (payroll.Allowances == null) payroll.Allowances = 0;
-                    if (payroll.Deductions == null) payroll.Deductions = 0;
-                }
 
-                dgvPayrolls.DataSource = _payrolls;
-                UpdateSummary();
+                var payrolls = allPayrolls
+                    .Where(p => p.PayPeriodStart.Date >= fromDate && p.PayPeriodEnd.Date <= toDate)
+                    .Where(p => string.IsNullOrEmpty(employeeId) || p.EmployeeId == employeeId)
+                    .Where(p => isPaid == null || p.IsPaid == isPaid)
+                    .ToList();
+
+
+                BindingSource bindingSource = new BindingSource();
+                bindingSource.DataSource = payrolls;
+                dgvPayroll.DataSource = bindingSource;
+
+
+                CalculateSummary(payrolls);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi tải dữ liệu: {ex.Message}", "Lỗi",
+                MessageBox.Show($"Lỗi khi tải dữ liệu phiếu lương: {ex.Message}", "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void UpdateSummary()
+        private void CalculateSummary(IEnumerable<Payroll> payrolls)
         {
-            if (_payrolls != null && _payrolls.Count > 0)
+            try
             {
-                lblTotalRecords.Text = $"Total of record: {_payrolls.Count}";
-                decimal totalAmount = _payrolls.Sum(p => p.NetSalary);
-                decimal averageSalary = _payrolls.Average(p => p.NetSalary);
+                if (payrolls == null || !payrolls.Any())
+                {
+                    lblTotalCount.Text = "0";
+                    lblTotalBaseSalary.Text = "0";
+                    lblTotalAllowances.Text = "0";
+                    lblTotalDeductions.Text = "0";
+                    lblTotalNetSalary.Text = "0";
+                    return;
+                }
 
-                lblTotalAmount.Text = $"Total : {totalAmount:N0} VNĐ";
-                lblAverageSalary.Text = $"Average: {averageSalary:N0} VNĐ";
+
+                int totalCount = payrolls.Count();
+                decimal totalBaseSalary = payrolls.Sum(p => p.BaseSalary);
+                decimal totalAllowances = payrolls.Sum(p => p.Allowances);
+                decimal totalDeductions = payrolls.Sum(p => p.Deductions);
+                decimal totalNetSalary = payrolls.Sum(p => p.NetSalary);
+
+
+                lblTotalCount.Text = totalCount.ToString();
+                lblTotalBaseSalary.Text = totalBaseSalary.ToString("N0");
+                lblTotalAllowances.Text = totalAllowances.ToString("N0");
+                lblTotalDeductions.Text = totalDeductions.ToString("N0");
+                lblTotalNetSalary.Text = totalNetSalary.ToString("N0");
             }
-            else
+            catch (Exception ex)
             {
-                lblTotalRecords.Text = "Total of record: 0";
-                lblTotalAmount.Text = "Total: 0 VNĐ";
-                lblAverageSalary.Text = "Average: 0 VNĐ";
+
+                MessageBox.Show($"Lỗi khi tính tổng: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+
+                lblTotalCount.Text = "0";
+                lblTotalBaseSalary.Text = "0";
+                lblTotalAllowances.Text = "0";
+                lblTotalDeductions.Text = "0";
+                lblTotalNetSalary.Text = "0";
             }
         }
 
-        private void btnExport_Click(object sender, EventArgs e)
+        private void dgvPayroll_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            if (_payrolls == null || _payrolls.Count == 0)
-            {
-                MessageBox.Show("Không có dữ liệu để xuất báo cáo!", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
 
-            SaveFileDialog saveDialog = new SaveFileDialog
-            {
-                Filter = "PDF Files (*.pdf)|*.pdf",
-                Title = "Xuất báo cáo thành PDF"
-            };
+            if (e.Value == null) return;
 
-            if (saveDialog.ShowDialog() == DialogResult.OK)
+            if (dgvPayroll.Columns[e.ColumnIndex].Name == "IsPaid" && dgvPayroll.Columns[e.ColumnIndex] is DataGridViewTextBoxColumn)
             {
-                try
+                if (e.Value is bool isPaid)
                 {
-                    string filePath = saveDialog.FileName;
-
-
-                    Document pdfDoc = new Document(PageSize.A4, 10f, 10f, 20f, 20f);
-                    PdfWriter.GetInstance(pdfDoc, new FileStream(filePath, FileMode.Create));
-                    pdfDoc.Open();
-
-
-                    iTextSharp.text.Font titleFont = FontFactory.GetFont("Arial", 16, iTextSharp.text.Font.BOLD);
-                    Paragraph title = new Paragraph("PAYROLL REPORT\n\n", titleFont)
-                    {
-                        Alignment = Element.ALIGN_CENTER
-                    };
-                    pdfDoc.Add(title);
-
-                    PdfPTable table = new PdfPTable(5) { WidthPercentage = 100 };
-                    table.AddCell("PayrollId");
-                    table.AddCell("EmployeeName");
-                    table.AddCell("BaseSalary");
-                    table.AddCell("Allowances");
-                    table.AddCell("NetSalary");
-
-                    foreach (var payroll in _payrolls)
-                    {
-                        table.AddCell(payroll.PayrollId);
-                        table.AddCell(payroll.EmployeeName);
-                        table.AddCell(payroll.BaseSalary.ToString());
-                        table.AddCell(payroll.Allowances.ToString());
-                        table.AddCell(payroll.NetSalary.ToString());
-                    }
-
-                    pdfDoc.Add(table);
-                    pdfDoc.Close();
-
-                    MessageBox.Show("Xuất báo cáo thành công!", "Thông báo",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Lỗi khi xuất báo cáo: {ex.Message}", "Lỗi",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    e.Value = isPaid ? "IsPaid" : "UnPaid";
+                    e.FormattingApplied = true;
                 }
             }
         }
 
-
-        private void dgvPayrolls_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private void PayrollReport_Load(object sender, EventArgs e)
         {
-            if (e.RowIndex >= 0 && e.RowIndex < _payrolls.Count)
-            {
-                var selectedPayroll = _payrolls[e.RowIndex];
-               
-            }
+
+            LoadPayrollData();
         }
     }
 }
