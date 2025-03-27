@@ -15,6 +15,9 @@ namespace HRManagementSystem
         private Label lblUserName, lblUserTitle;
         private Panel mainContentPanel;
         private TableLayoutPanel buttonsPanel;
+        private ComboBox cmbEmployeeSelector;
+        private Label lblEmployeeSelector;
+        private Panel selectorPanel;
 
         // Color scheme
         private readonly Color primaryColor = Color.FromArgb(60, 141, 188);  // Blue
@@ -27,12 +30,17 @@ namespace HRManagementSystem
 
         // Data fields
         private Employee currentEmployee;
-        private string employeeDataPath = @"c:\Users\tadyuh\Coding Projects\hrms\HRManagementSystem\Data\Employees.json";
+        private EmployeeService employeeService;
+        private List<Employee> allEmployees;
 
         // Assuming the logged-in employee ID is passed to the constructor
         public Employee_ProfileView(string employeeId = "EMP001") // Default for testing
         {
+            employeeService = EmployeeService.GetInstance();
+            allEmployees = employeeService.GetAll();
+            
             InitializeComponent();
+            PopulateEmployeeSelector();
             LoadEmployeeData(employeeId);
         }
 
@@ -99,6 +107,37 @@ namespace HRManagementSystem
             headerPanel.Controls.Add(profilePicture);
             headerPanel.Controls.Add(lblUserName);
             headerPanel.Controls.Add(lblUserTitle);
+
+            // Create selector panel
+            selectorPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 50,
+                BackColor = Color.White,
+                Padding = new Padding(20, 10, 20, 10)
+            };
+
+            // Create employee selector
+            lblEmployeeSelector = new Label
+            {
+                Text = "View Employee:",
+                AutoSize = true,
+                Anchor = AnchorStyles.Left,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Location = new Point(20, 15)
+            };
+
+            cmbEmployeeSelector = new ComboBox
+            {
+                Width = 250,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Location = new Point(130, 12),
+                Anchor = AnchorStyles.Left
+            };
+            cmbEmployeeSelector.SelectedIndexChanged += CmbEmployeeSelector_SelectedIndexChanged;
+
+            selectorPanel.Controls.Add(lblEmployeeSelector);
+            selectorPanel.Controls.Add(cmbEmployeeSelector);
 
             // Content layout
             TableLayoutPanel contentLayout = new()
@@ -283,6 +322,7 @@ namespace HRManagementSystem
 
             // Assemble the form
             mainContentPanel.Controls.Add(contentLayout);
+            mainContentPanel.Controls.Add(selectorPanel);
             mainContentPanel.Controls.Add(headerPanel);
             mainContentPanel.Controls.Add(buttonsPanel);
 
@@ -298,6 +338,28 @@ namespace HRManagementSystem
             lblHireDateValue.Name = "lblHireDateValue";
             lblYearsOfServiceValue.Name = "lblYearsOfServiceValue";
             lblSalaryValue.Name = "lblSalaryValue";
+        }
+
+        private void PopulateEmployeeSelector()
+        {
+            cmbEmployeeSelector.Items.Clear();
+            foreach (var employee in allEmployees)
+            {
+                cmbEmployeeSelector.Items.Add(new EmployeeSelectionItem
+                {
+                    DisplayName = $"{employee.EmployeeId} - {employee.Name}",
+                    EmployeeId = employee.EmployeeId
+                });
+            }
+        }
+
+        private void CmbEmployeeSelector_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbEmployeeSelector.SelectedItem != null)
+            {
+                var selectedEmployee = (EmployeeSelectionItem)cmbEmployeeSelector.SelectedItem;
+                LoadEmployeeData(selectedEmployee.EmployeeId);
+            }
         }
 
         private Panel CreateRoundedPanel()
@@ -382,13 +444,22 @@ namespace HRManagementSystem
         {
             try
             {
-                string jsonData = File.ReadAllText(employeeDataPath);
-                List<Employee> employees = JsonSerializer.Deserialize<List<Employee>>(jsonData);
-
-                currentEmployee = employees.FirstOrDefault(e => e.EmployeeId == employeeId);
+                // Find the employee using EmployeeService instead of reading directly from file
+                currentEmployee = allEmployees.FirstOrDefault(e => e.EmployeeId == employeeId);
 
                 if (currentEmployee != null)
                 {
+                    // Select the correct item in the dropdown if it exists
+                    for (int i = 0; i < cmbEmployeeSelector.Items.Count; i++)
+                    {
+                        var item = (EmployeeSelectionItem)cmbEmployeeSelector.Items[i];
+                        if (item.EmployeeId == employeeId)
+                        {
+                            cmbEmployeeSelector.SelectedIndex = i;
+                            break;
+                        }
+                    }
+
                     // Header information
                     lblUserName.Text = currentEmployee.Name;
                     lblUserTitle.Text = currentEmployee.Position;
@@ -489,22 +560,14 @@ namespace HRManagementSystem
                     currentEmployee.Phone = txtPhone.Text;
                     currentEmployee.Address = txtAddress.Text;
 
-                    // Load all employees
-                    string jsonData = File.ReadAllText(employeeDataPath);
-                    List<Employee> employees = JsonSerializer.Deserialize<List<Employee>>(jsonData);
-
-                    // Find and update the current employee in the list
-                    int index = employees.FindIndex(e => e.EmployeeId == currentEmployee.EmployeeId);
-                    if (index >= 0)
+                    // Update employee using EmployeeService
+                    if (employeeService.Update(currentEmployee))
                     {
-                        employees[index] = currentEmployee;
-
-                        // Save back to file
-                        JsonSerializerOptions options = new JsonSerializerOptions { WriteIndented = true };
-                        string updatedJson = JsonSerializer.Serialize(employees, options);
-                        File.WriteAllText(employeeDataPath, updatedJson);
-
                         MessageBox.Show("Profile updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to update profile.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 catch (Exception ex)
@@ -518,6 +581,18 @@ namespace HRManagementSystem
         {
             // Reload the original data
             LoadEmployeeData(currentEmployee.EmployeeId);
+        }
+    }
+
+    // Helper class for employee selection combobox
+    public class EmployeeSelectionItem
+    {
+        public string EmployeeId { get; set; }
+        public string DisplayName { get; set; }
+
+        public override string ToString()
+        {
+            return DisplayName;
         }
     }
 }

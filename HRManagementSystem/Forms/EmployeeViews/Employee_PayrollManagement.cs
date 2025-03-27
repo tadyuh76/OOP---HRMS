@@ -14,6 +14,7 @@ namespace HRManagementSystem
             InitializeComponent();
 
             _payrollService = new PayrollService();
+            _employeeService = new EmployeeService();
             _selectedEmployeeName = string.Empty;
             _currentPayrolls = new List<Payroll>();
 
@@ -28,6 +29,7 @@ namespace HRManagementSystem
         {
             InitializeComponent();
             _payrollService = payrollService;
+            _employeeService = new EmployeeService();
             _selectedEmployeeName = string.Empty;
             _currentPayrolls = new List<Payroll>();
 
@@ -42,18 +44,30 @@ namespace HRManagementSystem
         {
             try
             {
-                string jsonData = File.ReadAllText(FileManager.payrollDataPath);
-                List<Payroll> Payrolls = JsonSerializer.Deserialize<List<Payroll>>(jsonData);
-                var allPayrolls = Payrolls;
+                // Get payroll data
+                List<Payroll> allPayrolls = _payrollService.GetAll();
 
+                // Get employee data
+                List<Employee> employees = _employeeService.GetAll();
 
-                var employeeNames = allPayrolls
+                // Create a list of unique employee names from both payrolls and employee list
+                var employeeNamesFromPayrolls = allPayrolls
                     .Select(p => p.EmployeeName)
                     .Where(name => !string.IsNullOrEmpty(name))
-                    .Distinct()
+                    .Distinct();
+
+                var employeeNamesFromEmployees = employees
+                    .Select(e => e.Name)
+                    .Where(name => !string.IsNullOrEmpty(name))
+                    .Distinct();
+
+                // Combine both lists and remove duplicates
+                var employeeNames = employeeNamesFromPayrolls
+                    .Union(employeeNamesFromEmployees)
+                    .OrderBy(name => name)
                     .ToList();
 
-
+                // Clear and populate the combobox
                 cboEmployee.Items.Clear();
                 cboEmployee.Items.Add("-- Choose Employee --");
 
@@ -276,8 +290,8 @@ namespace HRManagementSystem
 
         private void BtnSearch_Click(object sender, EventArgs e)
         {
-            Console.WriteLine("Đã nhấn nút Xem");
-            Console.WriteLine($"Tên nhân viên đã chọn: {_selectedEmployeeName}");
+            // Console.WriteLine("Đã nhấn nút Xem");
+            // Console.WriteLine($"Tên nhân viên đã chọn: {_selectedEmployeeName}");
             LoadPayrollData();
         }
 

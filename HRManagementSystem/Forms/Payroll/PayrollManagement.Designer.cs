@@ -34,6 +34,7 @@
             btnPreviousMonth = new Button();
             lblTitle = new Label();
             panelButtons = new Panel();
+            btnRunPayroll = new Button();
             btnSearch = new Button();
             btnReport = new Button();
             btnDelete = new Button();
@@ -114,6 +115,7 @@
             // panelButtons
             // 
             panelButtons.BackColor = Color.White;
+            panelButtons.Controls.Add(btnRunPayroll);
             panelButtons.Controls.Add(btnSearch);
             panelButtons.Controls.Add(btnReport);
             panelButtons.Controls.Add(btnDelete);
@@ -125,6 +127,19 @@
             panelButtons.Name = "panelButtons";
             panelButtons.Size = new Size(800, 62);
             panelButtons.TabIndex = 1;
+            // 
+            // btnRunPayroll
+            // 
+            btnRunPayroll.FlatStyle = FlatStyle.Popup;
+            btnRunPayroll.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnRunPayroll.Location = new Point(800, 12);
+            btnRunPayroll.Margin = new Padding(3, 4, 3, 4);
+            btnRunPayroll.Name = "btnRunPayroll";
+            btnRunPayroll.Size = new Size(120, 38);
+            btnRunPayroll.TabIndex = 6;
+            btnRunPayroll.Text = "RUN PAYROLL";
+            btnRunPayroll.UseVisualStyleBackColor = true;
+            btnRunPayroll.Click += btnRunPayroll_Click;
             // 
             // btnSearch
             // 
@@ -294,5 +309,6 @@
         private System.Windows.Forms.Button btnPreviousMonth;
         private System.Windows.Forms.Button btnReport;
         private System.Windows.Forms.Button btnSearch;
+        private System.Windows.Forms.Button btnRunPayroll;
     }
 }

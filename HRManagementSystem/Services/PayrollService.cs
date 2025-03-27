@@ -210,5 +210,29 @@ namespace HRManagementSystem
                 }
             }
         }
+
+        public bool RunPayrollForMonth(DateTime month)
+        {
+            List<Payroll> monthPayrolls = GetPayrollsByMonth(month);
+            bool anyChanges = false;
+
+            foreach (Payroll payroll in monthPayrolls)
+            {
+                if (!payroll.IsPaid)
+                {
+                    payroll.IsPaid = true;
+                    anyChanges = true;
+                }
+            }
+
+            if (anyChanges)
+            {
+                // Save changes to the file
+                string jsonData = JsonSerializer.Serialize(payrolls, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(payrollDataPath, jsonData);
+            }
+
+            return anyChanges;
+        }
     }
 }

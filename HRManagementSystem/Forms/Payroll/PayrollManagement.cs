@@ -15,7 +15,7 @@
             // Initialize both services with default constructors, no dependencies
             _payrollService = new PayrollService();
             _employeeService = new EmployeeService();
-            
+
             _currentMonth = DateTime.Now;
             _currentPayrolls = new List<Payroll>();
 
@@ -30,10 +30,10 @@
         {
             InitializeComponent();
             _payrollService = payrollService ?? throw new ArgumentNullException(nameof(payrollService));
-            
+
             // Initialize EmployeeService with default constructor
             _employeeService = new EmployeeService();
-            
+
             _currentMonth = DateTime.Now;
             _currentPayrolls = new List<Payroll>();
 
@@ -342,6 +342,52 @@
 
             LoadPayrollData();
 
+        }
+
+        private void btnRunPayroll_Click(object sender, EventArgs e)
+        {
+            // Confirm with the user before running payroll
+            DialogResult result = MessageBox.Show(
+                $"Are you sure you want to mark all payroll records for {_currentMonth.ToString("MMMM yyyy")} as paid?\n\nThis action cannot be undone.",
+                "Run Payroll Confirmation",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    bool changesApplied = _payrollService.RunPayrollForMonth(_currentMonth);
+
+                    if (changesApplied)
+                    {
+                        MessageBox.Show(
+                            $"Payroll successfully processed for {_currentMonth.ToString("MMMM yyyy")}.",
+                            "Payroll Complete",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+
+                        // Refresh the data after running payroll
+                        LoadPayrollData();
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            $"No unpaid payroll records found for {_currentMonth.ToString("MMMM yyyy")}.",
+                            "No Changes Made",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        $"Error processing payroll: {ex.Message}",
+                        "Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+            }
         }
     }
 }

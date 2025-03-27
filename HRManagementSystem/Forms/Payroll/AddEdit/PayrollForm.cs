@@ -97,8 +97,16 @@ namespace HRManagementSystem
                         // Store the employee name - should not be editable
                         _originalEmployeeName = employee.Name;
 
-                        // Prefill base salary from employee data
-                        txtBaseSalary.Text = employee.BaseSalary.ToString("N0");
+                        // Prefill base salary from employee data with proper formatting
+                        decimal baseSalary = employee.BaseSalary;
+                        txtBaseSalary.Text = baseSalary.ToString("N0");
+                        
+                        // Prefill allowances and deductions with zeros if they're empty
+                        if (string.IsNullOrWhiteSpace(txtAllowances.Text))
+                            txtAllowances.Text = "0";
+                        if (string.IsNullOrWhiteSpace(txtDeductions.Text))
+                            txtDeductions.Text = "0";
+                            
                         // Recalculate net salary based on the new base salary
                         CalculateNetSalary();
                     }
@@ -113,6 +121,12 @@ namespace HRManagementSystem
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            else
+            {
+                // If no employee is selected or the default option is selected, clear fields
+                txtBaseSalary.Text = "0";
+                txtNetSalary.Text = "0";
+            }
         }
 
         private void SetupForm()
@@ -126,6 +140,14 @@ namespace HRManagementSystem
             {
                 cboEmployee.Enabled = false;
             }
+            else
+            {
+                // In add mode, make sure to clear fields
+                txtBaseSalary.Text = "0";
+                txtAllowances.Text = "0";
+                txtDeductions.Text = "0";
+                txtNetSalary.Text = "0";
+            }
 
             dtpPayPeriodStart.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             dtpPayPeriodEnd.Value = dtpPayPeriodStart.Value.AddMonths(1).AddDays(-1);
@@ -137,6 +159,8 @@ namespace HRManagementSystem
 
         private void LoadPayrollData()
         {
+            // Find and select the correct employee in the dropdown
+            bool employeeFound = false;
             for (int i = 0; i < cboEmployee.Items.Count; i++)
             {
                 dynamic item = cboEmployee.Items[i];
@@ -145,8 +169,15 @@ namespace HRManagementSystem
                     cboEmployee.SelectedIndex = i;
                     // Store the original employee name
                     _originalEmployeeName = _payroll.EmployeeName;
+                    employeeFound = true;
                     break;
                 }
+            }
+
+            // If employee wasn't found in the dropdown, handle gracefully
+            if (!employeeFound && !string.IsNullOrEmpty(_payroll.EmployeeName))
+            {
+                _originalEmployeeName = _payroll.EmployeeName;
             }
 
             dtpPayPeriodStart.Value = _payroll.PayPeriodStart;
