@@ -10,10 +10,31 @@
     <Compile Update="Forms\Department\DepartmentManagement.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\EmployeeViews\Employee_AttendanceManagement.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\EmployeeViews\Employee_DepartmentView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\EmployeeViews\Employee_EmployeeManagement.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\EmployeeViews\Employee_PayrollManagement.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\Employee\EmployeeManagement.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\Payroll\AddEdit\PayrollForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\Payroll\PayrollManagement.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Payroll\PayrollReport\PayrollReport.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Payroll\Search\PayrollSearch.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="MainForm.cs">

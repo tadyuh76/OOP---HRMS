@@ -191,7 +191,7 @@ namespace HRManagementSystem
             directoryLayout.Controls.Add(dgvEmployees, 0, 2);
 
             // Set up columns for the DataGridView
-            var columns = new[]
+            DataGridViewTextBoxColumn[] columns = new[]
             {
                 new DataGridViewTextBoxColumn { Name = "ID", HeaderText = "ID", DataPropertyName = "EmployeeId", Width = 80 },
                 new DataGridViewTextBoxColumn { Name = "Name", HeaderText = "Name", DataPropertyName = "Name", Width = 150 },
@@ -201,7 +201,7 @@ namespace HRManagementSystem
                 new DataGridViewTextBoxColumn { Name = "Status", HeaderText = "Status", DataPropertyName = "Status", Width = 100 }
             };
 
-            foreach (var column in columns)
+            foreach (DataGridViewTextBoxColumn? column in columns)
             {
                 dgvEmployees.Columns.Add(column);
             }
@@ -261,7 +261,7 @@ namespace HRManagementSystem
             DataGridView dgvEmployees = (DataGridView)Controls.Find("dgvEmployees", true)[0];
             dgvEmployees.DataSource = null;
 
-            var filteredEmployees = filter switch
+            List<Employee> filteredEmployees = filter switch
             {
                 "Active" => employees.Where(e => e.Status == EmployeeStatus.Active).ToList(),
                 "On Leave" => employees.Where(e => e.Status == EmployeeStatus.OnLeave).ToList(),
@@ -357,7 +357,7 @@ namespace HRManagementSystem
             if (dgvEmployees.Columns.Contains("Status"))
             {
                 // Store the DataGridView's current data
-                var dataSource = dgvEmployees.DataSource;
+                object dataSource = dgvEmployees.DataSource;
 
                 // Handle status cell formatting through CellFormatting event
                 dgvEmployees.CellFormatting += (sender, e) =>

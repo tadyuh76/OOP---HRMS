@@ -4,34 +4,39 @@
         "name": "Engineering",
         "description": "Responsible for software development and technical operations",
         "budget": 1250000.00,
-        "managerId": "EMP003"
+        "managerId": "EMP003",
+        "managerName": "Michael Brown"
     },
     {
         "departmentId": "DEP002",
         "name": "Data Science",
         "description": "Focuses on data analysis, machine learning, and business intelligence",
         "budget": 850000.00,
-        "managerId": "EMP011"
+        "managerId": "EMP011",
+        "managerName": "Thomas Clark"
     },
     {
         "departmentId": "DEP003",
         "name": "Finance",
         "description": "Handles financial planning, accounting, and budget management",
         "budget": 920000.00,
-        "managerId": "EMP005"
+        "managerId": "EMP005",
+        "managerName": "James Wilson"
     },
     {
         "departmentId": "DEP004",
         "name": "Marketing",
         "description": "Manages brand strategy, digital marketing, and customer outreach",
         "budget": 780000.00,
-        "managerId": "EMP010"
+        "managerId": "EMP010",
+        "managerName": "Lisa Anderson"
     },
     {
         "departmentId": "DEP005",
         "name": "Human Resources",
         "description": "Oversees recruitment, employee relations, and organizational development",
         "budget": 650000.00,
-        "managerId": "EMP007"
+        "managerId": "EMP007",
+        "managerName": "David Martinez"
     }
 ]

@@ -6,6 +6,7 @@ namespace HRManagementSystem
     {
         private string payrollId;
         private string employeeId;
+        private string employeeName;
         private DateTime payPeriodStart;
         private DateTime payPeriodEnd;
         private decimal baseSalary;
@@ -22,6 +23,7 @@ namespace HRManagementSystem
         public Payroll(
             string payrollId,
             string employeeId,
+            string employeeName,
             DateTime payPeriodStart,
             DateTime payPeriodEnd,
             decimal baseSalary,
@@ -32,6 +34,7 @@ namespace HRManagementSystem
         {
             this.payrollId = payrollId ?? throw new ArgumentNullException(nameof(payrollId));
             this.employeeId = employeeId ?? throw new ArgumentNullException(nameof(employeeId));
+            this.employeeName = employeeName ?? throw new ArgumentNullException(nameof(employeeName));
             this.payPeriodStart = payPeriodStart;
             this.payPeriodEnd = payPeriodEnd;
             this.baseSalary = baseSalary;
@@ -53,6 +56,13 @@ namespace HRManagementSystem
         {
             get { return employeeId; }
             set { employeeId = value ?? throw new ArgumentNullException(nameof(value)); }
+        }
+
+        [JsonPropertyName("employeeName")]
+        public string EmployeeName
+        {
+            get { return employeeName; }
+            set { employeeName = value ?? throw new ArgumentNullException(nameof(value)); }
         }
 
         [JsonPropertyName("payPeriodStart")]

@@ -9,6 +9,7 @@ namespace HRManagementSystem
         private string description;
         private decimal budget;
         private string managerId;
+        private string managerName;
 
         public Department()
         {
@@ -21,13 +22,15 @@ namespace HRManagementSystem
             string name,
             string description,
             decimal budget,
-            string managerId)
+            string managerId,
+            string managerName)
         {
             this.departmentId = departmentId ?? throw new ArgumentNullException(nameof(departmentId));
             this.name = name ?? throw new ArgumentNullException(nameof(name));
             this.description = description;
             this.budget = budget;
             this.managerId = managerId ?? throw new ArgumentNullException(nameof(managerId));
+            this.managerName = managerName ?? throw new ArgumentNullException(nameof(managerName));
             this.Employees = new List<Employee>();
         }
 
@@ -64,6 +67,13 @@ namespace HRManagementSystem
         {
             get { return managerId; }
             set { managerId = value ?? throw new ArgumentNullException(nameof(value)); }
+        }
+
+        [JsonPropertyName("managerName")]
+        public string ManagerName
+        {
+            get { return managerName; }
+            set { managerName = value ?? throw new ArgumentNullException(nameof(value)); }
         }
 
         [JsonPropertyName("employees")]

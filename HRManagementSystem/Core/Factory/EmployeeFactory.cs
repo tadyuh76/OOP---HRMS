@@ -44,7 +44,7 @@ namespace HRManagementSystem
             return new Manager
             {
                 Status = EmployeeStatus.Active,
-                ManagedEmployeeIds = new System.Collections.Generic.List<string>()
+                ManagedEmployeeIds = new List<string>()
             };
         }
     }

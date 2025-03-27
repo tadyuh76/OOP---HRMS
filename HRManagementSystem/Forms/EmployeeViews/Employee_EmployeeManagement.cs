@@ -1,10 +1,4 @@
-using System;
-using System.Drawing;
 using System.Text.Json;
-using System.Windows.Forms;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
 using System.Drawing.Drawing2D;
 
 namespace HRManagementSystem
@@ -45,12 +39,12 @@ namespace HRManagementSystem
         private void InitializeComponent()
         {
             // Form properties
-            this.Text = "Employee Profile";
-            this.Size = new Size(900, 680);
-            this.BackColor = lightGrayColor;
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Font = new Font("Segoe UI", 10F);
-            this.Padding = new Padding(15);
+            Text = "Employee Profile";
+            Size = new Size(900, 680);
+            BackColor = lightGrayColor;
+            StartPosition = FormStartPosition.CenterScreen;
+            Font = new Font("Segoe UI", 10F);
+            Padding = new Padding(15);
 
             // Create main content panel with shadow effect
             mainContentPanel = new Panel
@@ -80,7 +74,7 @@ namespace HRManagementSystem
             };
 
             // Create a circle for the profile picture
-            System.Drawing.Drawing2D.GraphicsPath gp = new System.Drawing.Drawing2D.GraphicsPath();
+            GraphicsPath gp = new();
             gp.AddEllipse(0, 0, profilePicture.Width - 1, profilePicture.Height - 1);
             profilePicture.Region = new Region(gp);
 
@@ -107,7 +101,7 @@ namespace HRManagementSystem
             headerPanel.Controls.Add(lblUserTitle);
 
             // Content layout
-            TableLayoutPanel contentLayout = new TableLayoutPanel
+            TableLayoutPanel contentLayout = new()
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 2,
@@ -126,7 +120,7 @@ namespace HRManagementSystem
             personalInfoPanel.Padding = new Padding(15);
             personalInfoPanel.Margin = new Padding(5, 10, 10, 10);
 
-            Label personalInfoTitle = new Label
+            Label personalInfoTitle = new()
             {
                 Text = "Personal Information",
                 Font = new Font("Segoe UI Semibold", 12),
@@ -136,7 +130,7 @@ namespace HRManagementSystem
                 TextAlign = ContentAlignment.MiddleLeft
             };
 
-            TableLayoutPanel personalInfoTable = new TableLayoutPanel
+            TableLayoutPanel personalInfoTable = new()
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 2,
@@ -197,7 +191,7 @@ namespace HRManagementSystem
             employmentInfoPanel.Padding = new Padding(15);
             employmentInfoPanel.Margin = new Padding(10, 10, 5, 10);
 
-            Label employmentInfoTitle = new Label
+            Label employmentInfoTitle = new()
             {
                 Text = "Employment Information",
                 Font = new Font("Segoe UI Semibold", 12),
@@ -207,7 +201,7 @@ namespace HRManagementSystem
                 TextAlign = ContentAlignment.MiddleLeft
             };
 
-            TableLayoutPanel employmentInfoTable = new TableLayoutPanel
+            TableLayoutPanel employmentInfoTable = new()
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 2,
@@ -292,7 +286,7 @@ namespace HRManagementSystem
             mainContentPanel.Controls.Add(headerPanel);
             mainContentPanel.Controls.Add(buttonsPanel);
 
-            this.Controls.Add(mainContentPanel);
+            Controls.Add(mainContentPanel);
 
             // Store references to value labels for data loading
             lblNameValue.Name = "lblNameValue";
@@ -308,7 +302,7 @@ namespace HRManagementSystem
 
         private Panel CreateRoundedPanel()
         {
-            Panel panel = new Panel
+            Panel panel = new()
             {
                 BackColor = panelBackColor,
                 BorderStyle = BorderStyle.None
@@ -317,8 +311,8 @@ namespace HRManagementSystem
             // Add shadow effect (simulated with border)
             panel.Paint += (sender, e) =>
             {
-                Rectangle rect = new Rectangle(0, 0, panel.Width - 1, panel.Height - 1);
-                using (Pen pen = new Pen(Color.FromArgb(230, 230, 230), 1))
+                Rectangle rect = new(0, 0, panel.Width - 1, panel.Height - 1);
+                using (Pen pen = new(Color.FromArgb(230, 230, 230), 1))
                 {
                     e.Graphics.DrawRectangle(pen, rect);
                 }
@@ -353,7 +347,7 @@ namespace HRManagementSystem
 
         private TextBox CreateStyledTextBox()
         {
-            TextBox textBox = new TextBox
+            TextBox textBox = new()
             {
                 Dock = DockStyle.Fill,
                 Font = new Font("Segoe UI", 10),
@@ -367,7 +361,7 @@ namespace HRManagementSystem
 
         private Button CreateStyledButton(string text, Color backColor, Color foreColor)
         {
-            Button button = new Button
+            Button button = new()
             {
                 Text = text,
                 BackColor = backColor,
@@ -442,7 +436,7 @@ namespace HRManagementSystem
         private Bitmap CreateInitialsAvatar(string name)
         {
             // Create a bitmap for the avatar
-            Bitmap avatarBitmap = new Bitmap(80, 80);
+            Bitmap avatarBitmap = new(80, 80);
 
             // Get initials from name
             string[] nameParts = name.Split(' ');
@@ -460,13 +454,13 @@ namespace HRManagementSystem
             {
                 // Fill background
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-                using (SolidBrush brush = new SolidBrush(Color.FromArgb(60, 60, 60)))
+                using (SolidBrush brush = new(Color.FromArgb(60, 60, 60)))
                 {
                     g.FillEllipse(brush, 0, 0, 79, 79);
                 }
 
                 // Draw initials
-                using (Font font = new Font("Arial", 24, FontStyle.Bold))
+                using (Font font = new("Arial", 24, FontStyle.Bold))
                 {
                     // Measure string to center it
                     SizeF textSize = g.MeasureString(initials, font);
@@ -474,7 +468,7 @@ namespace HRManagementSystem
                     float y = (80 - textSize.Height) / 2;
 
                     // Draw initials
-                    using (SolidBrush textBrush = new SolidBrush(Color.White))
+                    using (SolidBrush textBrush = new(Color.White))
                     {
                         g.DrawString(initials, font, textBrush, x, y);
                     }
@@ -506,7 +500,7 @@ namespace HRManagementSystem
                         employees[index] = currentEmployee;
 
                         // Save back to file
-                        var options = new JsonSerializerOptions { WriteIndented = true };
+                        JsonSerializerOptions options = new JsonSerializerOptions { WriteIndented = true };
                         string updatedJson = JsonSerializer.Serialize(employees, options);
                         File.WriteAllText(employeeDataPath, updatedJson);
 
