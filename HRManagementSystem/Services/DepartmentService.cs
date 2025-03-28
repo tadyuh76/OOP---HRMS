@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace HRManagementSystem
 {
     public class DepartmentService : IService<Department>
