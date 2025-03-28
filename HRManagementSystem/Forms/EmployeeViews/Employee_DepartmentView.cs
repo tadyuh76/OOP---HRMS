@@ -1,24 +1,40 @@
 namespace HRManagementSystem
 {
+    // Define custom delegates for button events
+    public delegate void SearchButtonClickDelegate(object? sender, EventArgs e);
+    public delegate void RefreshButtonClickDelegate(object? sender, EventArgs e);
+    public delegate void DataGridCellClickDelegate(object? sender, DataGridViewCellEventArgs e);
+
     public class Employee_DepartmentView : Form
     {
-        private DataGridView dgvDepartments;
-        private TextBox txtSearch;
-        private Button btnSearch;
-        private Button btnRefresh;
+        private DataGridView dgvDepartments = null!;
+        private TextBox txtSearch = null!;
+        private Button btnSearch = null!;
+        private Button btnRefresh = null!;
+
+        // Declare events with the custom delegates
+        private event SearchButtonClickDelegate SearchButtonClicked;
+        private event RefreshButtonClickDelegate RefreshButtonClicked;
+        private event DataGridCellClickDelegate DepartmentCellClicked;
 
         private DepartmentService _departmentService;
         private EmployeeService _employeeService;
-        private List<Department> _departments;
-        private List<Employee> _employees;
+        private List<Department> _departments = new List<Department>();
+        private List<Employee> _employees = new List<Employee>();
         private string _currentEmployeeId;
 
-        public Employee_DepartmentView(string employeeId = null)
+        public Employee_DepartmentView(string employeeId)
         {
             _currentEmployeeId = employeeId;
             InitializeComponent();
             _departmentService = new DepartmentService(new FileManager(new JsonFileStorage()));
             _employeeService = EmployeeService.GetInstance();
+
+            // Subscribe to the custom events
+            SearchButtonClicked += OnSearchButtonClicked;
+            RefreshButtonClicked += OnRefreshButtonClicked;
+            DepartmentCellClicked += OnDepartmentCellClicked;
+
             LoadData();
         }
 
@@ -129,7 +145,7 @@ namespace HRManagementSystem
                 Size = new Size(80, 35),
                 BackColor = Color.FromArgb(240, 240, 240)
             };
-            btnSearch.Click += BtnSearch_Click;
+            btnSearch.Click += (sender, e) => SearchButtonClicked?.Invoke(sender, e);
             searchPanel.Controls.Add(btnSearch);
 
             // Refresh button
@@ -140,7 +156,7 @@ namespace HRManagementSystem
                 Size = new Size(80, 35),
                 BackColor = Color.FromArgb(240, 240, 240)
             };
-            btnRefresh.Click += BtnRefresh_Click;
+            btnRefresh.Click += (sender, e) => RefreshButtonClicked?.Invoke(sender, e);
             searchPanel.Controls.Add(btnRefresh);
 
             // DataGridView for departments
@@ -199,7 +215,7 @@ namespace HRManagementSystem
                 DefaultCellStyle = { Format = "C2" }
             };
             dgvDepartments.Columns.Add(colBudget);
-            
+
             DataGridViewTextBoxColumn colEmployeeCount = new DataGridViewTextBoxColumn
             {
                 Name = "EmployeeCount",
@@ -235,7 +251,7 @@ namespace HRManagementSystem
             };
             dgvDepartments.Columns.Add(viewDetailsColumn);
 
-            dgvDepartments.CellClick += DgvDepartments_CellClick;
+            dgvDepartments.CellClick += (sender, e) => DepartmentCellClicked?.Invoke(sender, e);
         }
 
         private void LoadData()
@@ -250,7 +266,7 @@ namespace HRManagementSystem
 
                 // Populate the grid manually
                 PopulateDepartmentsGrid(_departments);
-                
+
                 // If we have a current employee, highlight their department
                 if (!string.IsNullOrEmpty(_currentEmployeeId))
                 {
@@ -266,7 +282,7 @@ namespace HRManagementSystem
         private void HighlightEmployeeDepartment()
         {
             // Find the current employee's department
-            Employee currentEmployee = _employees.FirstOrDefault(e => e.EmployeeId == _currentEmployeeId);
+            Employee? currentEmployee = _employees.FirstOrDefault(e => e.EmployeeId == _currentEmployeeId);
             if (currentEmployee != null && !string.IsNullOrEmpty(currentEmployee.DepartmentId))
             {
                 // Find and highlight the row with this department
@@ -292,7 +308,7 @@ namespace HRManagementSystem
             {
                 // Calculate employee count for this department
                 int employeeCount = _employees.Count(e => e.DepartmentId == dept.DepartmentId);
-                
+
                 int rowIndex = dgvDepartments.Rows.Add(
                     dept.DepartmentId,
                     dept.Name,
@@ -307,7 +323,8 @@ namespace HRManagementSystem
             }
         }
 
-        private void BtnSearch_Click(object sender, EventArgs e)
+        // Event handler implementations
+        private void OnSearchButtonClicked(object? sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtSearch.Text))
             {
@@ -326,19 +343,19 @@ namespace HRManagementSystem
             PopulateDepartmentsGrid(filteredList);
         }
 
-        private void BtnRefresh_Click(object sender, EventArgs e)
+        private void OnRefreshButtonClicked(object? sender, EventArgs e)
         {
             txtSearch.Text = string.Empty;
             LoadData();
         }
 
-        private void DgvDepartments_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void OnDepartmentCellClicked(object? sender, DataGridViewCellEventArgs e)
         {
             // Ignore header clicks
             if (e.RowIndex < 0) return;
 
             // Get the department object from the row's Tag
-            Department department = dgvDepartments.Rows[e.RowIndex].Tag as Department;
+            Department? department = dgvDepartments.Rows[e.RowIndex].Tag as Department;
             if (department == null) return;
 
             // Handle View Details button click
@@ -348,7 +365,7 @@ namespace HRManagementSystem
                 List<Employee> departmentEmployees = _employees
                     .Where(emp => emp.DepartmentId == department.DepartmentId)
                     .ToList();
-                
+
                 // Show the department details in a proper dialog
                 using (DepartmentDetailsDialog detailsDialog = new DepartmentDetailsDialog(department, departmentEmployees))
                 {
