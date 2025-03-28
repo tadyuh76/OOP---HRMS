@@ -298,5 +298,17 @@
     "deductions": 0,
     "netSalary": 6500,
     "isPaid": true
+  },
+  {
+    "payrollId": "PR-2025-029",
+    "employeeId": "EMP001",
+    "employeeName": "Dat Huy",
+    "payPeriodStart": "2025-03-01T00:00:00",
+    "payPeriodEnd": "2025-03-31T00:00:00",
+    "baseSalary": 9500,
+    "allowances": 500,
+    "deductions": 0,
+    "netSalary": 10000,
+    "isPaid": true
   }
 ]

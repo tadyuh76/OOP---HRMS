@@ -54,7 +54,7 @@
             }
             else
             {
-                btnEmployees.Text = "Employee";
+                btnEmployees.Text = "Profile";
                 btnDepartments.Text = "Department";
             }
         }

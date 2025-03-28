@@ -2,22 +2,38 @@ namespace HRManagementSystem
 {
     public class Employee_AttendanceView : Form
     {
-        private Button btnClockIn;
-        private Button btnClockOut;
-        private Button btnRequestLeave;
-        private DataGridView attendanceGridView;
-        private DataGridView leaveRequestsGridView;
-        private TabControl tabControl;
-        private Label lblEmployeeInfo;
-        private Label lblWorkingHours;
-        private DateTimePicker datePicker;
-        private RadioButton rbtnMonthly;
-        private RadioButton rbtnDaily;
+        // Delegate type definitions
+        public delegate void RequestLeaveEventHandler(object? sender, EventArgs e);
+        public delegate void SubmitLeaveEventHandler(object? sender, EventArgs e);
+
+        // Events
+        private event RequestLeaveEventHandler? OnRequestLeave;
+        private event SubmitLeaveEventHandler? OnSubmitLeave;
+
+        // Explicit delegates for events
+        private EventHandler datePickerValueChanged = null!;
+        private EventHandler viewTypeRadioButtonCheckedChanged = null!;
+        private EventHandler btnClockInClick = null!;
+        private EventHandler btnClockOutClick = null!;
+        private RequestLeaveEventHandler btnRequestLeaveClick = null!;
+        private SubmitLeaveEventHandler btnSubmitLeaveClick = null!;
+
+        private Button btnClockIn = null!;
+        private Button btnClockOut = null!;
+        private Button btnRequestLeave = null!;
+        private DataGridView attendanceGridView = null!;
+        private DataGridView leaveRequestsGridView = null!;
+        private TabControl tabControl = null!;
+        private Label lblEmployeeInfo = null!;
+        private Label lblWorkingHours = null!;
+        private DateTimePicker datePicker = null!;
+        private RadioButton rbtnMonthly = null!;
+        private RadioButton rbtnDaily = null!;
         private bool isMonthlyView = true;
 
         // Services
-        private AttendanceService attendanceService;
-        private LeaveService leaveService;
+        private AttendanceService attendanceService = null!;
+        private LeaveService leaveService = null!;
 
         // Employee information
         private string employeeId;
@@ -27,17 +43,9 @@ namespace HRManagementSystem
         private TimeSpan workStartTime;
         private TimeSpan workEndTime;
 
-        // Explicit delegates for events
-        private EventHandler datePickerValueChanged;
-        private EventHandler viewTypeRadioButtonCheckedChanged;
-        private EventHandler btnClockInClick;
-        private EventHandler btnClockOutClick;
-        private EventHandler btnRequestLeaveClick;
-        private EventHandler btnSubmitLeaveClick;
-
         public Employee_AttendanceView(string employeeId = "EMP001")
         {
-            this.employeeId = employeeId ?? "EMP001";
+            this.employeeId = employeeId;
 
             // Initialize services
             attendanceService = AttendanceService.GetInstance();
@@ -82,8 +90,14 @@ namespace HRManagementSystem
             viewTypeRadioButtonCheckedChanged = new EventHandler(ViewTypeRadioButton_CheckedChanged);
             btnClockInClick = new EventHandler(BtnClockIn_Click);
             btnClockOutClick = new EventHandler(BtnClockOut_Click);
-            btnRequestLeaveClick = new EventHandler(BtnRequestLeave_Click);
-            btnSubmitLeaveClick = new EventHandler(BtnSubmit_Click);
+
+            // Initialize custom delegates with their respective methods
+            btnRequestLeaveClick = new RequestLeaveEventHandler(BtnRequestLeave_Click);
+            btnSubmitLeaveClick = new SubmitLeaveEventHandler(BtnSubmit_Click);
+
+            // Subscribe to events
+            OnRequestLeave += btnRequestLeaveClick;
+            OnSubmitLeave += btnSubmitLeaveClick;
         }
 
         private void InitializeComponent()
@@ -227,7 +241,7 @@ namespace HRManagementSystem
                 Font = new Font("Segoe UI", 10, FontStyle.Bold)
             };
             btnRequestLeave.FlatAppearance.BorderSize = 0;
-            btnRequestLeave.Click += btnRequestLeaveClick;
+            btnRequestLeave.Click += new EventHandler(btnRequestLeaveClick);
             actionPanel.Controls.Add(btnRequestLeave);
 
             // Tab control for attendance and leave history
@@ -703,6 +717,12 @@ namespace HRManagementSystem
 
         private void BtnRequestLeave_Click(object? sender, EventArgs e)
         {
+            // Trigger the event in a null-safe way
+            if (OnRequestLeave != null)
+            {
+                OnRequestLeave(sender, e);
+            }
+
             Form leaveRequestForm = new Form
             {
                 Text = "Request Leave",
@@ -788,8 +808,7 @@ namespace HRManagementSystem
                 FlatStyle = FlatStyle.Flat
             };
             btnSubmit.FlatAppearance.BorderSize = 0;
-            btnSubmit.Click += new EventHandler((clickSender, clickArgs) =>
-                BtnSubmit_Click(clickSender, clickArgs, cmbType, dtpStartDate, dtpEndDate, txtRemarks, leaveRequestForm));
+            btnSubmit.Click += new EventHandler(btnSubmitLeaveClick);
             layout.Controls.Add(btnSubmit, 1, 5);
 
             leaveRequestForm.ShowDialog();
@@ -797,6 +816,12 @@ namespace HRManagementSystem
 
         private void BtnSubmit_Click(object? sender, EventArgs e)
         {
+            // Trigger the event in a null-safe way
+            if (OnSubmitLeave != null)
+            {
+                OnSubmitLeave(sender, e);
+            }
+
             // This method is a placeholder for the delegate
             // The actual implementation is in the overloaded method below
         }
