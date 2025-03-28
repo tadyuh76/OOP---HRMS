@@ -46,7 +46,7 @@ namespace HRManagementSystem
                 Text = _department.Name,
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 18F, FontStyle.Bold),
-                Location = new Point(20, 20),
+                Location = new Point(2, 5),
                 AutoSize = true
             };
             headerPanel.Controls.Add(lblDepartmentName);
@@ -57,7 +57,7 @@ namespace HRManagementSystem
                 Text = $"ID: {_department.DepartmentId}",
                 ForeColor = Color.FromArgb(220, 220, 220),
                 Font = new Font("Segoe UI", 10F),
-                Location = new Point(20, 50),
+                Location = new Point(5, 45),
                 AutoSize = true
             };
             headerPanel.Controls.Add(lblDepartmentId);
