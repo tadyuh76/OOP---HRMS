@@ -21,10 +21,10 @@ namespace HRManagementSystem
 
         private void InitializeComponent()
         {
-            this.Text = "Employee Management";
-            this.Size = new Size(1200, 700);
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            Text = "Employee Management";
+            Size = new Size(1200, 700);
+            StartPosition = FormStartPosition.CenterScreen;
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
 
             // Main layout panel
             TableLayoutPanel mainLayout = new TableLayoutPanel
@@ -36,7 +36,7 @@ namespace HRManagementSystem
             };
             mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            this.Controls.Add(mainLayout);
+            Controls.Add(mainLayout);
 
             // Header panel with title and add button
             Panel headerPanel = new Panel
@@ -295,7 +295,7 @@ namespace HRManagementSystem
         private void ApplySearchAndFilter(string searchText, string filter)
         {
             DataGridView dgvEmployees = (DataGridView)Controls.Find("dgvEmployees", true)[0];
-            
+
             // First apply status filter
             List<Employee> filteredEmployees = filter switch
             {
@@ -309,7 +309,7 @@ namespace HRManagementSystem
             // Then apply search text filter if it's not empty
             if (!string.IsNullOrWhiteSpace(searchText))
             {
-                filteredEmployees = filteredEmployees.Where(e => 
+                filteredEmployees = filteredEmployees.Where(e =>
                     e.Name.ToLower().Contains(searchText) ||
                     e.EmployeeId.ToLower().Contains(searchText) ||
                     e.Position.ToLower().Contains(searchText) ||
@@ -497,16 +497,18 @@ namespace HRManagementSystem
 
                     if (result == DialogResult.OK)
                     {
-                        try {
+                        try
+                        {
                             // Update employee in the service
                             bool success = employeeService.Update(editForm.UpdatedEmployee);
-                            
-                            if (success) {
+
+                            if (success)
+                            {
                                 // Ensure data is saved to JSON by forcing a file write
                                 JsonFileStorage storage = new JsonFileStorage();
                                 List<Employee> updatedEmployees = employeeService.GetAll();
                                 storage.SaveData(FileManager.employeeDataPath, updatedEmployees);
-                                
+
                                 // Refresh the employee list and grid
                                 employees = employeeService.GetAll();
 
@@ -518,12 +520,14 @@ namespace HRManagementSystem
                                 MessageBox.Show("Employee updated successfully!", "Success",
                                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
-                            else {
-                                MessageBox.Show("Failed to update employee.", "Error", 
+                            else
+                            {
+                                MessageBox.Show("Failed to update employee.", "Error",
                                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
-                        catch (Exception ex) {
+                        catch (Exception ex)
+                        {
                             MessageBox.Show($"Error updating employee: {ex.Message}", "Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
@@ -539,16 +543,18 @@ namespace HRManagementSystem
 
                     if (result == DialogResult.Yes)
                     {
-                        try {
+                        try
+                        {
                             // Delete the employee from the service
                             bool success = employeeService.Delete(selectedEmployee.Id);
-                            
-                            if (success) {
+
+                            if (success)
+                            {
                                 // Ensure data is saved to JSON by forcing a file write
                                 JsonFileStorage storage = new JsonFileStorage();
                                 List<Employee> updatedEmployees = employeeService.GetAll();
                                 storage.SaveData(FileManager.employeeDataPath, updatedEmployees);
-                                
+
                                 // Refresh the employee list and grid
                                 employees = employeeService.GetAll();
 
@@ -560,12 +566,14 @@ namespace HRManagementSystem
                                 MessageBox.Show($"Employee with ID: {selectedEmployee.EmployeeId} deleted!", "Success",
                                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
-                            else {
-                                MessageBox.Show("Failed to delete employee.", "Error", 
+                            else
+                            {
+                                MessageBox.Show("Failed to delete employee.", "Error",
                                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
-                        catch (Exception ex) {
+                        catch (Exception ex)
+                        {
                             MessageBox.Show($"Error deleting employee: {ex.Message}", "Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
@@ -591,7 +599,8 @@ namespace HRManagementSystem
 
             if (result == DialogResult.OK)
             {
-                try {
+                try
+                {
                     // Ensure department name is set before adding
                     if (string.IsNullOrEmpty(addForm.UpdatedEmployee.DepartmentName))
                     {
@@ -600,13 +609,14 @@ namespace HRManagementSystem
 
                     // Add the new employee
                     bool success = employeeService.Add(addForm.UpdatedEmployee);
-                    
-                    if (success) {
+
+                    if (success)
+                    {
                         // Ensure data is saved to JSON by forcing a file write
                         JsonFileStorage storage = new JsonFileStorage();
                         List<Employee> updatedEmployees = employeeService.GetAll();
                         storage.SaveData(FileManager.employeeDataPath, updatedEmployees);
-                        
+
                         // Refresh the employee list and grid
                         employees = employeeService.GetAll();
 
@@ -618,12 +628,14 @@ namespace HRManagementSystem
                         MessageBox.Show("New employee added successfully!", "Success",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
-                    else {
-                        MessageBox.Show("Failed to add employee.", "Error", 
+                    else
+                    {
+                        MessageBox.Show("Failed to add employee.", "Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     MessageBox.Show($"Error adding employee: {ex.Message}", "Error",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }

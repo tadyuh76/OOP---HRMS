@@ -1,10 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
-using HRManagementSystem.Services;
-
 namespace HRManagementSystem
 {
     public class EmployeeAttendanceViewer : Form
@@ -52,11 +45,11 @@ namespace HRManagementSystem
 
         private void InitializeComponent()
         {
-            this.Text = "Employee Attendance Viewer";
-            this.Size = new Size(1100, 700);
-            this.BackColor = Color.WhiteSmoke;
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            Text = "Employee Attendance Viewer";
+            Size = new Size(1100, 700);
+            BackColor = Color.WhiteSmoke;
+            StartPosition = FormStartPosition.CenterScreen;
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
 
             TableLayoutPanel mainLayout = new TableLayoutPanel
             {
@@ -68,7 +61,7 @@ namespace HRManagementSystem
             mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            this.Controls.Add(mainLayout);
+            Controls.Add(mainLayout);
 
             // Top panel for filters and controls
             Panel controlPanel = new Panel
@@ -119,7 +112,7 @@ namespace HRManagementSystem
             Panel dateFilterPanel = new Panel
             {
                 Location = new Point(600, 12),
-                Size = new Size(300, 80),
+                Size = new Size(300, 100),  // Increased height from 80 to 100
                 Anchor = AnchorStyles.Top | AnchorStyles.Right
             };
             controlPanel.Controls.Add(dateFilterPanel);
@@ -162,8 +155,8 @@ namespace HRManagementSystem
             btnViewAbsences = new Button
             {
                 Text = "View Absences",
-                Location = new Point(0, 60),
-                Size = new Size(150, 30),
+                Location = new Point(0, 65),  // Adjusted position from 60 to 65
+                Size = new Size(150, 25),
                 BackColor = Color.FromArgb(220, 53, 69),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
@@ -281,7 +274,7 @@ namespace HRManagementSystem
             cmbEmployees.Items.Add(new EmployeeComboItem { DisplayText = "-- Select Employee --", EmployeeId = null });
 
             // Add all employees
-            foreach (var emp in employees.OrderBy(e => e.Name))
+            foreach (Employee? emp in employees.OrderBy(e => e.Name))
             {
                 cmbEmployees.Items.Add(new EmployeeComboItem
                 {
@@ -300,7 +293,7 @@ namespace HRManagementSystem
                 selectedEmployeeId = selectedItem.EmployeeId;
 
                 // Find the selected employee
-                var employee = employees.FirstOrDefault(e => e.EmployeeId == selectedEmployeeId);
+                Employee? employee = employees.FirstOrDefault(e => e.EmployeeId == selectedEmployeeId);
                 if (employee != null)
                 {
                     lblEmployeeInfo.Text = $"Position: {employee.Position} | Department: {employee.DepartmentName ?? "Unknown"} | Status: {employee.Status}";
@@ -395,13 +388,13 @@ namespace HRManagementSystem
                 if (attendances.Count == 0 && selectedDate.Date <= DateTime.Today)
                 {
                     // Check if employee was on approved leave
-                    var leavesOnDate = leaveService.GetEmployeeDailyLeaves(selectedEmployeeId, selectedDate)
+                    List<LeaveRequest> leavesOnDate = leaveService.GetEmployeeDailyLeaves(selectedEmployeeId, selectedDate)
                         .Where(l => l.Status == LeaveStatus.Approved).ToList();
 
                     if (leavesOnDate.Count == 0)
                     {
                         // Get employee details
-                        var employee = employees.FirstOrDefault(e => e.EmployeeId == selectedEmployeeId);
+                        Employee? employee = employees.FirstOrDefault(e => e.EmployeeId == selectedEmployeeId);
 
                         if (employee != null)
                         {
@@ -423,7 +416,7 @@ namespace HRManagementSystem
                 }
             }
 
-            foreach (var attendance in attendances)
+            foreach (Attendance attendance in attendances)
             {
                 // Determine if this is an absent record
                 bool isAbsent = attendance.IsAbsentRecord ||
@@ -451,7 +444,7 @@ namespace HRManagementSystem
 
                 attendanceGridView.Rows[rowIndex].Tag = attendance;
 
-                var statusCell = attendanceGridView.Rows[rowIndex].Cells["Status"];
+                DataGridViewCell statusCell = attendanceGridView.Rows[rowIndex].Cells["Status"];
                 if (isAbsent)
                 {
                     // Absent styling
@@ -512,7 +505,7 @@ namespace HRManagementSystem
                     selectedEmployeeId, selectedDate);
             }
 
-            foreach (var request in leaveRequests)
+            foreach (LeaveRequest request in leaveRequests)
             {
                 if (request == null) continue;
 
@@ -530,7 +523,7 @@ namespace HRManagementSystem
 
                 leaveGridView.Rows[rowIndex].Tag = request;
 
-                var statusCell = leaveGridView.Rows[rowIndex].Cells["Status"];
+                DataGridViewCell statusCell = leaveGridView.Rows[rowIndex].Cells["Status"];
                 switch (request.Status)
                 {
                     case LeaveStatus.Approved:
@@ -573,7 +566,7 @@ namespace HRManagementSystem
 
         private void BtnClose_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         private void BtnViewAbsences_Click(object sender, EventArgs e)
@@ -607,7 +600,7 @@ namespace HRManagementSystem
             endDate = DateTime.Today < endDate ? DateTime.Today : endDate;
 
             // Get all attendance for this employee in the date range
-            var allAttendance = attendanceService.GetEmployeeAttendance(
+            List<Attendance> allAttendance = attendanceService.GetEmployeeAttendance(
                 selectedEmployeeId, startDate.Year, startDate.Month);
 
             // Create a list to track all the dates employee was present
@@ -616,7 +609,7 @@ namespace HRManagementSystem
             );
 
             // Get approved leaves
-            var approvedLeaves = leaveService.GetEmployeeLeaves(selectedEmployeeId)
+            List<LeaveRequest> approvedLeaves = leaveService.GetEmployeeLeaves(selectedEmployeeId)
                 .Where(l => l.Status == LeaveStatus.Approved)
                 .ToList();
 

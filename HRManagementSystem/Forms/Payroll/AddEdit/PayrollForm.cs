@@ -96,7 +96,7 @@ namespace HRManagementSystem
 
         private void SetupForm()
         {
-            this.Text = _isEditMode ? "Update Payslip" : "Add Payslip";
+            Text = _isEditMode ? "Update Payslip" : "Add Payslip";
 
             LoadEmployeeList();
 

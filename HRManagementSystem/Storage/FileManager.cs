@@ -7,10 +7,9 @@ namespace HRManagementSystem
         public static string dataDirectory = Path.Combine(projectDirectory, "Data");
         public static string employeeDataPath = Path.Combine(dataDirectory, "Employees.json");
         public static string departmentDataPath = Path.Combine(dataDirectory, "Departments.json");
-        public static string attendanceDataPath = Path.Combine(dataDirectory, "Attendance.json");
-        public static string leaveDataPath = Path.Combine(dataDirectory, "Leave.json");
-        public static string payrollDataPath = Path.Combine(dataDirectory, "Payroll.json");
-        public static string leaveRequestsDataPath = Path.Combine(dataDirectory, "LeaveRequests.json");
+        public static string attendanceDataPath = Path.Combine(dataDirectory, "Attendances.json");
+        public static string leaveDataPath = Path.Combine(dataDirectory, "LeaveRequests.json");
+        public static string payrollDataPath = Path.Combine(dataDirectory, "Payrolls.json");
 
         public FileManager(IFileStorage storage)
         {
@@ -80,16 +79,8 @@ namespace HRManagementSystem
 
         public List<LeaveRequest> LoadLeaveRequests()
         {
-            // Try to load from the regular leave path first
-            var result = _fileStorage.LoadData<List<LeaveRequest>>(leaveDataPath);
-            
-            // If legacy path doesn't have data, try the leaveRequests path
-            if (result == null || !result.Any())
-            {
-                result = _fileStorage.LoadData<List<LeaveRequest>>(leaveRequestsDataPath);
-            }
-            
-            return result ?? new List<LeaveRequest>();
+            // Load leave requests only from the leaveDataPath
+            return _fileStorage.LoadData<List<LeaveRequest>>(leaveDataPath) ?? new List<LeaveRequest>();
         }
 
         public bool SaveLeaveRequests(List<LeaveRequest> leaveRequests)
@@ -98,11 +89,9 @@ namespace HRManagementSystem
             {
                 throw new ArgumentNullException(nameof(leaveRequests));
             }
-            
-            // Save to both paths for backward compatibility
-            bool success = _fileStorage.SaveData(leaveDataPath, leaveRequests);
-            
-            return success;
+
+            // Save only to the leaveDataPath
+            return _fileStorage.SaveData(leaveDataPath, leaveRequests);
         }
 
         public List<Payroll> LoadPayrollsByEmployeeId(string employeeId)

@@ -14,7 +14,7 @@ namespace HRManagementSystem
         public Department()
         {
             // Default constructor required for JSON serialization
-            this.Employees = new List<Employee>();
+            Employees = new List<Employee>();
         }
 
         public Department(
@@ -31,7 +31,7 @@ namespace HRManagementSystem
             this.budget = budget;
             this.managerId = managerId ?? throw new ArgumentNullException(nameof(managerId));
             this.managerName = managerName ?? throw new ArgumentNullException(nameof(managerName));
-            this.Employees = new List<Employee>();
+            Employees = new List<Employee>();
         }
 
         [JsonPropertyName("departmentId")]

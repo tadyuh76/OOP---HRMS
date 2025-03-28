@@ -31,14 +31,14 @@ namespace HRManagementSystem
 
         private void InitializeComponent()
         {
-            this.Text = _isNewEmployee ? "Add New Employee" : "Edit Employee";
-            this.Size = new Size(600, 700);
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            this.Padding = new Padding(20);
+            Text = _isNewEmployee ? "Add New Employee" : "Edit Employee";
+            Size = new Size(600, 700);
+            StartPosition = FormStartPosition.CenterParent;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            Padding = new Padding(20);
 
             // Main container - Tab Control
             TabControl tabControl = new TabControl
@@ -64,7 +64,7 @@ namespace HRManagementSystem
 
             tabControl.TabPages.Add(tabPersonal);
             tabControl.TabPages.Add(tabEmployment);
-            this.Controls.Add(tabControl);
+            Controls.Add(tabControl);
 
             // Personal Information Panel
             TableLayoutPanel personalPanel = new TableLayoutPanel
@@ -315,7 +315,7 @@ namespace HRManagementSystem
                 Height = 60,
                 Padding = new Padding(10)
             };
-            this.Controls.Add(buttonPanel);
+            Controls.Add(buttonPanel);
 
             // Save button
             Button btnSave = new Button
@@ -356,7 +356,7 @@ namespace HRManagementSystem
             btnCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
 
             // Adjust tab control to make room for buttons
-            tabControl.Height = this.ClientSize.Height - buttonPanel.Height;
+            tabControl.Height = ClientSize.Height - buttonPanel.Height;
         }
 
         private void LoadEmployeeData()
@@ -364,17 +364,17 @@ namespace HRManagementSystem
             // Load data into form controls
             if (_employee != null)
             {
-                TextBox txtEmployeeId = this.Controls.Find("txtEmployeeId", true).FirstOrDefault() as TextBox;
-                TextBox txtName = this.Controls.Find("txtName", true).FirstOrDefault() as TextBox;
-                TextBox txtEmail = this.Controls.Find("txtEmail", true).FirstOrDefault() as TextBox;
-                TextBox txtPhone = this.Controls.Find("txtPhone", true).FirstOrDefault() as TextBox;
-                DateTimePicker dtpDob = this.Controls.Find("dtpDob", true).FirstOrDefault() as DateTimePicker;
-                TextBox txtAddress = this.Controls.Find("txtAddress", true).FirstOrDefault() as TextBox;
-                ComboBox cmbDepartment = this.Controls.Find("cmbDepartment", true).FirstOrDefault() as ComboBox;
-                TextBox txtPosition = this.Controls.Find("txtPosition", true).FirstOrDefault() as TextBox;
-                DateTimePicker dtpHireDate = this.Controls.Find("dtpHireDate", true).FirstOrDefault() as DateTimePicker;
-                ComboBox cmbStatus = this.Controls.Find("cmbStatus", true).FirstOrDefault() as ComboBox;
-                NumericUpDown nudSalary = this.Controls.Find("nudSalary", true).FirstOrDefault() as NumericUpDown;
+                TextBox txtEmployeeId = Controls.Find("txtEmployeeId", true).FirstOrDefault() as TextBox;
+                TextBox txtName = Controls.Find("txtName", true).FirstOrDefault() as TextBox;
+                TextBox txtEmail = Controls.Find("txtEmail", true).FirstOrDefault() as TextBox;
+                TextBox txtPhone = Controls.Find("txtPhone", true).FirstOrDefault() as TextBox;
+                DateTimePicker dtpDob = Controls.Find("dtpDob", true).FirstOrDefault() as DateTimePicker;
+                TextBox txtAddress = Controls.Find("txtAddress", true).FirstOrDefault() as TextBox;
+                ComboBox cmbDepartment = Controls.Find("cmbDepartment", true).FirstOrDefault() as ComboBox;
+                TextBox txtPosition = Controls.Find("txtPosition", true).FirstOrDefault() as TextBox;
+                DateTimePicker dtpHireDate = Controls.Find("dtpHireDate", true).FirstOrDefault() as DateTimePicker;
+                ComboBox cmbStatus = Controls.Find("cmbStatus", true).FirstOrDefault() as ComboBox;
+                NumericUpDown nudSalary = Controls.Find("nudSalary", true).FirstOrDefault() as NumericUpDown;
 
                 if (txtEmployeeId != null) txtEmployeeId.Text = _employee.EmployeeId;
                 if (txtName != null) txtName.Text = _employee.Name;
@@ -386,13 +386,13 @@ namespace HRManagementSystem
                 if (dtpHireDate != null && _employee.HireDate != DateTime.MinValue) dtpHireDate.Value = _employee.HireDate;
                 if (cmbStatus != null) cmbStatus.SelectedItem = _employee.Status.ToString();
                 if (nudSalary != null) nudSalary.Value = _employee.BaseSalary;
-                
+
                 // Select the correct department
                 if (cmbDepartment != null && !string.IsNullOrEmpty(_employee.DepartmentId))
                 {
                     for (int i = 0; i < cmbDepartment.Items.Count; i++)
                     {
-                        if (cmbDepartment.Items[i] is DepartmentItem deptItem && 
+                        if (cmbDepartment.Items[i] is DepartmentItem deptItem &&
                             deptItem.Department.DepartmentId == _employee.DepartmentId)
                         {
                             cmbDepartment.SelectedIndex = i;
@@ -412,16 +412,16 @@ namespace HRManagementSystem
             }
 
             // Get values from form controls
-            TextBox txtName = this.Controls.Find("txtName", true).FirstOrDefault() as TextBox;
-            TextBox txtEmail = this.Controls.Find("txtEmail", true).FirstOrDefault() as TextBox;
-            TextBox txtPhone = this.Controls.Find("txtPhone", true).FirstOrDefault() as TextBox;
-            DateTimePicker dtpDob = this.Controls.Find("dtpDob", true).FirstOrDefault() as DateTimePicker;
-            TextBox txtAddress = this.Controls.Find("txtAddress", true).FirstOrDefault() as TextBox;
-            ComboBox cmbDepartment = this.Controls.Find("cmbDepartment", true).FirstOrDefault() as ComboBox;
-            TextBox txtPosition = this.Controls.Find("txtPosition", true).FirstOrDefault() as TextBox;
-            DateTimePicker dtpHireDate = this.Controls.Find("dtpHireDate", true).FirstOrDefault() as DateTimePicker;
-            ComboBox cmbStatus = this.Controls.Find("cmbStatus", true).FirstOrDefault() as ComboBox;
-            NumericUpDown nudSalary = this.Controls.Find("nudSalary", true).FirstOrDefault() as NumericUpDown;
+            TextBox txtName = Controls.Find("txtName", true).FirstOrDefault() as TextBox;
+            TextBox txtEmail = Controls.Find("txtEmail", true).FirstOrDefault() as TextBox;
+            TextBox txtPhone = Controls.Find("txtPhone", true).FirstOrDefault() as TextBox;
+            DateTimePicker dtpDob = Controls.Find("dtpDob", true).FirstOrDefault() as DateTimePicker;
+            TextBox txtAddress = Controls.Find("txtAddress", true).FirstOrDefault() as TextBox;
+            ComboBox cmbDepartment = Controls.Find("cmbDepartment", true).FirstOrDefault() as ComboBox;
+            TextBox txtPosition = Controls.Find("txtPosition", true).FirstOrDefault() as TextBox;
+            DateTimePicker dtpHireDate = Controls.Find("dtpHireDate", true).FirstOrDefault() as DateTimePicker;
+            ComboBox cmbStatus = Controls.Find("cmbStatus", true).FirstOrDefault() as ComboBox;
+            NumericUpDown nudSalary = Controls.Find("nudSalary", true).FirstOrDefault() as NumericUpDown;
 
             // Update employee object
             _employee.Name = txtName?.Text;
@@ -431,15 +431,15 @@ namespace HRManagementSystem
             _employee.Address = txtAddress?.Text;
             _employee.Position = txtPosition?.Text;
             _employee.HireDate = dtpHireDate?.Value ?? DateTime.Now;
-            
+
             // Parse and set status enum
             if (cmbStatus?.SelectedItem != null && Enum.TryParse(cmbStatus.SelectedItem.ToString(), out EmployeeStatus status))
             {
                 _employee.Status = status;
             }
-            
+
             _employee.BaseSalary = nudSalary?.Value ?? 0;
-            
+
             // Set department ID and name
             if (cmbDepartment?.SelectedItem is DepartmentItem selectedDept)
             {
@@ -453,26 +453,26 @@ namespace HRManagementSystem
 
         private bool ValidateForm()
         {
-            TextBox txtName = this.Controls.Find("txtName", true).FirstOrDefault() as TextBox;
-            TextBox txtEmail = this.Controls.Find("txtEmail", true).FirstOrDefault() as TextBox;
-            ComboBox cmbDepartment = this.Controls.Find("cmbDepartment", true).FirstOrDefault() as ComboBox;
-            TextBox txtPosition = this.Controls.Find("txtPosition", true).FirstOrDefault() as TextBox;
-            ComboBox cmbStatus = this.Controls.Find("cmbStatus", true).FirstOrDefault() as ComboBox;
+            TextBox txtName = Controls.Find("txtName", true).FirstOrDefault() as TextBox;
+            TextBox txtEmail = Controls.Find("txtEmail", true).FirstOrDefault() as TextBox;
+            ComboBox cmbDepartment = Controls.Find("cmbDepartment", true).FirstOrDefault() as ComboBox;
+            TextBox txtPosition = Controls.Find("txtPosition", true).FirstOrDefault() as TextBox;
+            ComboBox cmbStatus = Controls.Find("cmbStatus", true).FirstOrDefault() as ComboBox;
 
             // Basic validation
             if (string.IsNullOrWhiteSpace(txtName?.Text))
             {
-                MessageBox.Show("Employee name is required.", "Validation Error", 
+                MessageBox.Show("Employee name is required.", "Validation Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtName?.Focus();
                 return false;
             }
 
             // Email validation (basic format check)
-            if (!string.IsNullOrWhiteSpace(txtEmail?.Text) && 
+            if (!string.IsNullOrWhiteSpace(txtEmail?.Text) &&
                 !txtEmail.Text.Contains("@") || !txtEmail.Text.Contains("."))
             {
-                MessageBox.Show("Please enter a valid email address.", "Validation Error", 
+                MessageBox.Show("Please enter a valid email address.", "Validation Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtEmail?.Focus();
                 return false;
@@ -480,7 +480,7 @@ namespace HRManagementSystem
 
             if (string.IsNullOrWhiteSpace(txtPosition?.Text))
             {
-                MessageBox.Show("Position is required.", "Validation Error", 
+                MessageBox.Show("Position is required.", "Validation Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtPosition?.Focus();
                 return false;
@@ -488,7 +488,7 @@ namespace HRManagementSystem
 
             if (cmbDepartment?.SelectedItem == null)
             {
-                MessageBox.Show("Please select a department.", "Validation Error", 
+                MessageBox.Show("Please select a department.", "Validation Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 cmbDepartment?.Focus();
                 return false;
@@ -496,7 +496,7 @@ namespace HRManagementSystem
 
             if (cmbStatus?.SelectedItem == null)
             {
-                MessageBox.Show("Please select an employee status.", "Validation Error", 
+                MessageBox.Show("Please select an employee status.", "Validation Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 cmbStatus?.Focus();
                 return false;

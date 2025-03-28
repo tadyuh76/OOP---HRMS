@@ -67,7 +67,7 @@ namespace HRManagementSystem.Util
                     return false;
                 }
 
-                var options = new JsonSerializerOptions
+                JsonSerializerOptions options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true,
                     WriteIndented = true
@@ -95,7 +95,7 @@ namespace HRManagementSystem.Util
         {
             try
             {
-                var options = new JsonSerializerOptions
+                JsonSerializerOptions options = new JsonSerializerOptions
                 {
                     WriteIndented = true
                 };

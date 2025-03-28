@@ -1,6 +1,4 @@
-﻿using HRManagementSystem.Services;
-using System.Data;
-using System.Text.Json;
+﻿using System.Data;
 
 namespace HRManagementSystem
 {
@@ -59,10 +57,10 @@ namespace HRManagementSystem
 
         private void InitializeComponent()
         {
-            this.BackColor = Color.WhiteSmoke;
-            this.Size = new Size(1200, 700);
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            BackColor = Color.WhiteSmoke;
+            Size = new Size(1200, 700);
+            StartPosition = FormStartPosition.CenterScreen;
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
 
             // Main layout panel
             TableLayoutPanel mainLayout = new TableLayoutPanel
@@ -74,7 +72,7 @@ namespace HRManagementSystem
             };
             mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            this.Controls.Add(mainLayout);
+            Controls.Add(mainLayout);
 
             // Header panel with title
             Panel headerPanel = new Panel
@@ -330,7 +328,7 @@ namespace HRManagementSystem
 
         private void BtnViewEmployee_Click(object sender, EventArgs e)
         {
-            var employeeViewer = new EmployeeAttendanceViewer();
+            EmployeeAttendanceViewer employeeViewer = new EmployeeAttendanceViewer();
             employeeViewer.ShowDialog();
         }
 
@@ -453,7 +451,7 @@ namespace HRManagementSystem
         {
             attendanceGridView.Rows.Clear();
 
-            foreach (var attendance in attendances)
+            foreach (Attendance attendance in attendances)
             {
                 // Use the EmployeeName directly from the attendance record
                 string employeeName = attendance.EmployeeName ?? "Unknown";
@@ -489,7 +487,7 @@ namespace HRManagementSystem
                 attendanceGridView.Rows[rowIndex].Tag = attendance;
 
                 // Apply color to status cells
-                var statusCell = attendanceGridView.Rows[rowIndex].Cells["Status"];
+                DataGridViewCell statusCell = attendanceGridView.Rows[rowIndex].Cells["Status"];
                 if (isAbsent || attendance.AttendanceId.StartsWith("ABSENT"))
                 {
                     // Absent styling
@@ -562,8 +560,6 @@ namespace HRManagementSystem
                 if (leaveRequests == null || !leaveRequests.Any())
                 {
                     string timeFrame = isMonthlyView ? "month" : "day";
-                    MessageBox.Show($"No leave data found for the selected {timeFrame}. The system will display an empty table.",
-                        "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     leaveRequests = new List<LeaveRequest>();
                 }
 
@@ -589,9 +585,7 @@ namespace HRManagementSystem
             }
 
             // Debug output
-            Console.WriteLine($"Displaying {leaveRequests.Count} leave requests");
-
-            foreach (var request in leaveRequests)
+            foreach (LeaveRequest request in leaveRequests)
             {
                 try
                 {
@@ -658,7 +652,7 @@ namespace HRManagementSystem
                     leaveRequestsGridView.Rows[rowIndex].Tag = request;
 
                     // Apply color to status cells
-                    var statusCell = leaveRequestsGridView.Rows[rowIndex].Cells["Status"];
+                    DataGridViewCell statusCell = leaveRequestsGridView.Rows[rowIndex].Cells["Status"];
                     try
                     {
                         switch (request.Status)

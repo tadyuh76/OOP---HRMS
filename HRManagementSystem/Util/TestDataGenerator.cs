@@ -14,22 +14,22 @@ namespace HRManagementSystem.Util
         {
             try
             {
-                var leaveRequests = new List<LeaveRequest>();
-                var random = new Random();
-                var leaveTypes = Enum.GetValues(typeof(LeaveType));
-                var leaveStatuses = new[] { LeaveStatus.Pending, LeaveStatus.Approved, LeaveStatus.Rejected };
-                var approverIds = new[] { "ADMIN001", "ADMIN002", null };
+                List<LeaveRequest> leaveRequests = new List<LeaveRequest>();
+                Random random = new Random();
+                Array leaveTypes = Enum.GetValues(typeof(LeaveType));
+                LeaveStatus[] leaveStatuses = new[] { LeaveStatus.Pending, LeaveStatus.Approved, LeaveStatus.Rejected };
+                string?[] approverIds = new[] { "ADMIN001", "ADMIN002", null };
 
                 DateTime baseDate = DateTime.Today;
 
                 for (int i = 0; i < count; i++)
                 {
-                    var requestDate = baseDate.AddDays(-random.Next(1, 30));
-                    var startDate = baseDate.AddDays(random.Next(7, 60));
-                    var endDate = startDate.AddDays(random.Next(1, 5));
-                    var leaveType = (LeaveType)leaveTypes.GetValue(random.Next(leaveTypes.Length));
-                    var status = leaveStatuses[random.Next(leaveStatuses.Length)];
-                    var approverId = status == LeaveStatus.Pending ? null : approverIds[random.Next(2)];
+                    DateTime requestDate = baseDate.AddDays(-random.Next(1, 30));
+                    DateTime startDate = baseDate.AddDays(random.Next(7, 60));
+                    DateTime endDate = startDate.AddDays(random.Next(1, 5));
+                    LeaveType leaveType = (LeaveType)leaveTypes.GetValue(random.Next(leaveTypes.Length));
+                    LeaveStatus status = leaveStatuses[random.Next(leaveStatuses.Length)];
+                    string? approverId = status == LeaveStatus.Pending ? null : approverIds[random.Next(2)];
 
                     string remarks = $"Test leave request {i + 1}";
                     if (status == LeaveStatus.Rejected)
@@ -37,7 +37,7 @@ namespace HRManagementSystem.Util
                         remarks += " Rejection Reason: Test rejection reason";
                     }
 
-                    var leaveRequest = new LeaveRequest
+                    LeaveRequest leaveRequest = new LeaveRequest
                     {
                         RequestId = $"TEST{random.Next(1000, 9999)}",
                         EmployeeId = employeeId,
@@ -54,7 +54,7 @@ namespace HRManagementSystem.Util
                     leaveRequests.Add(leaveRequest);
                 }
 
-                var options = new JsonSerializerOptions
+                JsonSerializerOptions options = new JsonSerializerOptions
                 {
                     WriteIndented = true
                 };
@@ -92,19 +92,19 @@ namespace HRManagementSystem.Util
                     return false;
                 }
 
-                var options = new JsonSerializerOptions
+                JsonSerializerOptions options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 };
 
-                var leaveRequests = JsonSerializer.Deserialize<List<LeaveRequest>>(jsonContent, options);
+                List<LeaveRequest>? leaveRequests = JsonSerializer.Deserialize<List<LeaveRequest>>(jsonContent, options);
                 if (leaveRequests == null)
                 {
                     Console.WriteLine("Failed to deserialize leave requests");
                     return false;
                 }
 
-                var found = leaveRequests.Find(r => r.RequestId == requestId);
+                LeaveRequest? found = leaveRequests.Find(r => r.RequestId == requestId);
                 if (found == null)
                 {
                     Console.WriteLine($"Leave request with ID {requestId} not found");

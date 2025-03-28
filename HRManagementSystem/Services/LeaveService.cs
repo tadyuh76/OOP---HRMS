@@ -1,4 +1,4 @@
-namespace HRManagementSystem.Services
+namespace HRManagementSystem
 {
     public class LeaveService
     {
@@ -58,9 +58,9 @@ namespace HRManagementSystem.Services
             string remarks)
         {
             // Validate employee by EmployeeId field instead of Id field
-            var employeeService = EmployeeService.GetInstance();
-            var employees = employeeService.GetAll();
-            var employee = employees.FirstOrDefault(e => e.EmployeeId == employeeId);
+            EmployeeService employeeService = EmployeeService.GetInstance();
+            List<Employee> employees = employeeService.GetAll();
+            Employee? employee = employees.FirstOrDefault(e => e.EmployeeId == employeeId);
 
             if (employee == null)
             {
@@ -102,7 +102,7 @@ namespace HRManagementSystem.Services
         {
             // Find the highest existing ID number
             int maxId = 0;
-            foreach (var request in leaveRequests)
+            foreach (LeaveRequest request in leaveRequests)
             {
                 if (request.RequestId != null && request.RequestId.StartsWith("LVE") && request.RequestId.Length > 3)
                 {
@@ -126,7 +126,7 @@ namespace HRManagementSystem.Services
 
         public LeaveRequest ApproveLeaveRequest(string requestId, string approverId)
         {
-            var leaveRequest = leaveRequests
+            LeaveRequest? leaveRequest = leaveRequests
                 .FirstOrDefault(lr => lr.RequestId == requestId);
 
             if (leaveRequest == null)
@@ -142,7 +142,7 @@ namespace HRManagementSystem.Services
 
         public LeaveRequest RejectLeaveRequest(string requestId, string approverId, string rejectionReason)
         {
-            var leaveRequest = leaveRequests
+            LeaveRequest? leaveRequest = leaveRequests
                 .FirstOrDefault(lr => lr.RequestId == requestId);
 
             if (leaveRequest == null)

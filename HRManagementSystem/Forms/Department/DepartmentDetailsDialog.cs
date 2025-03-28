@@ -14,14 +14,14 @@ namespace HRManagementSystem
 
         private void InitializeComponent()
         {
-            this.Text = "Department Details";
-            this.Size = new Size(600, 500);
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.MinimizeBox = false;
-            this.MaximizeBox = false;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.BackColor = Color.White;
-            this.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            Text = "Department Details";
+            Size = new Size(600, 500);
+            StartPosition = FormStartPosition.CenterParent;
+            MinimizeBox = false;
+            MaximizeBox = false;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            BackColor = Color.White;
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
 
             // Main panel
             Panel mainPanel = new Panel
@@ -29,7 +29,7 @@ namespace HRManagementSystem
                 Dock = DockStyle.Fill,
                 Padding = new Padding(20)
             };
-            this.Controls.Add(mainPanel);
+            Controls.Add(mainPanel);
 
             // Department header panel with color accent
             Panel headerPanel = new Panel
@@ -75,9 +75,9 @@ namespace HRManagementSystem
             contentPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             contentPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             contentPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            
+
             mainPanel.Controls.Add(contentPanel);
-            
+
             // Manager section
             Panel managerPanel = new Panel
             {
@@ -85,7 +85,7 @@ namespace HRManagementSystem
                 Height = 60
             };
             contentPanel.Controls.Add(managerPanel, 0, 0);
-            
+
             Label lblManagerTitle = new Label
             {
                 Text = "Manager",
@@ -95,7 +95,7 @@ namespace HRManagementSystem
                 AutoSize = true
             };
             managerPanel.Controls.Add(lblManagerTitle);
-            
+
             Label lblManagerValue = new Label
             {
                 Text = $"{_department.ManagerName} ({_department.ManagerId})",
@@ -105,7 +105,7 @@ namespace HRManagementSystem
                 AutoSize = true
             };
             managerPanel.Controls.Add(lblManagerValue);
-            
+
             // Budget section
             Panel budgetPanel = new Panel
             {
@@ -113,7 +113,7 @@ namespace HRManagementSystem
                 Height = 60
             };
             contentPanel.Controls.Add(budgetPanel, 0, 1);
-            
+
             Label lblBudgetTitle = new Label
             {
                 Text = "Budget",
@@ -123,7 +123,7 @@ namespace HRManagementSystem
                 AutoSize = true
             };
             budgetPanel.Controls.Add(lblBudgetTitle);
-            
+
             Label lblBudgetValue = new Label
             {
                 Text = $"{_department.Budget:C2}",
@@ -133,7 +133,7 @@ namespace HRManagementSystem
                 AutoSize = true
             };
             budgetPanel.Controls.Add(lblBudgetValue);
-            
+
             // Employee count section
             Panel employeeCountPanel = new Panel
             {
@@ -141,7 +141,7 @@ namespace HRManagementSystem
                 Height = 60
             };
             contentPanel.Controls.Add(employeeCountPanel, 0, 2);
-            
+
             Label lblEmployeeCountTitle = new Label
             {
                 Text = "Employee Count",
@@ -151,7 +151,7 @@ namespace HRManagementSystem
                 AutoSize = true
             };
             employeeCountPanel.Controls.Add(lblEmployeeCountTitle);
-            
+
             Label lblEmployeeCountValue = new Label
             {
                 Text = $"{_departmentEmployees.Count} employees",
@@ -161,7 +161,7 @@ namespace HRManagementSystem
                 AutoSize = true
             };
             employeeCountPanel.Controls.Add(lblEmployeeCountValue);
-            
+
             // Description section
             Panel descriptionPanel = new Panel
             {
@@ -169,7 +169,7 @@ namespace HRManagementSystem
                 Height = 100
             };
             contentPanel.Controls.Add(descriptionPanel, 0, 3);
-            
+
             Label lblDescriptionTitle = new Label
             {
                 Text = "Description",
@@ -179,7 +179,7 @@ namespace HRManagementSystem
                 AutoSize = true
             };
             descriptionPanel.Controls.Add(lblDescriptionTitle);
-            
+
             Label lblDescriptionValue = new Label
             {
                 Text = string.IsNullOrEmpty(_department.Description) ? "No description available." : _department.Description,
@@ -190,7 +190,7 @@ namespace HRManagementSystem
                 AutoEllipsis = true
             };
             descriptionPanel.Controls.Add(lblDescriptionValue);
-            
+
             // Close button
             Button btnClose = new Button
             {
@@ -198,12 +198,12 @@ namespace HRManagementSystem
                 DialogResult = DialogResult.Cancel,
                 Size = new Size(100, 35),
                 Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
-                Location = new Point(this.ClientSize.Width - 120, this.ClientSize.Height - 55),
+                Location = new Point(ClientSize.Width - 120, ClientSize.Height - 55),
                 BackColor = Color.FromArgb(240, 240, 240)
             };
-            this.Controls.Add(btnClose);
-            this.CancelButton = btnClose;
-            
+            Controls.Add(btnClose);
+            CancelButton = btnClose;
+
             // Set accent colors on close button hover
             btnClose.FlatStyle = FlatStyle.Flat;
             btnClose.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);

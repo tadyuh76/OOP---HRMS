@@ -1,8 +1,3 @@
-using System;
-using System.Windows.Forms;
-using System.Drawing;
-using HRManagementSystem.Services;
-
 namespace HRManagementSystem
 {
     public class Employee_AttendanceView : Form
@@ -32,9 +27,17 @@ namespace HRManagementSystem
         private TimeSpan workStartTime;
         private TimeSpan workEndTime;
 
+        // Explicit delegates for events
+        private EventHandler datePickerValueChanged;
+        private EventHandler viewTypeRadioButtonCheckedChanged;
+        private EventHandler btnClockInClick;
+        private EventHandler btnClockOutClick;
+        private EventHandler btnRequestLeaveClick;
+        private EventHandler btnSubmitLeaveClick;
+
         public Employee_AttendanceView(string employeeId = "EMP001")
         {
-            this.employeeId = employeeId;
+            this.employeeId = employeeId ?? "EMP001";
 
             // Initialize services
             attendanceService = AttendanceService.GetInstance();
@@ -44,18 +47,21 @@ namespace HRManagementSystem
             workStartTime = AttendanceService.GetWorkStartTime();
             workEndTime = AttendanceService.GetWorkEndTime();
 
-            // Get employee name from attendance or leave records
-            var attendances = attendanceService.GetEmployeeAttendance(
-                employeeId, DateTime.Now.Year, DateTime.Now.Month);
+            // Initialize event handlers
+            InitializeEventHandlers();
 
-            if (attendances.Count > 0)
+            // Get employee name from attendance or leave records
+            List<Attendance> attendances = attendanceService?.GetEmployeeAttendance(
+                employeeId, DateTime.Now.Year, DateTime.Now.Month) ?? new List<Attendance>();
+
+            if (attendances.Count > 0 && attendances[0] != null)
             {
                 employeeName = attendances[0].EmployeeName;
             }
             else
             {
-                var leaves = leaveService.GetEmployeeLeaves(employeeId);
-                if (leaves.Count > 0)
+                List<LeaveRequest> leaves = leaveService?.GetEmployeeLeaves(employeeId) ?? new List<LeaveRequest>();
+                if (leaves.Count > 0 && leaves[0] != null)
                 {
                     employeeName = leaves[0].EmployeeName;
                 }
@@ -69,13 +75,24 @@ namespace HRManagementSystem
             LoadEmployeeData();
         }
 
+        private void InitializeEventHandlers()
+        {
+            // Create delegate instances for the event handlers
+            datePickerValueChanged = new EventHandler(DatePicker_ValueChanged);
+            viewTypeRadioButtonCheckedChanged = new EventHandler(ViewTypeRadioButton_CheckedChanged);
+            btnClockInClick = new EventHandler(BtnClockIn_Click);
+            btnClockOutClick = new EventHandler(BtnClockOut_Click);
+            btnRequestLeaveClick = new EventHandler(BtnRequestLeave_Click);
+            btnSubmitLeaveClick = new EventHandler(BtnSubmit_Click);
+        }
+
         private void InitializeComponent()
         {
-            this.Text = "Employee View - Attendance & Leave";
-            this.Size = new Size(1000, 700);
-            this.BackColor = Color.White;
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            Text = "Employee View - Attendance & Leave";
+            Size = new Size(1000, 700);
+            BackColor = Color.White;
+            StartPosition = FormStartPosition.CenterScreen;
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
 
             // Main layout
             TableLayoutPanel mainLayout = new TableLayoutPanel
@@ -88,7 +105,7 @@ namespace HRManagementSystem
             mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            this.Controls.Add(mainLayout);
+            Controls.Add(mainLayout);
 
             // Header with employee info
             Panel headerPanel = new Panel
@@ -134,7 +151,7 @@ namespace HRManagementSystem
                 Location = new Point(0, 0),
                 AutoSize = true
             };
-            rbtnMonthly.CheckedChanged += ViewTypeRadioButton_CheckedChanged;
+            rbtnMonthly.CheckedChanged += viewTypeRadioButtonCheckedChanged;
             viewOptionsPanel.Controls.Add(rbtnMonthly);
 
             // Daily radio button
@@ -145,7 +162,7 @@ namespace HRManagementSystem
                 Location = new Point(120, 0),
                 AutoSize = true
             };
-            rbtnDaily.CheckedChanged += ViewTypeRadioButton_CheckedChanged;
+            rbtnDaily.CheckedChanged += viewTypeRadioButtonCheckedChanged;
             viewOptionsPanel.Controls.Add(rbtnDaily);
 
             // Date picker
@@ -157,7 +174,7 @@ namespace HRManagementSystem
                 CustomFormat = "MMMM yyyy", // Default to month view
                 ShowUpDown = true
             };
-            datePicker.ValueChanged += DatePicker_ValueChanged;
+            datePicker.ValueChanged += datePickerValueChanged;
             viewOptionsPanel.Controls.Add(datePicker);
 
             // Panel for action buttons
@@ -180,7 +197,7 @@ namespace HRManagementSystem
                 Font = new Font("Segoe UI", 10, FontStyle.Bold)
             };
             btnClockIn.FlatAppearance.BorderSize = 0;
-            btnClockIn.Click += BtnClockIn_Click;
+            btnClockIn.Click += btnClockInClick;
             actionPanel.Controls.Add(btnClockIn);
 
             // Clock Out button
@@ -195,7 +212,7 @@ namespace HRManagementSystem
                 Font = new Font("Segoe UI", 10, FontStyle.Bold)
             };
             btnClockOut.FlatAppearance.BorderSize = 0;
-            btnClockOut.Click += BtnClockOut_Click;
+            btnClockOut.Click += btnClockOutClick;
             actionPanel.Controls.Add(btnClockOut);
 
             // Request Leave button
@@ -210,7 +227,7 @@ namespace HRManagementSystem
                 Font = new Font("Segoe UI", 10, FontStyle.Bold)
             };
             btnRequestLeave.FlatAppearance.BorderSize = 0;
-            btnRequestLeave.Click += BtnRequestLeave_Click;
+            btnRequestLeave.Click += btnRequestLeaveClick;
             actionPanel.Controls.Add(btnRequestLeave);
 
             // Tab control for attendance and leave history
@@ -292,9 +309,12 @@ namespace HRManagementSystem
             leaveRequestsTab.Controls.Add(leaveRequestsGridView);
         }
 
-        private void ViewTypeRadioButton_CheckedChanged(object sender, EventArgs e)
+        private void ViewTypeRadioButton_CheckedChanged(object? sender, EventArgs e)
         {
-            RadioButton radioButton = sender as RadioButton;
+            if (sender == null)
+                return;
+
+            RadioButton? radioButton = sender as RadioButton;
             if (radioButton != null && radioButton.Checked)
             {
                 isMonthlyView = (radioButton == rbtnMonthly);
@@ -302,14 +322,26 @@ namespace HRManagementSystem
                 // Update DateTimePicker format based on selected view
                 if (isMonthlyView)
                 {
-                    datePicker.Format = DateTimePickerFormat.Custom;
-                    datePicker.CustomFormat = "MMMM yyyy";
-                    datePicker.ShowUpDown = true;
+                    datePicker?.Invoke((MethodInvoker)delegate
+                    {
+                        if (datePicker != null)
+                        {
+                            datePicker.Format = DateTimePickerFormat.Custom;
+                            datePicker.CustomFormat = "MMMM yyyy";
+                            datePicker.ShowUpDown = true;
+                        }
+                    });
                 }
                 else
                 {
-                    datePicker.Format = DateTimePickerFormat.Short;
-                    datePicker.ShowUpDown = false;
+                    datePicker?.Invoke((MethodInvoker)delegate
+                    {
+                        if (datePicker != null)
+                        {
+                            datePicker.Format = DateTimePickerFormat.Short;
+                            datePicker.ShowUpDown = false;
+                        }
+                    });
                 }
 
                 // Reload data based on the new view type
@@ -317,15 +349,25 @@ namespace HRManagementSystem
             }
         }
 
-        private void DatePicker_ValueChanged(object sender, EventArgs e)
+        private void DatePicker_ValueChanged(object? sender, EventArgs e)
         {
             LoadEmployeeData();
         }
 
         private void LoadEmployeeData()
         {
+            LoadAttendanceData();
+            LoadLeaveData();
+            UpdateClockButtons();
+        }
+
+        private void LoadAttendanceData()
+        {
             try
             {
+                if (datePicker == null || attendanceService == null || attendanceGridView == null)
+                    return;
+
                 List<Attendance> attendances;
                 DateTime selectedDate = datePicker.Value;
 
@@ -333,21 +375,23 @@ namespace HRManagementSystem
                 {
                     // Get current month's attendance
                     attendances = attendanceService.GetEmployeeAttendance(
-                        employeeId, selectedDate.Year, selectedDate.Month);
+                        employeeId, selectedDate.Year, selectedDate.Month) ?? new List<Attendance>();
                 }
                 else
                 {
                     // Get selected day's attendance
                     attendances = attendanceService.GetEmployeeDailyAttendance(
-                        employeeId, selectedDate);
+                        employeeId, selectedDate) ?? new List<Attendance>();
 
                     // If viewing a day in the past or today, and no attendance record exists,
                     // and there's no approved leave for that day, show as absent
-                    if (attendances.Count == 0 && selectedDate.Date <= DateTime.Today)
+                    if (attendances.Count == 0 && selectedDate.Date <= DateTime.Today && leaveService != null)
                     {
                         // Check if employee was on approved leave
-                        var leavesOnDate = leaveService.GetEmployeeDailyLeaves(employeeId, selectedDate)
-                            .Where(l => l.Status == LeaveStatus.Approved).ToList();
+                        List<LeaveRequest> leavesOnDate = (leaveService.GetEmployeeDailyLeaves(employeeId, selectedDate) ??
+                            new List<LeaveRequest>())
+                            .Where(l => l != null && l.Status == LeaveStatus.Approved)
+                            .ToList();
 
                         if (leavesOnDate.Count == 0)
                         {
@@ -356,7 +400,7 @@ namespace HRManagementSystem
                             {
                                 AttendanceId = $"ABSENT-{employeeId}-{selectedDate.ToString("yyyyMMdd")}",
                                 EmployeeId = employeeId,
-                                EmployeeName = employeeName,
+                                EmployeeName = employeeName ?? $"Employee {employeeId}",
                                 Date = selectedDate,
                                 ClockInTime = DateTime.MinValue,
                                 ClockOutTime = DateTime.MinValue,
@@ -369,11 +413,14 @@ namespace HRManagementSystem
                 }
 
                 attendanceGridView.Rows.Clear();
-                foreach (var attendance in attendances)
+                foreach (Attendance? attendance in attendances)
                 {
+                    if (attendance == null)
+                        continue;
+
                     // Determine if this is an absent employee record
                     bool isAbsent = attendance.IsAbsentRecord ||
-                                   attendance.AttendanceId.StartsWith("ABSENT") ||
+                                   (attendance.AttendanceId != null && attendance.AttendanceId.StartsWith("ABSENT")) ||
                                    (!isMonthlyView && attendance.ClockInTime == DateTime.MinValue &&
                                     attendance.ClockOutTime == DateTime.MinValue);
 
@@ -398,67 +445,47 @@ namespace HRManagementSystem
 
                     attendanceGridView.Rows[rowIndex].Tag = attendance;
 
-                    var statusCell = attendanceGridView.Rows[rowIndex].Cells["Status"];
-                    if (isAbsent)
+                    DataGridViewCell? statusCell = attendanceGridView.Rows[rowIndex].Cells["Status"];
+                    if (statusCell != null)
                     {
-                        // Absent styling
-                        statusCell.Style.ForeColor = Color.White;
-                        statusCell.Style.BackColor = Color.FromArgb(220, 53, 69); // Red background
-
-                        // Color the entire row with light red background
-                        foreach (DataGridViewCell cell in attendanceGridView.Rows[rowIndex].Cells)
+                        if (isAbsent)
                         {
-                            if (cell.ColumnIndex != statusCell.ColumnIndex)
+                            // Absent styling
+                            statusCell.Style.ForeColor = Color.White;
+                            statusCell.Style.BackColor = Color.FromArgb(220, 53, 69); // Red background
+
+                            // Color the entire row with light red background
+                            foreach (DataGridViewCell? cell in attendanceGridView.Rows[rowIndex].Cells)
                             {
-                                cell.Style.BackColor = Color.FromArgb(255, 240, 240); // Light red
+                                if (cell != null && cell.ColumnIndex != statusCell.ColumnIndex)
+                                {
+                                    cell.Style.BackColor = Color.FromArgb(255, 240, 240); // Light red
+                                }
+                            }
+                        }
+                        else
+                        {
+                            switch (attendance.Status)
+                            {
+                                case AttendanceStatus.Present:
+                                    statusCell.Style.ForeColor = Color.Green;
+                                    statusCell.Style.BackColor = Color.FromArgb(230, 255, 230);
+                                    break;
+                                case AttendanceStatus.HalfDay:
+                                    statusCell.Style.ForeColor = Color.Orange;
+                                    statusCell.Style.BackColor = Color.FromArgb(255, 250, 230);
+                                    break;
+                                case AttendanceStatus.WorkFromHome:
+                                    statusCell.Style.ForeColor = Color.DarkOrange;
+                                    statusCell.Style.BackColor = Color.FromArgb(255, 240, 230);
+                                    break;
+                                case AttendanceStatus.Late:
+                                    statusCell.Style.ForeColor = Color.DarkOrange;
+                                    statusCell.Style.BackColor = Color.FromArgb(255, 235, 200);
+                                    break;
                             }
                         }
                     }
-                    else
-                    {
-                        switch (attendance.Status)
-                        {
-                            case AttendanceStatus.Present:
-                                statusCell.Style.ForeColor = Color.Green;
-                                statusCell.Style.BackColor = Color.FromArgb(230, 255, 230);
-                                break;
-                            case AttendanceStatus.HalfDay:
-                                statusCell.Style.ForeColor = Color.Orange;
-                                statusCell.Style.BackColor = Color.FromArgb(255, 250, 230);
-                                break;
-                            case AttendanceStatus.WorkFromHome:
-                                statusCell.Style.ForeColor = Color.DarkOrange;
-                                statusCell.Style.BackColor = Color.FromArgb(255, 240, 230);
-                                break;
-                            case AttendanceStatus.Late:
-                                statusCell.Style.ForeColor = Color.DarkOrange;
-                                statusCell.Style.BackColor = Color.FromArgb(255, 235, 200);
-                                break;
-                        }
-                    }
-                }
-
-                var todayAttendance = attendances.Find(a => a.Date.Date == DateTime.Today);
-                if (todayAttendance != null)
-                {
-                    btnClockIn.Enabled = false;
-                    btnClockIn.BackColor = Color.Gray;
-
-                    if (todayAttendance.ClockOutTime == DateTime.MinValue)
-                    {
-                        btnClockOut.Enabled = true;
-                    }
-                    else
-                    {
-                        btnClockOut.Enabled = false;
-                        btnClockOut.BackColor = Color.Gray;
-                    }
-                }
-                else
-                {
-                    btnClockIn.Enabled = true;
-                    btnClockOut.Enabled = false;
-                    btnClockOut.BackColor = Color.Gray;
                 }
             }
             catch (Exception ex)
@@ -466,9 +493,15 @@ namespace HRManagementSystem
                 MessageBox.Show($"Error loading attendance data: {ex.Message}", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
 
+        private void LoadLeaveData()
+        {
             try
             {
+                if (datePicker == null || leaveService == null || leaveRequestsGridView == null)
+                    return;
+
                 List<LeaveRequest> leaveRequests;
                 DateTime selectedDate = datePicker.Value;
 
@@ -476,17 +509,17 @@ namespace HRManagementSystem
                 {
                     // Get leave requests for the selected month
                     leaveRequests = leaveService.GetEmployeeMonthlyLeaves(
-                        employeeId, selectedDate.Year, selectedDate.Month);
+                        employeeId, selectedDate.Year, selectedDate.Month) ?? new List<LeaveRequest>();
                 }
                 else
                 {
                     // Get leave requests for the selected day
                     leaveRequests = leaveService.GetEmployeeDailyLeaves(
-                        employeeId, selectedDate);
+                        employeeId, selectedDate) ?? new List<LeaveRequest>();
                 }
 
                 leaveRequestsGridView.Rows.Clear();
-                foreach (var request in leaveRequests)
+                foreach (LeaveRequest? request in leaveRequests)
                 {
                     if (request == null) continue;
 
@@ -499,36 +532,86 @@ namespace HRManagementSystem
                         request.StartDate.ToString("yyyy-MM-dd"),
                         request.EndDate.ToString("yyyy-MM-dd"),
                         statusStr,
-                        request.Remarks
+                        request.Remarks ?? string.Empty
                     );
 
                     leaveRequestsGridView.Rows[rowIndex].Tag = request;
 
-                    var statusCell = leaveRequestsGridView.Rows[rowIndex].Cells["Status"];
-                    switch (request.Status)
+                    DataGridViewCell? statusCell = leaveRequestsGridView.Rows[rowIndex].Cells["Status"];
+                    if (statusCell != null)
                     {
-                        case LeaveStatus.Approved:
-                            statusCell.Style.ForeColor = Color.Green;
-                            statusCell.Style.BackColor = Color.FromArgb(230, 255, 230);
-                            break;
-                        case LeaveStatus.Rejected:
-                            statusCell.Style.ForeColor = Color.Red;
-                            statusCell.Style.BackColor = Color.FromArgb(255, 230, 230);
-                            break;
-                        case LeaveStatus.Pending:
-                            statusCell.Style.ForeColor = Color.Orange;
-                            statusCell.Style.BackColor = Color.FromArgb(255, 250, 230);
-                            break;
-                        case LeaveStatus.Cancelled:
-                            statusCell.Style.ForeColor = Color.Gray;
-                            statusCell.Style.BackColor = Color.FromArgb(240, 240, 240);
-                            break;
+                        switch (request.Status)
+                        {
+                            case LeaveStatus.Approved:
+                                statusCell.Style.ForeColor = Color.Green;
+                                statusCell.Style.BackColor = Color.FromArgb(230, 255, 230);
+                                break;
+                            case LeaveStatus.Rejected:
+                                statusCell.Style.ForeColor = Color.Red;
+                                statusCell.Style.BackColor = Color.FromArgb(255, 230, 230);
+                                break;
+                            case LeaveStatus.Pending:
+                                statusCell.Style.ForeColor = Color.Orange;
+                                statusCell.Style.BackColor = Color.FromArgb(255, 250, 230);
+                                break;
+                            case LeaveStatus.Cancelled:
+                                statusCell.Style.ForeColor = Color.Gray;
+                                statusCell.Style.BackColor = Color.FromArgb(240, 240, 240);
+                                break;
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error loading leave data: {ex.Message}", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void UpdateClockButtons()
+        {
+            try
+            {
+                if (attendanceService == null || btnClockIn == null || btnClockOut == null)
+                    return;
+
+                List<Attendance>? todayAttendances = attendanceService.GetEmployeeAttendance(
+                    employeeId, DateTime.Now.Year, DateTime.Now.Month);
+
+                Attendance? todayAttendance = null;
+                if (todayAttendances != null)
+                {
+                    todayAttendance = todayAttendances.Find(a => a != null && a.Date.Date == DateTime.Today);
+                }
+
+                if (todayAttendance != null)
+                {
+                    btnClockIn.Enabled = false;
+                    btnClockIn.BackColor = Color.Gray;
+
+                    if (todayAttendance.ClockOutTime == DateTime.MinValue)
+                    {
+                        btnClockOut.Enabled = true;
+                        btnClockOut.BackColor = Color.FromArgb(220, 53, 69); // Reset to original color
+                    }
+                    else
+                    {
+                        btnClockOut.Enabled = false;
+                        btnClockOut.BackColor = Color.Gray;
+                    }
+                }
+                else
+                {
+                    btnClockIn.Enabled = true;
+                    btnClockIn.BackColor = Color.FromArgb(68, 93, 233); // Reset to original color
+                    btnClockOut.Enabled = false;
+                    btnClockOut.BackColor = Color.Gray;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error updating clock buttons: {ex.Message}", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -545,11 +628,19 @@ namespace HRManagementSystem
             };
         }
 
-        private void BtnClockIn_Click(object sender, EventArgs e)
+        private void BtnClockIn_Click(object? sender, EventArgs e)
         {
             try
             {
-                var attendance = attendanceService.RecordAttendance(employeeId, employeeName, AttendanceStatus.Present);
+                if (attendanceService == null)
+                {
+                    MessageBox.Show("Attendance service is not available.", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                Attendance attendance = attendanceService.RecordAttendance(
+                    employeeId, employeeName ?? $"Employee {employeeId}", AttendanceStatus.Present);
 
                 string statusMessage = attendance.Status == AttendanceStatus.Late
                     ? $"You have clocked in late at {DateTime.Now.ToString("HH:mm")}."
@@ -568,18 +659,29 @@ namespace HRManagementSystem
             }
         }
 
-        private void BtnClockOut_Click(object sender, EventArgs e)
+        private void BtnClockOut_Click(object? sender, EventArgs e)
         {
             try
             {
-                var todayAttendances = attendanceService.GetEmployeeAttendance(
+                if (attendanceService == null)
+                {
+                    MessageBox.Show("Attendance service is not available.", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                List<Attendance>? todayAttendances = attendanceService.GetEmployeeAttendance(
                     employeeId, DateTime.Now.Year, DateTime.Now.Month);
 
-                var todayAttendance = todayAttendances.Find(a => a.Date.Date == DateTime.Today);
+                Attendance? todayAttendance = null;
+                if (todayAttendances != null)
+                {
+                    todayAttendance = todayAttendances.Find(a => a != null && a.Date.Date == DateTime.Today);
+                }
 
                 if (todayAttendance != null)
                 {
-                    attendanceService.UpdateClockOut(todayAttendance.AttendanceId);
+                    attendanceService.UpdateClockOut(todayAttendance.AttendanceId ?? string.Empty);
 
                     MessageBox.Show($"You have clocked out successfully at {DateTime.Now.ToString("HH:mm")}.",
                         "Clock Out", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -599,7 +701,7 @@ namespace HRManagementSystem
             }
         }
 
-        private void BtnRequestLeave_Click(object sender, EventArgs e)
+        private void BtnRequestLeave_Click(object? sender, EventArgs e)
         {
             Form leaveRequestForm = new Form
             {
@@ -620,7 +722,7 @@ namespace HRManagementSystem
             };
             leaveRequestForm.Controls.Add(layout);
 
-            Label lblEmployeeInfo = new Label { Text = $"Employee: {employeeName}", AutoSize = true };
+            Label lblEmployeeInfo = new Label { Text = $"Employee: {employeeName ?? "Unknown"}", AutoSize = true };
             layout.Controls.Add(lblEmployeeInfo, 0, 0);
             layout.SetColumnSpan(lblEmployeeInfo, 2);
 
@@ -634,7 +736,10 @@ namespace HRManagementSystem
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
             cmbType.Items.AddRange(Enum.GetNames(typeof(LeaveType)));
-            cmbType.SelectedIndex = 0;
+            if (cmbType.Items.Count > 0)
+            {
+                cmbType.SelectedIndex = 0;
+            }
             layout.Controls.Add(cmbType, 1, 1);
 
             Label lblStartDate = new Label { Text = "Start Date:", AutoSize = true };
@@ -683,59 +788,107 @@ namespace HRManagementSystem
                 FlatStyle = FlatStyle.Flat
             };
             btnSubmit.FlatAppearance.BorderSize = 0;
+            btnSubmit.Click += new EventHandler((clickSender, clickArgs) =>
+                BtnSubmit_Click(clickSender, clickArgs, cmbType, dtpStartDate, dtpEndDate, txtRemarks, leaveRequestForm));
             layout.Controls.Add(btnSubmit, 1, 5);
 
-            btnSubmit.Click += (s, args) =>
-            {
-                try
-                {
-                    if (dtpStartDate.Value > dtpEndDate.Value)
-                    {
-                        MessageBox.Show("Start date must be before or equal to end date.", "Error",
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-
-                    LeaveType leaveType = (LeaveType)Enum.Parse(typeof(LeaveType), cmbType.SelectedItem.ToString());
-
-                    // Make sure we have the employee's full details
-                    EmployeeService employeeService = EmployeeService.GetInstance();
-                    Employee employee = null;
-
-                    // Find employee using EmployeeId (which is the identifier we have)
-                    var allEmployees = employeeService.GetAll();
-                    employee = allEmployees.FirstOrDefault(e => e.EmployeeId == employeeId);
-
-                    if (employee == null)
-                    {
-                        MessageBox.Show("Could not locate your employee record. Please contact HR.", "Error",
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-
-                    var request = leaveService.SubmitLeaveRequest(
-                        employeeId,
-                        dtpStartDate.Value,
-                        dtpEndDate.Value,
-                        leaveType,
-                        txtRemarks.Text
-                    );
-
-                    MessageBox.Show("Leave request submitted successfully!", "Success",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    leaveRequestForm.Close();
-
-                    LoadEmployeeData();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error submitting leave request: {ex.Message}", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            };
-
             leaveRequestForm.ShowDialog();
+        }
+
+        private void BtnSubmit_Click(object? sender, EventArgs e)
+        {
+            // This method is a placeholder for the delegate
+            // The actual implementation is in the overloaded method below
+        }
+
+        private void BtnSubmit_Click(object? sender, EventArgs e,
+                                    ComboBox cmbType, DateTimePicker dtpStartDate, DateTimePicker dtpEndDate,
+                                    TextBox txtRemarks, Form leaveRequestForm)
+        {
+            SubmitLeaveRequest(cmbType, dtpStartDate, dtpEndDate, txtRemarks, leaveRequestForm);
+        }
+
+        private void SubmitLeaveRequest(ComboBox? cmbType, DateTimePicker? dtpStartDate, DateTimePicker? dtpEndDate,
+                                       TextBox? txtRemarks, Form? leaveRequestForm)
+        {
+            try
+            {
+                if (cmbType == null || dtpStartDate == null || dtpEndDate == null || txtRemarks == null || leaveRequestForm == null)
+                {
+                    MessageBox.Show("Some form controls are not available.", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (dtpStartDate.Value > dtpEndDate.Value)
+                {
+                    MessageBox.Show("Start date must be before or equal to end date.", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (cmbType.SelectedItem == null)
+                {
+                    MessageBox.Show("Please select a leave type.", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                string selectedLeaveType = cmbType.SelectedItem.ToString() ?? string.Empty;
+                if (string.IsNullOrEmpty(selectedLeaveType))
+                {
+                    MessageBox.Show("Invalid leave type selected.", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                LeaveType leaveType = (LeaveType)Enum.Parse(typeof(LeaveType), selectedLeaveType);
+
+                // Make sure we have the employee's full details
+                EmployeeService? employeeService = EmployeeService.GetInstance();
+                if (employeeService == null || leaveService == null)
+                {
+                    MessageBox.Show("Services are not available. Please try again later.", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Find employee using EmployeeId (which is the identifier we have)
+                List<Employee>? allEmployees = employeeService.GetAll();
+                Employee? employee = null;
+
+                if (allEmployees != null)
+                {
+                    employee = allEmployees.FirstOrDefault(e => e != null && e.EmployeeId == employeeId);
+                }
+
+                if (employee == null)
+                {
+                    MessageBox.Show("Could not locate your employee record. Please contact HR.", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                LeaveRequest request = leaveService.SubmitLeaveRequest(
+                    employeeId,
+                    dtpStartDate.Value,
+                    dtpEndDate.Value,
+                    leaveType,
+                    txtRemarks.Text ?? string.Empty
+                );
+
+                MessageBox.Show("Leave request submitted successfully!", "Success",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                leaveRequestForm.Close();
+
+                LoadEmployeeData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error submitting leave request: {ex.Message}", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

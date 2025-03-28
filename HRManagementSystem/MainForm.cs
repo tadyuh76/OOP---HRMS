@@ -128,11 +128,11 @@
 
         private void CustomizeDesign()
         {
-            this.BackColor = Color.WhiteSmoke;
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
-            this.MaximizeBox = true;
-            this.Text = "Human Resource Management System";
-            this.Size = new Size(1200, 800);
+            BackColor = Color.WhiteSmoke;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = true;
+            Text = "Human Resource Management System";
+            Size = new Size(1200, 800);
         }
 
         // Unsubscribe from events when removing a form

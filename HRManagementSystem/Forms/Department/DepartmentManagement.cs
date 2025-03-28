@@ -21,20 +21,20 @@ namespace HRManagementSystem
             InitializeComponent();
             // Initialize FileManager with JsonFileStorage
             _fileManager = new FileManager(new JsonFileStorage());
-            
+
             // Initialize services with FileManager to ensure data persistence
             _departmentService = new DepartmentService(_fileManager);
             _employeeService = new EmployeeService();
-            
+
             LoadData();
         }
 
         private void InitializeComponent()
         {
-            this.Text = "Department Management";
-            this.Size = new Size(1200, 700);
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            Text = "Department Management";
+            Size = new Size(1200, 700);
+            StartPosition = FormStartPosition.CenterScreen;
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
 
             // Main layout panel
             TableLayoutPanel mainLayout = new TableLayoutPanel
@@ -46,7 +46,7 @@ namespace HRManagementSystem
             };
             mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            this.Controls.Add(mainLayout);
+            Controls.Add(mainLayout);
 
             // Header panel with title and add button
             Panel headerPanel = new Panel
@@ -222,7 +222,7 @@ namespace HRManagementSystem
                 DefaultCellStyle = { Format = "C2" }
             };
             dgvDepartments.Columns.Add(colBudget);
-            
+
             DataGridViewTextBoxColumn colEmployeeCount = new DataGridViewTextBoxColumn
             {
                 Name = "EmployeeCount",
@@ -300,7 +300,7 @@ namespace HRManagementSystem
             {
                 // Calculate employee count for this department
                 int employeeCount = _employees.Count(e => e.DepartmentId == dept.DepartmentId);
-                
+
                 int rowIndex = dgvDepartments.Rows.Add(
                     dept.DepartmentId,
                     dept.Name,

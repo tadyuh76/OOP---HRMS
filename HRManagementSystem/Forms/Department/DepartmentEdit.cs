@@ -1,4 +1,5 @@
-namespace HRManagementSystem {
+namespace HRManagementSystem
+{
     // New dialog class for department editing
     public class DepartmentEditDialog : Form
     {
@@ -29,14 +30,14 @@ namespace HRManagementSystem {
 
         private void InitializeComponent()
         {
-            this.Text = _isNew ? "Add New Department" : "Edit Department";
-            this.Size = new Size(500, 500); // Increased height to accommodate layout
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            this.Padding = new Padding(20);
+            Text = _isNew ? "Add New Department" : "Edit Department";
+            Size = new Size(500, 500); // Increased height to accommodate layout
+            StartPosition = FormStartPosition.CenterParent;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            Padding = new Padding(20);
 
             // Main container panel
             TableLayoutPanel mainPanel = new TableLayoutPanel
@@ -59,7 +60,7 @@ namespace HRManagementSystem {
             // Last row for buttons
             mainPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
-            this.Controls.Add(mainPanel);
+            Controls.Add(mainPanel);
 
             // ID field
             Label lblId = new Label

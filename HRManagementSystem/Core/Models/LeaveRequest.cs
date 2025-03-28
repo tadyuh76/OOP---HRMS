@@ -39,7 +39,7 @@ namespace HRManagementSystem
             this.startDate = startDate;
             this.endDate = endDate;
             this.type = type;
-            this.status = LeaveStatus.Pending;
+            status = LeaveStatus.Pending;
             this.remarks = remarks;
             this.approverId = approverId;
         }

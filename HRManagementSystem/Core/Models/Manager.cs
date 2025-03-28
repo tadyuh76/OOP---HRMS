@@ -9,7 +9,7 @@ namespace HRManagementSystem
 
         public Manager() : base()
         {
-            this.managedEmployeeIds = new List<string>();
+            managedEmployeeIds = new List<string>();
         }
 
         public Manager(

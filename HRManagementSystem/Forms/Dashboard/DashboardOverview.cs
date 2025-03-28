@@ -19,15 +19,15 @@
         public DashboardOverview(MainForm mainForm = null)
         {
             this.mainForm = mainForm;
-            this.AutoScaleMode = AutoScaleMode.Font;
-            this.ClientSize = new Size(1200, 800);
-            this.Text = "Human Resource Management System";
-            this.BackColor = Color.FromArgb(240, 240, 240);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(1200, 800);
+            Text = "Human Resource Management System";
+            BackColor = Color.FromArgb(240, 240, 240);
 
             // Create dashboard panel
             CreateDashboardPanel();
 
-            this.Resize += Form_Resize; // Add resize event handler
+            Resize += Form_Resize; // Add resize event handler
         }
 
         private void CreateDashboardPanel()
@@ -39,7 +39,7 @@
                 Padding = new Padding(20),
                 AutoScroll = true // Enable scrolling
             };
-            this.Controls.Add(pnlDashboard);
+            Controls.Add(pnlDashboard);
 
             // Create top section panel to hold company info and statistics in a two-column layout
             Panel pnlTopSection = new Panel

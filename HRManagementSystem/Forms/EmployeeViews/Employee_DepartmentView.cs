@@ -40,10 +40,10 @@ namespace HRManagementSystem
 
         private void InitializeComponent()
         {
-            this.Text = "Department Information";
-            this.Size = new Size(1200, 700);
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            Text = "Department Information";
+            Size = new Size(1200, 700);
+            StartPosition = FormStartPosition.CenterScreen;
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
 
             // Main layout panel
             TableLayoutPanel mainLayout = new TableLayoutPanel
@@ -55,7 +55,7 @@ namespace HRManagementSystem
             };
             mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            this.Controls.Add(mainLayout);
+            Controls.Add(mainLayout);
 
             // Header panel with title
             Panel headerPanel = new Panel

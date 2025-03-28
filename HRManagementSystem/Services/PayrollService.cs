@@ -10,26 +10,26 @@ namespace HRManagementSystem
             if (File.Exists(payrollDataPath))
             {
                 string jsonData = File.ReadAllText(payrollDataPath);
-                this.payrolls = JsonSerializer.Deserialize<List<Payroll>>(jsonData);
+                payrolls = JsonSerializer.Deserialize<List<Payroll>>(jsonData);
             }
             else
             {
-                this.payrolls = new List<Payroll>();
+                payrolls = new List<Payroll>();
             }
 
         }
 
         public List<Payroll> GetAll()
         {
-            return new List<Payroll>(this.payrolls);
+            return new List<Payroll>(payrolls);
         }
 
         public List<Payroll> GetPayrollsByMonth(DateTime month)
         {
             List<Payroll> result = new List<Payroll>();
-            for (int i = 0; i < this.payrolls.Count; i++)
+            for (int i = 0; i < payrolls.Count; i++)
             {
-                Payroll payroll = this.payrolls[i];
+                Payroll payroll = payrolls[i];
                 if (payroll.PayPeriodStart.Year == month.Year &&
                     payroll.PayPeriodStart.Month == month.Month)
                 {
@@ -41,9 +41,9 @@ namespace HRManagementSystem
 
         public Payroll GetById(string id)
         {
-            for (int i = 0; i < this.payrolls.Count; i++)
+            for (int i = 0; i < payrolls.Count; i++)
             {
-                Payroll payroll = this.payrolls[i];
+                Payroll payroll = payrolls[i];
                 if (payroll.PayrollId == id)
                 {
                     return payroll;
@@ -55,9 +55,9 @@ namespace HRManagementSystem
         public List<Payroll> GetPayrollsByEmployee(string employeeName)
         {
             List<Payroll> result = new List<Payroll>();
-            for (int i = 0; i < this.payrolls.Count; i++)
+            for (int i = 0; i < payrolls.Count; i++)
             {
-                Payroll payroll = this.payrolls[i];
+                Payroll payroll = payrolls[i];
                 if (payroll.EmployeeName == employeeName)
                 {
                     result.Add(payroll);
@@ -76,9 +76,9 @@ namespace HRManagementSystem
             if (string.IsNullOrEmpty(payroll.PayrollId))
             {
                 int maxId = 0;
-                for (int i = 0; i < this.payrolls.Count; i++)
+                for (int i = 0; i < payrolls.Count; i++)
                 {
-                    Payroll existingPayroll = this.payrolls[i];
+                    Payroll existingPayroll = payrolls[i];
                     if (!string.IsNullOrEmpty(existingPayroll.PayrollId))
                     {
                         string[] parts = existingPayroll.PayrollId.Split('-');
@@ -96,9 +96,9 @@ namespace HRManagementSystem
 
             }
 
-            for (int i = 0; i < this.payrolls.Count; i++)
+            for (int i = 0; i < payrolls.Count; i++)
             {
-                Payroll existingPayroll = this.payrolls[i];
+                Payroll existingPayroll = payrolls[i];
                 if (existingPayroll.PayrollId == payroll.PayrollId)
                 {
                     throw new InvalidOperationException("Payroll ID already exists");
@@ -106,7 +106,7 @@ namespace HRManagementSystem
                 }
             }
 
-            this.payrolls.Add(payroll);
+            payrolls.Add(payroll);
 
             // Ghi danh sách cập nhật trở lại tệp
             string jsonData = JsonSerializer.Serialize(payrolls, new JsonSerializerOptions { WriteIndented = true });
@@ -122,12 +122,12 @@ namespace HRManagementSystem
                 throw new ArgumentNullException("payroll");
             }
 
-            for (int i = 0; i < this.payrolls.Count; i++)
+            for (int i = 0; i < payrolls.Count; i++)
             {
-                if (this.payrolls[i].PayrollId == payroll.PayrollId)
+                if (payrolls[i].PayrollId == payroll.PayrollId)
                 {
-                    this.payrolls[i] = payroll;
-                    this.payrolls.RemoveAt(i);
+                    payrolls[i] = payroll;
+                    payrolls.RemoveAt(i);
                     // Thêm dữ liệu mới vào danh sách
                     payrolls.Add(payroll);
 
@@ -144,11 +144,11 @@ namespace HRManagementSystem
 
         public bool Delete(string id)
         {
-            for (int i = 0; i < this.payrolls.Count; i++)
+            for (int i = 0; i < payrolls.Count; i++)
             {
-                if (this.payrolls[i].PayrollId == id)
+                if (payrolls[i].PayrollId == id)
                 {
-                    this.payrolls.RemoveAt(i);
+                    payrolls.RemoveAt(i);
 
                     // Ghi danh sách cập nhật trở lại tệp
                     string jsonData = JsonSerializer.Serialize(payrolls, new JsonSerializerOptions { WriteIndented = true });

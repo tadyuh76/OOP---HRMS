@@ -15,7 +15,7 @@ namespace HRManagementSystem
             _payrollService = payrollService ?? throw new ArgumentNullException(nameof(payrollService));
             _payrolls = new List<Payroll>();
 
-            this.Text = "PAYROLL REPORT";
+            Text = "PAYROLL REPORT";
             SetupDataGridView();
             LoadPayrollData();
         }

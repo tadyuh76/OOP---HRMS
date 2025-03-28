@@ -1,4 +1,4 @@
-namespace HRManagementSystem.Services
+namespace HRManagementSystem
 {
     public class AttendanceService
     {
@@ -56,7 +56,7 @@ namespace HRManagementSystem.Services
         public Attendance RecordAttendance(string employeeId, string employeeName, AttendanceStatus status)
         {
             // Check if attendance for today already exists
-            var existingAttendance = attendances
+            Attendance? existingAttendance = attendances
                 .FirstOrDefault(a => a.EmployeeId == employeeId && a.Date.Date == DateTime.Today);
 
             if (existingAttendance != null)
@@ -65,7 +65,7 @@ namespace HRManagementSystem.Services
             }
 
             // Automatically set status to Late if clocking in after official start time
-            var currentTime = DateTime.Now;
+            DateTime currentTime = DateTime.Now;
             if (status == AttendanceStatus.Present && currentTime.TimeOfDay > workStartTime)
             {
                 status = AttendanceStatus.Late;
@@ -74,7 +74,7 @@ namespace HRManagementSystem.Services
             // Create new attendance record with consistent ID format: ATT followed by 3 digits
             // First determine highest existing ID number
             int maxId = 0;
-            foreach (var atd in attendances)
+            foreach (Attendance atd in attendances)
             {
                 if (atd.AttendanceId.StartsWith("ATT") && atd.AttendanceId.Length >= 5)
                 {
@@ -89,7 +89,7 @@ namespace HRManagementSystem.Services
             string newId = $"ATT{(maxId + 1):D3}";
 
             // Create new attendance record
-            var attendance = new Attendance
+            Attendance attendance = new Attendance
             {
                 AttendanceId = newId,
                 EmployeeId = employeeId,
@@ -109,7 +109,7 @@ namespace HRManagementSystem.Services
 
         public void UpdateClockOut(string attendanceId)
         {
-            var attendance = attendances.FirstOrDefault(a => a.AttendanceId == attendanceId);
+            Attendance? attendance = attendances.FirstOrDefault(a => a.AttendanceId == attendanceId);
             if (attendance == null)
             {
                 throw new EntityNotFoundException("Attendance record not found.");
@@ -128,7 +128,7 @@ namespace HRManagementSystem.Services
 
         public Dictionary<string, int> GetAttendanceSummary(int year, int month)
         {
-            var monthlyAttendance = GetMonthlyAttendance(year, month);
+            List<Attendance> monthlyAttendance = GetMonthlyAttendance(year, month);
 
             return monthlyAttendance
                 .GroupBy(a => a.Status)
