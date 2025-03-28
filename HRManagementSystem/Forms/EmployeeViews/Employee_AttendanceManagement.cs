@@ -4,19 +4,13 @@ namespace HRManagementSystem
     {
         // Delegate type definitions
         public delegate void RequestLeaveEventHandler(object? sender, EventArgs e);
-        public delegate void SubmitLeaveEventHandler(object? sender, EventArgs e);
-
-        // Events
-        private event RequestLeaveEventHandler? OnRequestLeave;
-        private event SubmitLeaveEventHandler? OnSubmitLeave;
 
         // Explicit delegates for events
+        private RequestLeaveEventHandler btnRequestLeaveClick = null!;
         private EventHandler datePickerValueChanged = null!;
         private EventHandler viewTypeRadioButtonCheckedChanged = null!;
         private EventHandler btnClockInClick = null!;
         private EventHandler btnClockOutClick = null!;
-        private RequestLeaveEventHandler btnRequestLeaveClick = null!;
-        private SubmitLeaveEventHandler btnSubmitLeaveClick = null!;
 
         private Button btnClockIn = null!;
         private Button btnClockOut = null!;
@@ -93,7 +87,6 @@ namespace HRManagementSystem
 
             // Initialize custom delegates with their respective methods
             btnRequestLeaveClick = new RequestLeaveEventHandler(BtnRequestLeave_Click);
-            btnSubmitLeaveClick = new SubmitLeaveEventHandler(BtnSubmit_Click);
         }
 
         private void InitializeComponent()
@@ -805,12 +798,6 @@ namespace HRManagementSystem
             layout.Controls.Add(btnSubmit, 1, 5);
 
             leaveRequestForm.ShowDialog();
-        }
-
-        private void BtnSubmit_Click(object? sender, EventArgs e)
-        {
-            // This method is a placeholder for the delegate
-            // The actual implementation is in the SubmitLeaveRequest method
         }
 
         private void SubmitLeaveRequest(ComboBox? cmbType, DateTimePicker? dtpStartDate, DateTimePicker? dtpEndDate,
