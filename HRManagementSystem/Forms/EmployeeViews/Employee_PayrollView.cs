@@ -1,9 +1,8 @@
-using System.Data;
 using System.Reflection;
 
 namespace HRManagementSystem
 {
-    public partial class Employee_PayrollView : Form
+    public class Employee_PayrollView : Form
     {
         // Define delegate types
         public delegate void SearchEventHandler(object? sender, EventArgs e);
@@ -18,17 +17,17 @@ namespace HRManagementSystem
         private string _selectedEmployeeName;
         private List<Payroll> _currentPayrolls;
 
-        private Panel panelTop;
-        private Label lblTitle;
-        private Panel panelButtons;
-        private DataGridView dgvPayrolls;
-        private Panel panelBottom;
-        private Label lblSalaryRange;
-        private Label lblAverageSalary;
-        private Label lblTotalPayroll;
-        private Button btnSearch;
-        private Label label1;
-        private ComboBox cboEmployee;
+        private Panel panelTop = null!;
+        private Label lblTitle = null!;
+        private Panel panelButtons = null!;
+        private DataGridView dgvPayrolls = null!;
+        private Panel panelBottom = null!;
+        private Label lblSalaryRange = null!;
+        private Label lblAverageSalary = null!;
+        private Label lblTotalPayroll = null!;
+        private Button btnSearch = null!;
+        private Label label1 = null!;
+        private ComboBox cboEmployee = null!;
 
         public Employee_PayrollView()
         {
