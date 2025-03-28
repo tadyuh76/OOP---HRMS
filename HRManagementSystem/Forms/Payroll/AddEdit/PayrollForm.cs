@@ -120,6 +120,9 @@ namespace HRManagementSystem
                 }
             }
 
+            // Disable employee selection in edit mode
+            cboEmployee.Enabled = false;
+
             dtpPayPeriodStart.Value = _payroll.PayPeriodStart;
             dtpPayPeriodEnd.Value = _payroll.PayPeriodEnd;
             txtBaseSalary.Text = _payroll.BaseSalary.ToString("N0");

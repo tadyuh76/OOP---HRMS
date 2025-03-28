@@ -286,5 +286,17 @@
     "deductions": 970.00,
     "netSalary": 4950.00,
     "isPaid": true
+  },
+  {
+    "payrollId": "PR-2025-028",
+    "employeeId": "EMP008",
+    "employeeName": "Jennifer Garcia",
+    "payPeriodStart": "2025-03-01T00:00:00",
+    "payPeriodEnd": "2025-03-31T00:00:00",
+    "baseSalary": 6500,
+    "allowances": 0,
+    "deductions": 0,
+    "netSalary": 6500,
+    "isPaid": true
   }
 ]
