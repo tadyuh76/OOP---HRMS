@@ -233,7 +233,7 @@ namespace HRManagementSystem {
             cmbManager.Items.Add("");
 
             // Add employee IDs
-            foreach (var employee in _employees)
+            foreach (Employee employee in _employees)
             {
                 cmbManager.Items.Add(employee.EmployeeId);
             }

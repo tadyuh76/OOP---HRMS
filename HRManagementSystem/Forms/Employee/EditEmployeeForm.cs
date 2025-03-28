@@ -346,7 +346,7 @@ namespace HRManagementSystem
             buttonPanel.Controls.Add(btnCancel);
 
             // Fill department dropdown
-            foreach (var department in _departments)
+            foreach (Department department in _departments)
             {
                 cmbDepartment.Items.Add(new DepartmentItem(department));
             }

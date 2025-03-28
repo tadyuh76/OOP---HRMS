@@ -296,7 +296,7 @@ namespace HRManagementSystem
             dgvDepartments.Rows.Clear();
 
             // Add each department to the grid in the order we want
-            foreach (var dept in departments)
+            foreach (Department dept in departments)
             {
                 // Calculate employee count for this department
                 int employeeCount = _employees.Count(e => e.DepartmentId == dept.DepartmentId);

@@ -62,9 +62,9 @@ namespace HRManagementSystem
             List<Department> departments = departmentService.GetAll();
             
             // Associate department names with employees
-            foreach (var employee in _employees)
+            foreach (Employee employee in _employees)
             {
-                var department = departments.FirstOrDefault(d => d.DepartmentId == employee.DepartmentId);
+                Department? department = departments.FirstOrDefault(d => d.DepartmentId == employee.DepartmentId);
                 if (department != null)
                 {
                     employee.DepartmentName = department.Name;

@@ -23,7 +23,7 @@ namespace HRManagementSystem
         private List<Employee> _employees = new List<Employee>();
         private string _currentEmployeeId;
 
-        public Employee_DepartmentView(string employeeId)
+        public Employee_DepartmentView(string employeeId = "EMP001")
         {
             _currentEmployeeId = employeeId;
             InitializeComponent();

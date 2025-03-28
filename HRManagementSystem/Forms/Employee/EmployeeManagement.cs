@@ -326,7 +326,7 @@ namespace HRManagementSystem
         {
             dgv.Rows.Clear();
 
-            foreach (var employee in filteredEmployees)
+            foreach (Employee employee in filteredEmployees)
             {
                 // Ensure department name is set
                 if (string.IsNullOrEmpty(employee.DepartmentName))
@@ -376,7 +376,7 @@ namespace HRManagementSystem
             else
             {
                 // Associate department names with employees
-                foreach (var employee in employees)
+                foreach (Employee employee in employees)
                 {
                     employee.DepartmentName = GetDepartmentName(employee.DepartmentId);
                 }
@@ -635,7 +635,7 @@ namespace HRManagementSystem
             // Find the highest employee ID number and increment by 1
             int highestNumber = 0;
 
-            foreach (var employee in employees)
+            foreach (Employee employee in employees)
             {
                 if (employee.EmployeeId != null && employee.EmployeeId.StartsWith("EMP"))
                 {

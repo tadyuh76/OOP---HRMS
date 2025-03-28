@@ -22,11 +22,6 @@ namespace HRManagementSystem
         private Label lblHireDate = null!;
         private Label lblYearsOfService = null!;
         private Label lblSalary = null!;
-        private TextBox txtPhone = null!;
-        private TextBox txtEmail = null!;
-        private TextBox txtAddress = null!;
-        private Button btnSave = null!;
-        private Button btnCancel = null!;
         private Panel personalInfoPanel = null!;
         private Panel employmentInfoPanel = null!;
         private Panel headerPanel = null!;
@@ -55,8 +50,6 @@ namespace HRManagementSystem
 
         // Event handler delegates
         private readonly EmployeeSelectionEventHandler employeeSelectionChangedHandler;
-        private readonly ButtonClickEventHandler saveButtonClickHandler;
-        private readonly ButtonClickEventHandler cancelButtonClickHandler;
         private readonly PanelPaintEventHandler panelPaintHandler;
 
         // Assuming the logged-in employee ID is passed to the constructor
@@ -67,8 +60,6 @@ namespace HRManagementSystem
 
             // Initialize event handler delegates
             employeeSelectionChangedHandler = new EmployeeSelectionEventHandler(CmbEmployeeSelector_SelectedIndexChanged);
-            saveButtonClickHandler = new ButtonClickEventHandler(BtnSave_Click);
-            cancelButtonClickHandler = new ButtonClickEventHandler(BtnCancel_Click);
             panelPaintHandler = new PanelPaintEventHandler(Panel_Paint);
 
             InitializeComponent();
@@ -226,10 +217,15 @@ namespace HRManagementSystem
             lblDOB = CreateStyledLabel("Date of Birth:");
             lblAge = CreateStyledLabel("Age:");
 
-            // Text boxes with modern style
-            txtEmail = CreateStyledTextBox();
-            txtPhone = CreateStyledTextBox();
-            txtAddress = CreateStyledTextBox();
+            // Create read-only labels instead of textboxes
+            Label lblEmailValue = CreateValueLabel();
+            Label lblPhoneValue = CreateValueLabel();
+            Label lblAddressValue = CreateValueLabel();
+
+            // Assign names to these labels for data loading
+            lblEmailValue.Name = "lblEmailValue";
+            lblPhoneValue.Name = "lblPhoneValue";
+            lblAddressValue.Name = "lblAddressValue";
 
             // Add field labels
             personalInfoTable.Controls.Add(lblName, 0, 0);
@@ -243,12 +239,11 @@ namespace HRManagementSystem
             Label lblNameValue = CreateValueLabel();
             personalInfoTable.Controls.Add(lblNameValue, 1, 0);
 
-            // Add editable fields
-            personalInfoTable.Controls.Add(txtEmail, 1, 1);
-            personalInfoTable.Controls.Add(txtPhone, 1, 2);
-            personalInfoTable.Controls.Add(txtAddress, 1, 3);
-
             // Add read-only fields
+            personalInfoTable.Controls.Add(lblEmailValue, 1, 1);
+            personalInfoTable.Controls.Add(lblPhoneValue, 1, 2);
+            personalInfoTable.Controls.Add(lblAddressValue, 1, 3);
+
             Label lblDOBValue = CreateValueLabel();
             Label lblAgeValue = CreateValueLabel();
             personalInfoTable.Controls.Add(lblDOBValue, 1, 4);
@@ -327,33 +322,15 @@ namespace HRManagementSystem
             contentLayout.Controls.Add(personalInfoPanel, 0, 0);
             contentLayout.Controls.Add(employmentInfoPanel, 1, 0);
 
-            // Create buttons panel
+            // Remove the buttons panel or hide it
             buttonsPanel = new TableLayoutPanel
             {
                 Dock = DockStyle.Bottom,
                 Height = 60,
                 BackColor = panelBackColor,
-                Padding = new Padding(20, 10, 20, 10)
+                Padding = new Padding(20, 10, 20, 10),
+                Visible = false
             };
-
-            // Create buttons
-            btnSave = CreateStyledButton("Save Changes", accentColor, Color.White);
-            // Using explicit delegate for button click
-            btnSave.Click += new EventHandler(saveButtonClickHandler);
-
-            btnCancel = CreateStyledButton("Cancel", Color.FromArgb(220, 220, 220), darkTextColor);
-            // Using explicit delegate for button click
-            btnCancel.Click += new EventHandler(cancelButtonClickHandler);
-
-            // Add buttons to panel
-            buttonsPanel.ColumnCount = 3;
-            buttonsPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            buttonsPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130F));
-            buttonsPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130F));
-
-            buttonsPanel.Controls.Add(new Label(), 0, 0); // Empty spacer
-            buttonsPanel.Controls.Add(btnCancel, 1, 0);
-            buttonsPanel.Controls.Add(btnSave, 2, 0);
 
             // Assemble the form
             mainContentPanel.Controls.Add(contentLayout);
@@ -448,39 +425,6 @@ namespace HRManagementSystem
             };
         }
 
-        private TextBox CreateStyledTextBox()
-        {
-            TextBox textBox = new()
-            {
-                Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 10),
-                BorderStyle = BorderStyle.FixedSingle,
-                BackColor = editFieldBackColor,
-                Margin = new Padding(0, 8, 0, 8)
-            };
-
-            return textBox;
-        }
-
-        private Button CreateStyledButton(string text, Color backColor, Color foreColor)
-        {
-            Button button = new()
-            {
-                Text = text,
-                BackColor = backColor,
-                ForeColor = foreColor,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10),
-                Size = new Size(120, 35),
-                Dock = DockStyle.Fill,
-                Margin = new Padding(5, 0, 5, 0),
-                Cursor = Cursors.Hand
-            };
-
-            button.FlatAppearance.BorderSize = 0;
-            return button;
-        }
-
         private void LoadEmployeeData(string employeeId)
         {
             try
@@ -505,7 +449,7 @@ namespace HRManagementSystem
                 lblUserTitle.Text = currentEmployee.Position;
 
                 // Try to load a profile picture based on employee ID
-                string picturePath = $@"c:\Users\tadyuh\Coding Projects\hrms\HRManagementSystem\Resources\ProfilePictures\{currentEmployee.EmployeeId}.png";
+                string picturePath = Path.Combine(FileManager.projectDirectory, $"ProfilePictures\\{currentEmployee.EmployeeId}.png");
                 if (File.Exists(picturePath))
                 {
                     if (profilePicture.Image != null)
@@ -532,9 +476,24 @@ namespace HRManagementSystem
                     nameValueLabel.Text = currentEmployee.Name;
                 }
 
-                txtEmail.Text = currentEmployee.Email;
-                txtPhone.Text = currentEmployee.Phone;
-                txtAddress.Text = currentEmployee.Address;
+                // Update the read-only labels instead of textboxes
+                Label? emailValueLabel = personalInfoPanel.Controls.Find("lblEmailValue", true).FirstOrDefault() as Label;
+                if (emailValueLabel != null)
+                {
+                    emailValueLabel.Text = currentEmployee.Email;
+                }
+
+                Label? phoneValueLabel = personalInfoPanel.Controls.Find("lblPhoneValue", true).FirstOrDefault() as Label;
+                if (phoneValueLabel != null)
+                {
+                    phoneValueLabel.Text = currentEmployee.Phone;
+                }
+
+                Label? addressValueLabel = personalInfoPanel.Controls.Find("lblAddressValue", true).FirstOrDefault() as Label;
+                if (addressValueLabel != null)
+                {
+                    addressValueLabel.Text = currentEmployee.Address;
+                }
 
                 Label? dobValueLabel = personalInfoPanel.Controls.Find("lblDOBValue", true).FirstOrDefault() as Label;
                 if (dobValueLabel != null)
@@ -634,40 +593,6 @@ namespace HRManagementSystem
             }
 
             return avatarBitmap;
-        }
-
-        private void BtnSave_Click(object? sender, EventArgs e)
-        {
-            if (currentEmployee != null)
-            {
-                try
-                {
-                    // Update employee information
-                    currentEmployee.Email = txtEmail.Text;
-                    currentEmployee.Phone = txtPhone.Text;
-                    currentEmployee.Address = txtAddress.Text;
-
-                    // Update employee using EmployeeService
-                    if (employeeService.Update(currentEmployee))
-                    {
-                        MessageBox.Show("Profile updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Failed to update profile.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error saving changes: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
-        private void BtnCancel_Click(object? sender, EventArgs e)
-        {
-            // Reload the original data
-            LoadEmployeeData(currentEmployee.EmployeeId);
         }
     }
 
