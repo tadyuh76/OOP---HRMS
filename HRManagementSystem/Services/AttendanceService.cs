@@ -8,6 +8,10 @@ namespace HRManagementSystem.Services
         // Singleton instance for cases where FileManager isn't available
         private static AttendanceService _instance;
 
+        // Company working hours
+        private static readonly TimeSpan workStartTime = new TimeSpan(9, 0, 0); // 9:00 AM
+        private static readonly TimeSpan workEndTime = new TimeSpan(17, 30, 0); // 5:30 PM
+
         // Default constructor that doesn't require FileManager
         public AttendanceService()
         {
@@ -51,14 +55,6 @@ namespace HRManagementSystem.Services
 
         public Attendance RecordAttendance(string employeeId, string employeeName, AttendanceStatus status)
         {
-            // Remove employee validation since we're using employeeName directly
-            // var employeeService = EmployeeService.GetInstance();
-            // var employee = employeeService.GetById(employeeId);
-            // if (employee == null)
-            // {
-            //     throw new EntityNotFoundException("Employee not found.");
-            // }
-
             // Check if attendance for today already exists
             var existingAttendance = attendances
                 .FirstOrDefault(a => a.EmployeeId == employeeId && a.Date.Date == DateTime.Today);
@@ -68,17 +64,41 @@ namespace HRManagementSystem.Services
                 throw new HRSystemException("Attendance already recorded for today.");
             }
 
+            // Automatically set status to Late if clocking in after official start time
+            var currentTime = DateTime.Now;
+            if (status == AttendanceStatus.Present && currentTime.TimeOfDay > workStartTime)
+            {
+                status = AttendanceStatus.Late;
+            }
+
+            // Create new attendance record with consistent ID format: ATT followed by 3 digits
+            // First determine highest existing ID number
+            int maxId = 0;
+            foreach (var atd in attendances)
+            {
+                if (atd.AttendanceId.StartsWith("ATT") && atd.AttendanceId.Length >= 5)
+                {
+                    if (int.TryParse(atd.AttendanceId.Substring(3), out int idNum))
+                    {
+                        maxId = Math.Max(maxId, idNum);
+                    }
+                }
+            }
+
+            // Create a consistent ID format
+            string newId = $"ATT{(maxId + 1):D3}";
+
             // Create new attendance record
             var attendance = new Attendance
             {
-                AttendanceId = $"ATT{Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper()}",
+                AttendanceId = newId,
                 EmployeeId = employeeId,
-                EmployeeName = employeeName, // Use the provided employee name
+                EmployeeName = employeeName,
                 Date = DateTime.Today,
-                ClockInTime = DateTime.Now,
-                ClockOutTime = DateTime.MinValue, // Will be updated when clocking out
+                ClockInTime = currentTime,
+                ClockOutTime = DateTime.MinValue,
                 Status = status,
-                Employee = null // No longer setting the Employee object
+                Employee = null
             };
 
             attendances.Add(attendance);
@@ -127,6 +147,20 @@ namespace HRManagementSystem.Services
                 .ToList();
         }
 
+        public List<Attendance> GetDailyAttendance(DateTime date)
+        {
+            return attendances
+                .Where(a => a.Date.Date == date.Date)
+                .ToList();
+        }
+
+        public List<Attendance> GetEmployeeDailyAttendance(string employeeId, DateTime date)
+        {
+            return attendances
+                .Where(a => a.EmployeeId == employeeId && a.Date.Date == date.Date)
+                .ToList();
+        }
+
         private bool SaveChanges()
         {
             // If FileManager is not available, just return success without saving
@@ -145,6 +179,16 @@ namespace HRManagementSystem.Services
             }
 
             return _fileManager.SaveAttendances(attendances);
+        }
+
+        public static TimeSpan GetWorkStartTime()
+        {
+            return workStartTime;
+        }
+
+        public static TimeSpan GetWorkEndTime()
+        {
+            return workEndTime;
         }
     }
 }

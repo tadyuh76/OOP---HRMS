@@ -15,12 +15,12 @@ namespace HRManagementSystem
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum LeaveType
     {
-        Annual,
-        Sick,
-        Maternity,
-        Paternity,
-        Unpaid,
-        Bereavement
+        Annual = 0,
+        Sick = 1,
+        Personal = 2,
+        Maternity = 3,
+        Training = 4,
+        Compensatory = 5
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -36,9 +36,9 @@ namespace HRManagementSystem
     public enum AttendanceStatus
     {
         Present,
-        Absent,
         HalfDay,
-        WorkFromHome
+        WorkFromHome,
+        Late
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]

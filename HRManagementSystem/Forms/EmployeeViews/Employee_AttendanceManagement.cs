@@ -14,6 +14,11 @@ namespace HRManagementSystem
         private DataGridView leaveRequestsGridView;
         private TabControl tabControl;
         private Label lblEmployeeInfo;
+        private Label lblWorkingHours;
+        private DateTimePicker datePicker;
+        private RadioButton rbtnMonthly;
+        private RadioButton rbtnDaily;
+        private bool isMonthlyView = true;
 
         // Services
         private AttendanceService attendanceService;
@@ -23,6 +28,10 @@ namespace HRManagementSystem
         private string employeeId;
         private string employeeName;
 
+        // Company working hours - get from the service
+        private TimeSpan workStartTime;
+        private TimeSpan workEndTime;
+
         public Employee_AttendanceView(string employeeId = "EMP001")
         {
             this.employeeId = employeeId;
@@ -30,19 +39,21 @@ namespace HRManagementSystem
             // Initialize services
             attendanceService = AttendanceService.GetInstance();
             leaveService = LeaveService.GetInstance();
-            
+
+            // Get working hours
+            workStartTime = AttendanceService.GetWorkStartTime();
+            workEndTime = AttendanceService.GetWorkEndTime();
+
             // Get employee name from attendance or leave records
-            // Try to get from attendance records first
             var attendances = attendanceService.GetEmployeeAttendance(
                 employeeId, DateTime.Now.Year, DateTime.Now.Month);
-            
+
             if (attendances.Count > 0)
             {
                 employeeName = attendances[0].EmployeeName;
             }
             else
             {
-                // If no attendance records, try leaves
                 var leaves = leaveService.GetEmployeeLeaves(employeeId);
                 if (leaves.Count > 0)
                 {
@@ -50,7 +61,6 @@ namespace HRManagementSystem
                 }
                 else
                 {
-                    // Fallback if no data found
                     employeeName = $"Employee {employeeId}";
                 }
             }
@@ -84,7 +94,7 @@ namespace HRManagementSystem
             Panel headerPanel = new Panel
             {
                 Dock = DockStyle.Fill,
-                Height = 60
+                Height = 100 // Increased height for view options
             };
             mainLayout.Controls.Add(headerPanel, 0, 0);
 
@@ -96,6 +106,59 @@ namespace HRManagementSystem
                 Location = new Point(0, 10)
             };
             headerPanel.Controls.Add(lblEmployeeInfo);
+
+            // Working hours label
+            lblWorkingHours = new Label
+            {
+                Text = $"Official Working Hours: {workStartTime.ToString(@"hh\:mm")} - {workEndTime.ToString(@"hh\:mm")}",
+                Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point),
+                AutoSize = true,
+                Location = new Point(0, 45)
+            };
+            headerPanel.Controls.Add(lblWorkingHours);
+
+            // View options panel
+            Panel viewOptionsPanel = new Panel
+            {
+                Location = new Point(0, 70),
+                Size = new Size(350, 25),
+                BackColor = Color.Transparent
+            };
+            headerPanel.Controls.Add(viewOptionsPanel);
+
+            // Monthly radio button
+            rbtnMonthly = new RadioButton
+            {
+                Text = "Monthly View",
+                Checked = true,
+                Location = new Point(0, 0),
+                AutoSize = true
+            };
+            rbtnMonthly.CheckedChanged += ViewTypeRadioButton_CheckedChanged;
+            viewOptionsPanel.Controls.Add(rbtnMonthly);
+
+            // Daily radio button
+            rbtnDaily = new RadioButton
+            {
+                Text = "Daily View",
+                Checked = false,
+                Location = new Point(120, 0),
+                AutoSize = true
+            };
+            rbtnDaily.CheckedChanged += ViewTypeRadioButton_CheckedChanged;
+            viewOptionsPanel.Controls.Add(rbtnDaily);
+
+            // Date picker
+            datePicker = new DateTimePicker
+            {
+                Location = new Point(240, 0),
+                Size = new Size(110, 25),
+                Format = DateTimePickerFormat.Custom,
+                CustomFormat = "MMMM yyyy", // Default to month view
+                ShowUpDown = true
+            };
+            datePicker.ValueChanged += DatePicker_ValueChanged;
+            viewOptionsPanel.Controls.Add(datePicker);
 
             // Panel for action buttons
             Panel actionPanel = new Panel
@@ -229,19 +292,94 @@ namespace HRManagementSystem
             leaveRequestsTab.Controls.Add(leaveRequestsGridView);
         }
 
+        private void ViewTypeRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            RadioButton radioButton = sender as RadioButton;
+            if (radioButton != null && radioButton.Checked)
+            {
+                isMonthlyView = (radioButton == rbtnMonthly);
+
+                // Update DateTimePicker format based on selected view
+                if (isMonthlyView)
+                {
+                    datePicker.Format = DateTimePickerFormat.Custom;
+                    datePicker.CustomFormat = "MMMM yyyy";
+                    datePicker.ShowUpDown = true;
+                }
+                else
+                {
+                    datePicker.Format = DateTimePickerFormat.Short;
+                    datePicker.ShowUpDown = false;
+                }
+
+                // Reload data based on the new view type
+                LoadEmployeeData();
+            }
+        }
+
+        private void DatePicker_ValueChanged(object sender, EventArgs e)
+        {
+            LoadEmployeeData();
+        }
+
         private void LoadEmployeeData()
         {
-            // Load attendance data for current employee
             try
             {
-                // Get current month's attendance
-                var attendances = attendanceService.GetEmployeeAttendance(
-                    employeeId, DateTime.Now.Year, DateTime.Now.Month);
+                List<Attendance> attendances;
+                DateTime selectedDate = datePicker.Value;
 
-                // Display in grid
+                if (isMonthlyView)
+                {
+                    // Get current month's attendance
+                    attendances = attendanceService.GetEmployeeAttendance(
+                        employeeId, selectedDate.Year, selectedDate.Month);
+                }
+                else
+                {
+                    // Get selected day's attendance
+                    attendances = attendanceService.GetEmployeeDailyAttendance(
+                        employeeId, selectedDate);
+
+                    // If viewing a day in the past or today, and no attendance record exists,
+                    // and there's no approved leave for that day, show as absent
+                    if (attendances.Count == 0 && selectedDate.Date <= DateTime.Today)
+                    {
+                        // Check if employee was on approved leave
+                        var leavesOnDate = leaveService.GetEmployeeDailyLeaves(employeeId, selectedDate)
+                            .Where(l => l.Status == LeaveStatus.Approved).ToList();
+
+                        if (leavesOnDate.Count == 0)
+                        {
+                            // Add a virtual attendance record showing absence
+                            Attendance absentAttendance = new Attendance
+                            {
+                                AttendanceId = $"ABSENT-{employeeId}-{selectedDate.ToString("yyyyMMdd")}",
+                                EmployeeId = employeeId,
+                                EmployeeName = employeeName,
+                                Date = selectedDate,
+                                ClockInTime = DateTime.MinValue,
+                                ClockOutTime = DateTime.MinValue,
+                                Status = AttendanceStatus.Present, // This doesn't matter, we'll override in display
+                                IsAbsentRecord = true // New property to explicitly mark as absent
+                            };
+                            attendances.Add(absentAttendance);
+                        }
+                    }
+                }
+
                 attendanceGridView.Rows.Clear();
                 foreach (var attendance in attendances)
                 {
+                    // Determine if this is an absent employee record
+                    bool isAbsent = attendance.IsAbsentRecord ||
+                                   attendance.AttendanceId.StartsWith("ABSENT") ||
+                                   (!isMonthlyView && attendance.ClockInTime == DateTime.MinValue &&
+                                    attendance.ClockOutTime == DateTime.MinValue);
+
+                    // Always show "Absent" for absent records
+                    string status = isAbsent ? "Absent" : GetAttendanceStatusString(attendance.Status);
+
                     string clockIn = attendance.ClockInTime != DateTime.MinValue
                         ? attendance.ClockInTime.ToString("HH:mm")
                         : "--";
@@ -255,36 +393,51 @@ namespace HRManagementSystem
                         attendance.Date.ToString("yyyy-MM-dd"),
                         clockIn,
                         clockOut,
-                        GetAttendanceStatusString(attendance.Status)
+                        status
                     );
 
-                    // Store attendance in row's Tag
                     attendanceGridView.Rows[rowIndex].Tag = attendance;
 
-                    // Apply color to status cell
                     var statusCell = attendanceGridView.Rows[rowIndex].Cells["Status"];
-                    switch (attendance.Status)
+                    if (isAbsent)
                     {
-                        case AttendanceStatus.Present:
-                            statusCell.Style.ForeColor = Color.Green;
-                            statusCell.Style.BackColor = Color.FromArgb(230, 255, 230);
-                            break;
-                        case AttendanceStatus.HalfDay:
-                            statusCell.Style.ForeColor = Color.Orange;
-                            statusCell.Style.BackColor = Color.FromArgb(255, 250, 230);
-                            break;
-                        case AttendanceStatus.WorkFromHome:
-                            statusCell.Style.ForeColor = Color.DarkOrange;
-                            statusCell.Style.BackColor = Color.FromArgb(255, 240, 230);
-                            break;
-                        case AttendanceStatus.Absent:
-                            statusCell.Style.ForeColor = Color.Red;
-                            statusCell.Style.BackColor = Color.FromArgb(255, 230, 230);
-                            break;
+                        // Absent styling
+                        statusCell.Style.ForeColor = Color.White;
+                        statusCell.Style.BackColor = Color.FromArgb(220, 53, 69); // Red background
+
+                        // Color the entire row with light red background
+                        foreach (DataGridViewCell cell in attendanceGridView.Rows[rowIndex].Cells)
+                        {
+                            if (cell.ColumnIndex != statusCell.ColumnIndex)
+                            {
+                                cell.Style.BackColor = Color.FromArgb(255, 240, 240); // Light red
+                            }
+                        }
+                    }
+                    else
+                    {
+                        switch (attendance.Status)
+                        {
+                            case AttendanceStatus.Present:
+                                statusCell.Style.ForeColor = Color.Green;
+                                statusCell.Style.BackColor = Color.FromArgb(230, 255, 230);
+                                break;
+                            case AttendanceStatus.HalfDay:
+                                statusCell.Style.ForeColor = Color.Orange;
+                                statusCell.Style.BackColor = Color.FromArgb(255, 250, 230);
+                                break;
+                            case AttendanceStatus.WorkFromHome:
+                                statusCell.Style.ForeColor = Color.DarkOrange;
+                                statusCell.Style.BackColor = Color.FromArgb(255, 240, 230);
+                                break;
+                            case AttendanceStatus.Late:
+                                statusCell.Style.ForeColor = Color.DarkOrange;
+                                statusCell.Style.BackColor = Color.FromArgb(255, 235, 200);
+                                break;
+                        }
                     }
                 }
 
-                // Check if employee already clocked in today
                 var todayAttendance = attendances.Find(a => a.Date.Date == DateTime.Today);
                 if (todayAttendance != null)
                 {
@@ -314,30 +467,45 @@ namespace HRManagementSystem
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-            // Load leave requests for current employee
             try
             {
-                var leaves = leaveService.GetEmployeeLeaves(employeeId);
+                List<LeaveRequest> leaveRequests;
+                DateTime selectedDate = datePicker.Value;
 
-                // Filter out the leave records that have associated leave requests
-                leaveRequestsGridView.Rows.Clear();
-                foreach (var leave in leaves)
+                if (isMonthlyView)
                 {
+                    // Get leave requests for the selected month
+                    leaveRequests = leaveService.GetEmployeeMonthlyLeaves(
+                        employeeId, selectedDate.Year, selectedDate.Month);
+                }
+                else
+                {
+                    // Get leave requests for the selected day
+                    leaveRequests = leaveService.GetEmployeeDailyLeaves(
+                        employeeId, selectedDate);
+                }
+
+                leaveRequestsGridView.Rows.Clear();
+                foreach (var request in leaveRequests)
+                {
+                    if (request == null) continue;
+
+                    string leaveTypeStr = request.Type.ToString();
+                    string statusStr = request.Status.ToString();
+
                     int rowIndex = leaveRequestsGridView.Rows.Add(
-                        leave.LeaveId,
-                        leave.Type.ToString(),
-                        leave.StartDate.ToString("yyyy-MM-dd"),
-                        leave.EndDate.ToString("yyyy-MM-dd"),
-                        leave.Status.ToString(),
-                        leave.Remarks
+                        request.RequestId,
+                        leaveTypeStr,
+                        request.StartDate.ToString("yyyy-MM-dd"),
+                        request.EndDate.ToString("yyyy-MM-dd"),
+                        statusStr,
+                        request.Remarks
                     );
 
-                    // Store leave in row's Tag
-                    leaveRequestsGridView.Rows[rowIndex].Tag = leave;
+                    leaveRequestsGridView.Rows[rowIndex].Tag = request;
 
-                    // Apply color to status cell
                     var statusCell = leaveRequestsGridView.Rows[rowIndex].Cells["Status"];
-                    switch (leave.Status)
+                    switch (request.Status)
                     {
                         case LeaveStatus.Approved:
                             statusCell.Style.ForeColor = Color.Green;
@@ -350,6 +518,10 @@ namespace HRManagementSystem
                         case LeaveStatus.Pending:
                             statusCell.Style.ForeColor = Color.Orange;
                             statusCell.Style.BackColor = Color.FromArgb(255, 250, 230);
+                            break;
+                        case LeaveStatus.Cancelled:
+                            statusCell.Style.ForeColor = Color.Gray;
+                            statusCell.Style.BackColor = Color.FromArgb(240, 240, 240);
                             break;
                     }
                 }
@@ -366,9 +538,9 @@ namespace HRManagementSystem
             return status switch
             {
                 AttendanceStatus.Present => "Present",
-                AttendanceStatus.Absent => "Absent",
-                AttendanceStatus.WorkFromHome => "Work From Home",
                 AttendanceStatus.HalfDay => "Half Day",
+                AttendanceStatus.WorkFromHome => "Work From Home",
+                AttendanceStatus.Late => "Late",
                 _ => "Unknown"
             };
         }
@@ -377,13 +549,16 @@ namespace HRManagementSystem
         {
             try
             {
-                // Record clock in for the current employee
                 var attendance = attendanceService.RecordAttendance(employeeId, employeeName, AttendanceStatus.Present);
 
-                MessageBox.Show($"You have clocked in successfully at {DateTime.Now.ToString("HH:mm")}.",
-                    "Clock In", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                string statusMessage = attendance.Status == AttendanceStatus.Late
+                    ? $"You have clocked in late at {DateTime.Now.ToString("HH:mm")}."
+                    : $"You have clocked in successfully at {DateTime.Now.ToString("HH:mm")}.";
 
-                // Refresh the data
+                MessageBox.Show(statusMessage, "Clock In",
+                    MessageBoxButtons.OK,
+                    attendance.Status == AttendanceStatus.Late ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+
                 LoadEmployeeData();
             }
             catch (Exception ex)
@@ -397,7 +572,6 @@ namespace HRManagementSystem
         {
             try
             {
-                // Find today's attendance record to update
                 var todayAttendances = attendanceService.GetEmployeeAttendance(
                     employeeId, DateTime.Now.Year, DateTime.Now.Month);
 
@@ -405,13 +579,11 @@ namespace HRManagementSystem
 
                 if (todayAttendance != null)
                 {
-                    // Record clock out
                     attendanceService.UpdateClockOut(todayAttendance.AttendanceId);
 
                     MessageBox.Show($"You have clocked out successfully at {DateTime.Now.ToString("HH:mm")}.",
                         "Clock Out", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    // Refresh the data
                     LoadEmployeeData();
                 }
                 else
@@ -429,7 +601,6 @@ namespace HRManagementSystem
 
         private void BtnRequestLeave_Click(object sender, EventArgs e)
         {
-            // Create leave request form
             Form leaveRequestForm = new Form
             {
                 Text = "Request Leave",
@@ -444,12 +615,11 @@ namespace HRManagementSystem
             {
                 Dock = DockStyle.Fill,
                 Padding = new Padding(20),
-                RowCount = 5,
+                RowCount = 6,
                 ColumnCount = 2
             };
             leaveRequestForm.Controls.Add(layout);
 
-            // Employee ID is pre-filled and read-only
             Label lblEmployeeInfo = new Label { Text = $"Employee: {employeeName}", AutoSize = true };
             layout.Controls.Add(lblEmployeeInfo, 0, 0);
             layout.SetColumnSpan(lblEmployeeInfo, 2);
@@ -475,7 +645,7 @@ namespace HRManagementSystem
                 Dock = DockStyle.Fill,
                 Margin = new Padding(5),
                 Format = DateTimePickerFormat.Short,
-                MinDate = DateTime.Today.AddDays(1) // Leave must be at least 1 day in advance
+                MinDate = DateTime.Today.AddDays(1)
             };
             layout.Controls.Add(dtpStartDate, 1, 2);
 
@@ -491,6 +661,18 @@ namespace HRManagementSystem
             };
             layout.Controls.Add(dtpEndDate, 1, 3);
 
+            Label lblRemarks = new Label { Text = "Remarks:", AutoSize = true };
+            layout.Controls.Add(lblRemarks, 0, 4);
+
+            TextBox txtRemarks = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Margin = new Padding(5),
+                Multiline = true,
+                Height = 60
+            };
+            layout.Controls.Add(txtRemarks, 1, 4);
+
             Button btnSubmit = new Button
             {
                 Text = "Submit Request",
@@ -501,7 +683,7 @@ namespace HRManagementSystem
                 FlatStyle = FlatStyle.Flat
             };
             btnSubmit.FlatAppearance.BorderSize = 0;
-            layout.Controls.Add(btnSubmit, 1, 4);
+            layout.Controls.Add(btnSubmit, 1, 5);
 
             btnSubmit.Click += (s, args) =>
             {
@@ -514,16 +696,29 @@ namespace HRManagementSystem
                         return;
                     }
 
-                    // Parse the leave type
                     LeaveType leaveType = (LeaveType)Enum.Parse(typeof(LeaveType), cmbType.SelectedItem.ToString());
 
-                    // Submit leave request using the service
+                    // Make sure we have the employee's full details
+                    EmployeeService employeeService = EmployeeService.GetInstance();
+                    Employee employee = null;
+
+                    // Find employee using EmployeeId (which is the identifier we have)
+                    var allEmployees = employeeService.GetAll();
+                    employee = allEmployees.FirstOrDefault(e => e.EmployeeId == employeeId);
+
+                    if (employee == null)
+                    {
+                        MessageBox.Show("Could not locate your employee record. Please contact HR.", "Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
                     var request = leaveService.SubmitLeaveRequest(
                         employeeId,
                         dtpStartDate.Value,
                         dtpEndDate.Value,
                         leaveType,
-                        "Employee request"
+                        txtRemarks.Text
                     );
 
                     MessageBox.Show("Leave request submitted successfully!", "Success",
@@ -531,7 +726,6 @@ namespace HRManagementSystem
 
                     leaveRequestForm.Close();
 
-                    // Refresh data to show the new request
                     LoadEmployeeData();
                 }
                 catch (Exception ex)

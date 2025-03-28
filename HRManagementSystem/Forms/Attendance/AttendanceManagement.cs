@@ -13,6 +13,11 @@ namespace HRManagementSystem
         private DataGridView leaveRequestsGridView;
         private DateTimePicker datePicker;
         private TextBox searchBox;
+        private Label lblWorkingHours;
+
+        private RadioButton rbtnMonthly;
+        private RadioButton rbtnDaily;
+        private bool isMonthlyView = true;
 
         // Add services for attendance and leave management
         private AttendanceService attendanceService;
@@ -22,6 +27,10 @@ namespace HRManagementSystem
         // For tracking current view month/year
         private int currentMonth;
         private int currentYear;
+
+        // Company working hours
+        private TimeSpan workStartTime = new TimeSpan(9, 0, 0); // 9:00 AM
+        private TimeSpan workEndTime = new TimeSpan(17, 30, 0); // 5:30 PM
 
         // Lists to store the loaded data
         private List<Attendance> attendances;
@@ -110,7 +119,7 @@ namespace HRManagementSystem
             Panel controlPanel = new Panel
             {
                 Dock = DockStyle.Fill,
-                Height = 60
+                Height = 80 // Increased height to fit view options
             };
             directoryLayout.Controls.Add(controlPanel, 0, 0);
 
@@ -124,13 +133,54 @@ namespace HRManagementSystem
             };
             controlPanel.Controls.Add(lblRecords);
 
-            // Month picker
+            // Working hours label
+            lblWorkingHours = new Label
+            {
+                Text = $"Official Working Hours: {workStartTime.ToString(@"hh\:mm")} - {workEndTime.ToString(@"hh\:mm")}",
+                Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point),
+                AutoSize = true,
+                Location = new Point(0, 30)
+            };
+            controlPanel.Controls.Add(lblWorkingHours);
+
+            // View options
+            Panel viewOptionsPanel = new Panel
+            {
+                Location = new Point(0, 55),
+                Size = new Size(250, 25),
+                BackColor = Color.Transparent
+            };
+            controlPanel.Controls.Add(viewOptionsPanel);
+
+            // Monthly radio button
+            rbtnMonthly = new RadioButton
+            {
+                Text = "Monthly View",
+                Checked = true,
+                Location = new Point(0, 0),
+                AutoSize = true
+            };
+            rbtnMonthly.CheckedChanged += ViewTypeRadioButton_CheckedChanged;
+            viewOptionsPanel.Controls.Add(rbtnMonthly);
+
+            // Daily radio button
+            rbtnDaily = new RadioButton
+            {
+                Text = "Daily View",
+                Checked = false,
+                Location = new Point(120, 0),
+                AutoSize = true
+            };
+            rbtnDaily.CheckedChanged += ViewTypeRadioButton_CheckedChanged;
+            viewOptionsPanel.Controls.Add(rbtnDaily);
+
+            // Date picker - will now be used for both month and day selection
             datePicker = new DateTimePicker
             {
                 Location = new Point(controlPanel.Width - 170, 0),
                 Size = new Size(150, 30),
                 Format = DateTimePickerFormat.Custom,
-                CustomFormat = "MMMM yyyy",
+                CustomFormat = "MMMM yyyy", // Default to month view
                 ShowUpDown = true,
                 Anchor = AnchorStyles.Right | AnchorStyles.Top
             };
@@ -157,6 +207,20 @@ namespace HRManagementSystem
             };
             searchBox.TextChanged += SearchBox_TextChanged;
             searchPanel.Controls.Add(searchBox);
+
+            // Add a button to view individual employee records
+            Button btnViewEmployee = new Button
+            {
+                Text = "View Employee Records",
+                Size = new Size(180, 35),
+                Location = new Point(500, 10),
+                BackColor = Color.FromArgb(0, 123, 255),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnViewEmployee.FlatAppearance.BorderSize = 0;
+            btnViewEmployee.Click += BtnViewEmployee_Click;
+            controlPanel.Controls.Add(btnViewEmployee);
 
             // Tab Control
             tabControl = new TabControl
@@ -264,18 +328,124 @@ namespace HRManagementSystem
             leaveRequestsTab.Controls.Add(leaveRequestsGridView);
         }
 
+        private void BtnViewEmployee_Click(object sender, EventArgs e)
+        {
+            var employeeViewer = new EmployeeAttendanceViewer();
+            employeeViewer.ShowDialog();
+        }
+
+        private void ViewTypeRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            RadioButton radioButton = sender as RadioButton;
+            if (radioButton != null && radioButton.Checked)
+            {
+                isMonthlyView = (radioButton == rbtnMonthly);
+
+                // Update DateTimePicker format based on selected view
+                if (isMonthlyView)
+                {
+                    datePicker.Format = DateTimePickerFormat.Custom;
+                    datePicker.CustomFormat = "MMMM yyyy";
+                    datePicker.ShowUpDown = true;
+                }
+                else
+                {
+                    datePicker.Format = DateTimePickerFormat.Short;
+                    datePicker.ShowUpDown = false;
+                }
+
+                // Reload data based on the new view type
+                LoadAttendanceData();
+                LoadLeaveData();
+            }
+        }
+
         private void LoadAttendanceData()
         {
             try
             {
-                // Get attendances for the selected month and year
-                attendances = attendanceService.GetMonthlyAttendance(currentYear, currentMonth);
+                if (isMonthlyView)
+                {
+                    // Get attendances for the selected month and year
+                    attendances = attendanceService.GetMonthlyAttendance(currentYear, currentMonth);
+                }
+                else
+                {
+                    // Get attendances for the selected day
+                    DateTime selectedDate = datePicker.Value.Date;
+                    attendances = attendanceService.GetDailyAttendance(selectedDate);
+
+                    // If in daily view, also identify and add absent employees
+                    if (selectedDate <= DateTime.Today)  // Only check for past or current days
+                    {
+                        // Identify absent employees and add them to the attendance list
+                        PopulateAbsentEmployees(selectedDate);
+                    }
+                }
+
                 DisplayAttendanceData();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error loading attendance data: {ex.Message}", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void PopulateAbsentEmployees(DateTime selectedDate)
+        {
+            try
+            {
+                // First, get all active employees
+                List<Employee> allEmployees = employeeService.GetAll()
+                    .Where(e => e.Status == EmployeeStatus.Active)
+                    .ToList();
+
+                // Create a set of employee IDs who were present
+                HashSet<string> presentEmployeeIds = new HashSet<string>(
+                    attendances.Select(a => a.EmployeeId)
+                );
+
+                // Get employees who were on approved leave on the selected date
+                List<LeaveRequest> approvedLeaves = leaveService.GetDailyLeaves(selectedDate)
+                    .Where(l => l.Status == LeaveStatus.Approved)
+                    .ToList();
+                HashSet<string> onLeaveEmployeeIds = new HashSet<string>(
+                    approvedLeaves.Select(l => l.EmployeeId)
+                );
+
+                // Add absent employees to the attendance list
+                foreach (Employee employee in allEmployees)
+                {
+                    // Skip if employee was present or on approved leave
+                    if (presentEmployeeIds.Contains(employee.EmployeeId) ||
+                        onLeaveEmployeeIds.Contains(employee.EmployeeId))
+                    {
+                        continue;
+                    }
+
+                    // Create a virtual attendance entry for the absent employee
+                    Attendance absentAttendance = new Attendance
+                    {
+                        AttendanceId = $"ABSENT-{employee.EmployeeId}-{selectedDate.ToString("yyyyMMdd")}",
+                        EmployeeId = employee.EmployeeId,
+                        EmployeeName = employee.Name,
+                        Date = selectedDate,
+                        ClockInTime = DateTime.MinValue,
+                        ClockOutTime = DateTime.MinValue,
+                        Status = AttendanceStatus.Present, // We'll use a different mechanism to identify absences
+                        Employee = employee,
+                        IsAbsentRecord = true // New property to explicitly mark as absent
+                    };
+
+                    // Add to the attendance list for display
+                    attendances.Add(absentAttendance);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error populating absent employees: {ex.Message}");
+                // Don't throw the exception - continue with whatever data we have
             }
         }
 
@@ -287,6 +457,15 @@ namespace HRManagementSystem
             {
                 // Use the EmployeeName directly from the attendance record
                 string employeeName = attendance.EmployeeName ?? "Unknown";
+
+                // Determine if this is an absent employee record
+                bool isAbsent = attendance.IsAbsentRecord ||
+                                attendance.AttendanceId.StartsWith("ABSENT") ||
+                                (!isMonthlyView && attendance.ClockInTime == DateTime.MinValue &&
+                                 attendance.ClockOutTime == DateTime.MinValue);
+
+                // Always display "Absent" for absent employees
+                string status = isAbsent ? "Absent" : GetAttendanceStatusString(attendance.Status);
 
                 string clockIn = attendance.ClockInTime != DateTime.MinValue
                     ? attendance.ClockInTime.ToString("HH:mm")
@@ -303,7 +482,7 @@ namespace HRManagementSystem
                     attendance.Date.ToString("yyyy-MM-dd"),
                     clockIn,
                     clockOut,
-                    GetAttendanceStatusString(attendance.Status)
+                    status
                 );
 
                 // Store the attendance object in the row's Tag for later retrieval
@@ -311,24 +490,42 @@ namespace HRManagementSystem
 
                 // Apply color to status cells
                 var statusCell = attendanceGridView.Rows[rowIndex].Cells["Status"];
-                switch (attendance.Status)
+                if (isAbsent || attendance.AttendanceId.StartsWith("ABSENT"))
                 {
-                    case AttendanceStatus.Present:
-                        statusCell.Style.ForeColor = Color.Green;
-                        statusCell.Style.BackColor = Color.FromArgb(230, 255, 230);
-                        break;
-                    case AttendanceStatus.HalfDay:
-                        statusCell.Style.ForeColor = Color.Orange;
-                        statusCell.Style.BackColor = Color.FromArgb(255, 250, 230);
-                        break;
-                    case AttendanceStatus.WorkFromHome:
-                        statusCell.Style.ForeColor = Color.DarkOrange;
-                        statusCell.Style.BackColor = Color.FromArgb(255, 240, 230);
-                        break;
-                    case AttendanceStatus.Absent:
-                        statusCell.Style.ForeColor = Color.Red;
-                        statusCell.Style.BackColor = Color.FromArgb(255, 230, 230);
-                        break;
+                    // Absent styling
+                    statusCell.Style.ForeColor = Color.White;
+                    statusCell.Style.BackColor = Color.FromArgb(220, 53, 69); // Red background
+
+                    // Color the entire row with light red background
+                    foreach (DataGridViewCell cell in attendanceGridView.Rows[rowIndex].Cells)
+                    {
+                        if (cell.ColumnIndex != statusCell.ColumnIndex)
+                        {
+                            cell.Style.BackColor = Color.FromArgb(255, 240, 240); // Light red
+                        }
+                    }
+                }
+                else
+                {
+                    switch (attendance.Status)
+                    {
+                        case AttendanceStatus.Present:
+                            statusCell.Style.ForeColor = Color.Green;
+                            statusCell.Style.BackColor = Color.FromArgb(230, 255, 230);
+                            break;
+                        case AttendanceStatus.HalfDay:
+                            statusCell.Style.ForeColor = Color.Orange;
+                            statusCell.Style.BackColor = Color.FromArgb(255, 250, 230);
+                            break;
+                        case AttendanceStatus.WorkFromHome:
+                            statusCell.Style.ForeColor = Color.DarkOrange;
+                            statusCell.Style.BackColor = Color.FromArgb(255, 240, 230);
+                            break;
+                        case AttendanceStatus.Late:
+                            statusCell.Style.ForeColor = Color.DarkOrange;
+                            statusCell.Style.BackColor = Color.FromArgb(255, 235, 200);
+                            break;
+                    }
                 }
             }
         }
@@ -338,9 +535,9 @@ namespace HRManagementSystem
             return status switch
             {
                 AttendanceStatus.Present => "Present",
-                AttendanceStatus.Absent => "Absent",
-                AttendanceStatus.WorkFromHome => "Work From Home",
                 AttendanceStatus.HalfDay => "Half Day",
+                AttendanceStatus.WorkFromHome => "Work From Home",
+                AttendanceStatus.Late => "Late",
                 _ => "Unknown"
             };
         }
@@ -349,14 +546,36 @@ namespace HRManagementSystem
         {
             try
             {
-                // Get all leave requests - may need additional filtering in a real implementation
-                leaveRequests = leaveService.GetPendingLeaveRequests();
+                // Load leave requests
+                if (isMonthlyView)
+                {
+                    // Get leaves for selected month and year
+                    leaveRequests = leaveService.GetMonthlyLeaves(currentYear, currentMonth);
+                }
+                else
+                {
+                    // Get leaves for selected day
+                    DateTime selectedDate = datePicker.Value.Date;
+                    leaveRequests = leaveService.GetDailyLeaves(selectedDate);
+                }
+
+                if (leaveRequests == null || !leaveRequests.Any())
+                {
+                    string timeFrame = isMonthlyView ? "month" : "day";
+                    MessageBox.Show($"No leave data found for the selected {timeFrame}. The system will display an empty table.",
+                        "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    leaveRequests = new List<LeaveRequest>();
+                }
+
                 DisplayLeaveRequestsData();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading leave data: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error loading leave data: {ex.Message}\n\nStack Trace: {ex.StackTrace}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                leaveRequests = new List<LeaveRequest>();
+                DisplayLeaveRequestsData();
             }
         }
 
@@ -364,53 +583,139 @@ namespace HRManagementSystem
         {
             leaveRequestsGridView.Rows.Clear();
 
+            if (leaveRequests == null || leaveRequests.Count == 0)
+            {
+                return; // Nothing to display
+            }
+
+            // Debug output
+            Console.WriteLine($"Displaying {leaveRequests.Count} leave requests");
+
             foreach (var request in leaveRequests)
             {
-                // Use the EmployeeName directly from the leave details
-                string employeeName = request.LeaveDetails.EmployeeName ?? "Unknown";
-
-                int rowIndex = leaveRequestsGridView.Rows.Add(
-                    request.RequestId,
-                    request.EmployeeId,
-                    employeeName,
-                    request.LeaveDetails.Type.ToString(),
-                    request.LeaveDetails.StartDate.ToString("yyyy-MM-dd"),
-                    request.LeaveDetails.EndDate.ToString("yyyy-MM-dd"),
-                    request.LeaveDetails.Status.ToString(),
-                    request.LeaveDetails.Remarks
-                );
-
-                // Store the leave request object in the row's Tag for later retrieval
-                leaveRequestsGridView.Rows[rowIndex].Tag = request;
-
-                // Apply color to status cells
-                var statusCell = leaveRequestsGridView.Rows[rowIndex].Cells["Status"];
-                switch (request.LeaveDetails.Status)
+                try
                 {
-                    case LeaveStatus.Approved:
-                        statusCell.Style.ForeColor = Color.Green;
-                        statusCell.Style.BackColor = Color.FromArgb(230, 255, 230);
-                        break;
-                    case LeaveStatus.Rejected:
-                        statusCell.Style.ForeColor = Color.Red;
-                        statusCell.Style.BackColor = Color.FromArgb(255, 230, 230);
-                        break;
-                    case LeaveStatus.Pending:
-                        statusCell.Style.ForeColor = Color.Orange;
-                        statusCell.Style.BackColor = Color.FromArgb(255, 250, 230);
-                        break;
+                    if (request == null) continue;
+
+                    // Get enum strings safely
+                    string leaveTypeStr = "Unknown";
+                    string statusStr = "Unknown";
+
+                    // Map numeric values to enum strings
+                    try
+                    {
+                        leaveTypeStr = request.Type.ToString();
+                    }
+                    catch (Exception)
+                    {
+                        // Handle numeric values directly if enum conversion fails
+                        int typeValue = (int)request.Type;
+                        leaveTypeStr = typeValue switch
+                        {
+                            0 => "Annual",
+                            1 => "Sick",
+                            2 => "Personal",
+                            3 => "Maternity",
+                            4 => "Training",
+                            5 => "Compensatory",
+                            _ => $"Type-{typeValue}"
+                        };
+                    }
+
+                    try
+                    {
+                        statusStr = request.Status.ToString();
+                    }
+                    catch (Exception)
+                    {
+                        // Handle numeric values directly if enum conversion fails
+                        int statusValue = (int)request.Status;
+                        statusStr = statusValue switch
+                        {
+                            0 => "Pending",
+                            1 => "Approved",
+                            2 => "Rejected",
+                            3 => "Cancelled",
+                            _ => $"Status-{statusValue}"
+                        };
+                    }
+
+                    string startDateStr = request.StartDate.ToString("yyyy-MM-dd");
+                    string endDateStr = request.EndDate.ToString("yyyy-MM-dd");
+
+                    int rowIndex = leaveRequestsGridView.Rows.Add(
+                        request.RequestId ?? "Unknown",
+                        request.EmployeeId ?? "Unknown",
+                        request.EmployeeName ?? "Unknown",
+                        leaveTypeStr,
+                        startDateStr,
+                        endDateStr,
+                        statusStr,
+                        request.Remarks ?? ""
+                    );
+
+                    // Store the leave request object in the row's Tag
+                    leaveRequestsGridView.Rows[rowIndex].Tag = request;
+
+                    // Apply color to status cells
+                    var statusCell = leaveRequestsGridView.Rows[rowIndex].Cells["Status"];
+                    try
+                    {
+                        switch (request.Status)
+                        {
+                            case LeaveStatus.Approved:
+                                statusCell.Style.ForeColor = Color.Green;
+                                statusCell.Style.BackColor = Color.FromArgb(230, 255, 230);
+                                break;
+                            case LeaveStatus.Rejected:
+                                statusCell.Style.ForeColor = Color.Red;
+                                statusCell.Style.BackColor = Color.FromArgb(255, 230, 230);
+                                break;
+                            case LeaveStatus.Pending:
+                                statusCell.Style.ForeColor = Color.Orange;
+                                statusCell.Style.BackColor = Color.FromArgb(255, 250, 230);
+                                break;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        // Fallback for status coloring based on the string
+                        if (statusStr == "Approved")
+                        {
+                            statusCell.Style.ForeColor = Color.Green;
+                            statusCell.Style.BackColor = Color.FromArgb(230, 255, 230);
+                        }
+                        else if (statusStr == "Rejected")
+                        {
+                            statusCell.Style.ForeColor = Color.Red;
+                            statusCell.Style.BackColor = Color.FromArgb(255, 230, 230);
+                        }
+                        else if (statusStr == "Pending")
+                        {
+                            statusCell.Style.ForeColor = Color.Orange;
+                            statusCell.Style.BackColor = Color.FromArgb(255, 250, 230);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error displaying leave request: {ex.Message}");
                 }
             }
         }
 
         private void DatePicker_ValueChanged(object sender, EventArgs e)
         {
-            // Update current month and year
-            currentMonth = datePicker.Value.Month;
-            currentYear = datePicker.Value.Year;
+            if (isMonthlyView)
+            {
+                // Update current month and year
+                currentMonth = datePicker.Value.Month;
+                currentYear = datePicker.Value.Year;
+            }
 
-            // Reload attendance data for the selected month
+            // Reload data for either monthly or daily view
             LoadAttendanceData();
+            LoadLeaveData();
         }
 
         private void SearchBox_TextChanged(object sender, EventArgs e)
@@ -469,11 +774,26 @@ namespace HRManagementSystem
                 // Get employee name directly from attendance record
                 string employeeName = attendance.EmployeeName ?? "Unknown";
 
+                // Skip action menu for auto-generated absence records
+                if (attendance.AttendanceId.StartsWith("ABSENT"))
+                {
+                    MessageBox.Show(
+                        $"Employee Information\n\n" +
+                        $"Employee: {employeeName} ({attendance.EmployeeId})\n" +
+                        $"Date: {attendance.Date.ToShortDateString()}\n" +
+                        $"Status: Absent (No clock-in record for this day)",
+                        "Employee Absence",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );
+                    return;
+                }
+
                 // Show context menu with options
                 ContextMenuStrip actionMenu = new ContextMenuStrip();
 
                 // If the employee hasn't clocked out yet, add a clock out option
-                if (attendance.ClockOutTime == DateTime.MinValue)
+                if (attendance.ClockInTime != DateTime.MinValue && attendance.ClockOutTime == DateTime.MinValue)
                 {
                     actionMenu.Items.Add("Record Clock Out", null, (s, args) =>
                     {
@@ -494,13 +814,22 @@ namespace HRManagementSystem
 
                 actionMenu.Items.Add("View Details", null, (s, args) =>
                 {
+                    // Check if the employee clocked in late
+                    string lateStatus = "";
+                    if (attendance.Status == AttendanceStatus.Late)
+                    {
+                        TimeSpan clockInTime = attendance.ClockInTime.TimeOfDay;
+                        TimeSpan minutesLate = clockInTime - workStartTime;
+                        lateStatus = $"\nLate by: {minutesLate.TotalMinutes:0} minutes";
+                    }
+
                     MessageBox.Show(
                         $"Attendance Details\n\n" +
                         $"Employee: {employeeName} ({attendance.EmployeeId})\n" +
                         $"Date: {attendance.Date.ToShortDateString()}\n" +
                         $"Clock In: {(attendance.ClockInTime != DateTime.MinValue ? attendance.ClockInTime.ToString("HH:mm") : "Not recorded")}\n" +
                         $"Clock Out: {(attendance.ClockOutTime != DateTime.MinValue ? attendance.ClockOutTime.ToString("HH:mm") : "Not recorded")}\n" +
-                        $"Status: {GetAttendanceStatusString(attendance.Status)}",
+                        $"Status: {GetAttendanceStatusString(attendance.Status)}{lateStatus}",
                         "Attendance Details",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information
@@ -521,12 +850,12 @@ namespace HRManagementSystem
                 if (request == null) return;
 
                 // Get employee name directly from leave request
-                string employeeName = request.LeaveDetails.EmployeeName ?? "Unknown";
+                string employeeName = request.EmployeeName ?? "Unknown";
 
                 // Show context menu with approve/reject options
                 ContextMenuStrip actionMenu = new ContextMenuStrip();
 
-                if (request.LeaveDetails.Status == LeaveStatus.Pending)
+                if (request.Status == LeaveStatus.Pending)
                 {
                     actionMenu.Items.Add("Approve", null, (s, args) =>
                     {
@@ -624,10 +953,10 @@ namespace HRManagementSystem
                         $"Leave Request Details\n\n" +
                         $"Employee: {employeeName} ({request.EmployeeId})\n" +
                         $"Request Date: {request.RequestDate.ToShortDateString()}\n" +
-                        $"Leave Type: {request.LeaveDetails.Type}\n" +
-                        $"Period: {request.LeaveDetails.StartDate.ToShortDateString()} to {request.LeaveDetails.EndDate.ToShortDateString()}\n" +
-                        $"Status: {request.LeaveDetails.Status}\n" +
-                        $"Remarks: {request.LeaveDetails.Remarks}",
+                        $"Leave Type: {request.Type}\n" +
+                        $"Period: {request.StartDate.ToShortDateString()} to {request.EndDate.ToShortDateString()}\n" +
+                        $"Status: {request.Status}\n" +
+                        $"Remarks: {request.Remarks}",
                         "Leave Request Details",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information

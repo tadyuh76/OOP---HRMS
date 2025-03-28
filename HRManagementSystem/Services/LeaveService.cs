@@ -4,7 +4,6 @@ namespace HRManagementSystem.Services
     {
         private readonly FileManager _fileManager;
         private List<LeaveRequest> leaveRequests;
-        private List<Leave> leaves;
 
         // Singleton instance for cases where FileManager isn't available
         private static LeaveService _instance;
@@ -21,17 +20,7 @@ namespace HRManagementSystem.Services
 
                 if (File.Exists(FileManager.leaveDataPath))
                 {
-                    leaves = storage.LoadData<List<Leave>>(FileManager.leaveDataPath) ?? new List<Leave>();
-                }
-                else
-                {
-                    leaves = new List<Leave>();
-                }
-
-                string requestsPath = Path.Combine(FileManager.dataDirectory, "LeaveRequests.json");
-                if (File.Exists(requestsPath))
-                {
-                    leaveRequests = storage.LoadData<List<LeaveRequest>>(requestsPath) ?? new List<LeaveRequest>();
+                    leaveRequests = storage.LoadData<List<LeaveRequest>>(FileManager.leaveDataPath) ?? new List<LeaveRequest>();
                 }
                 else
                 {
@@ -40,8 +29,7 @@ namespace HRManagementSystem.Services
             }
             catch
             {
-                // If anything goes wrong, initialize with empty lists
-                leaves = new List<Leave>();
+                // If anything goes wrong, initialize with an empty list
                 leaveRequests = new List<LeaveRequest>();
             }
         }
@@ -49,7 +37,6 @@ namespace HRManagementSystem.Services
         public LeaveService(FileManager fileManager)
         {
             _fileManager = fileManager;
-            leaves = _fileManager?.LoadLeaves() ?? new List<Leave>();
             leaveRequests = _fileManager?.LoadLeaveRequests() ?? new List<LeaveRequest>();
         }
 
@@ -70,12 +57,14 @@ namespace HRManagementSystem.Services
             LeaveType leaveType,
             string remarks)
         {
-            // Validate employee
+            // Validate employee by EmployeeId field instead of Id field
             var employeeService = EmployeeService.GetInstance();
-            var employee = employeeService.GetById(employeeId);
+            var employees = employeeService.GetAll();
+            var employee = employees.FirstOrDefault(e => e.EmployeeId == employeeId);
+
             if (employee == null)
             {
-                throw new EntityNotFoundException("Employee not found.");
+                throw new EntityNotFoundException($"Employee with ID {employeeId} not found.");
             }
 
             // Validate date range
@@ -84,41 +73,54 @@ namespace HRManagementSystem.Services
                 throw new ValidationException("Start date must be before or equal to end date.");
             }
 
-            // Create Leave
-            Leave leave = new Leave
+            // Create Leave Request with a consistent ID format
+            string requestId = GenerateLeaveRequestId();
+
+            LeaveRequest leaveRequest = new LeaveRequest
             {
-                LeaveId = $"LV{Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper()}",
+                RequestId = requestId,
                 EmployeeId = employeeId,
-                EmployeeName = employee.Name, // Store employee name
+                EmployeeName = employee.Name,
+                RequestDate = DateTime.Now,
                 StartDate = startDate,
                 EndDate = endDate,
                 Type = leaveType,
                 Status = LeaveStatus.Pending,
                 Remarks = remarks,
-                Employee = employee
-            };
-
-            // Create Leave Request
-            LeaveRequest leaveRequest = new LeaveRequest
-            {
-                RequestId = $"LR{Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper()}",
-                EmployeeId = employeeId,
-                RequestDate = DateTime.Now,
-                LeaveDetails = leave,
-                ApproverId = null // Will be set by admin
+                Employee = employee,
+                ApproverId = null
             };
 
             leaveRequests.Add(leaveRequest);
-            leaves.Add(leave);
             SaveChanges();
 
             return leaveRequest;
         }
 
+        // Helper method to generate consistent leave request IDs
+        private string GenerateLeaveRequestId()
+        {
+            // Find the highest existing ID number
+            int maxId = 0;
+            foreach (var request in leaveRequests)
+            {
+                if (request.RequestId != null && request.RequestId.StartsWith("LVE") && request.RequestId.Length > 3)
+                {
+                    if (int.TryParse(request.RequestId.Substring(3), out int idNum))
+                    {
+                        maxId = Math.Max(maxId, idNum);
+                    }
+                }
+            }
+
+            // Create a new ID with the next sequential number, formatted as 3 digits
+            return $"LVE{(maxId + 1):D3}";
+        }
+
         public List<LeaveRequest> GetPendingLeaveRequests()
         {
             return leaveRequests
-                .Where(lr => lr.LeaveDetails.Status == LeaveStatus.Pending)
+                .Where(lr => lr.Status == LeaveStatus.Pending)
                 .ToList();
         }
 
@@ -132,8 +134,7 @@ namespace HRManagementSystem.Services
                 throw new EntityNotFoundException("Leave request not found.");
             }
 
-            leaveRequest.ApproverId = approverId;
-            leaveRequest.LeaveDetails.Status = LeaveStatus.Approved;
+            leaveRequest.Approve(approverId);
             SaveChanges();
 
             return leaveRequest;
@@ -149,24 +150,22 @@ namespace HRManagementSystem.Services
                 throw new EntityNotFoundException("Leave request not found.");
             }
 
-            leaveRequest.ApproverId = approverId;
-            leaveRequest.LeaveDetails.Status = LeaveStatus.Rejected;
-            leaveRequest.LeaveDetails.Remarks += $" Rejection Reason: {rejectionReason}";
+            leaveRequest.Reject(approverId, rejectionReason);
             SaveChanges();
 
             return leaveRequest;
         }
 
-        public List<Leave> GetEmployeeLeaves(string employeeId)
+        public List<LeaveRequest> GetEmployeeLeaves(string employeeId)
         {
-            return leaves
+            return leaveRequests
                 .Where(l => l.EmployeeId == employeeId)
                 .ToList();
         }
 
         public Dictionary<LeaveType, int> GetLeaveTypesSummary(string employeeId)
         {
-            return leaves
+            return leaveRequests
                 .Where(l => l.EmployeeId == employeeId && l.Status == LeaveStatus.Approved)
                 .GroupBy(l => l.Type)
                 .ToDictionary(
@@ -175,18 +174,67 @@ namespace HRManagementSystem.Services
                 );
         }
 
+        public List<LeaveRequest> GetAllLeaves()
+        {
+            return leaveRequests.ToList();
+        }
+
+        public List<LeaveRequest> GetMonthlyLeaves(int year, int month)
+        {
+            // Returns all leaves that overlap with the specified month
+            return leaveRequests
+                .Where(l =>
+                    (l.StartDate.Year == year && l.StartDate.Month == month) ||  // Leave starts in target month
+                    (l.EndDate.Year == year && l.EndDate.Month == month) ||      // Leave ends in target month
+                    (l.StartDate < new DateTime(year, month, 1) &&
+                     l.EndDate >= new DateTime(year, month, 1))                  // Leave spans over target month
+                )
+                .ToList();
+        }
+
+        public List<LeaveRequest> GetDailyLeaves(DateTime date)
+        {
+            // Returns all leaves that include the specified date
+            return leaveRequests
+                .Where(l =>
+                    date.Date >= l.StartDate.Date &&
+                    date.Date <= l.EndDate.Date
+                )
+                .ToList();
+        }
+
+        public List<LeaveRequest> GetEmployeeMonthlyLeaves(string employeeId, int year, int month)
+        {
+            // Returns all leaves for an employee that overlap with the specified month
+            return leaveRequests
+                .Where(l => l.EmployeeId == employeeId &&
+                    ((l.StartDate.Year == year && l.StartDate.Month == month) ||  // Leave starts in target month
+                     (l.EndDate.Year == year && l.EndDate.Month == month) ||      // Leave ends in target month
+                     (l.StartDate < new DateTime(year, month, 1) &&
+                      l.EndDate >= new DateTime(year, month, 1)))                 // Leave spans over target month
+                )
+                .ToList();
+        }
+
+        public List<LeaveRequest> GetEmployeeDailyLeaves(string employeeId, DateTime date)
+        {
+            // Returns all leaves for an employee that include the specified date
+            return leaveRequests
+                .Where(l => l.EmployeeId == employeeId &&
+                    date.Date >= l.StartDate.Date &&
+                    date.Date <= l.EndDate.Date
+                )
+                .ToList();
+        }
+
         private bool SaveChanges()
         {
             bool success = true;
 
-            // If FileManager is available, use it for both leaves and requests
+            // If FileManager is available, use it for saving
             if (_fileManager != null)
             {
-                success = _fileManager.SaveLeaves(leaves);
-                if (success)
-                {
-                    success = _fileManager.SaveLeaveRequests(leaveRequests);
-                }
+                success = _fileManager.SaveLeaveRequests(leaveRequests);
                 return success;
             }
 
@@ -194,12 +242,7 @@ namespace HRManagementSystem.Services
             try
             {
                 JsonFileStorage storage = new JsonFileStorage();
-                success = storage.SaveData(FileManager.leaveDataPath, leaves);
-                
-                if (success)
-                {
-                    success = storage.SaveData(FileManager.leaveRequestsDataPath, leaveRequests);
-                }
+                success = storage.SaveData(FileManager.leaveDataPath, leaveRequests);
             }
             catch
             {

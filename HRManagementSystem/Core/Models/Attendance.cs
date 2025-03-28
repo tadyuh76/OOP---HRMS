@@ -12,13 +12,18 @@ namespace HRManagementSystem
         public DateTime ClockInTime { get; set; }
         public DateTime ClockOutTime { get; set; }
         public AttendanceStatus Status { get; set; }
-        
+
         [JsonIgnore]
         public Employee Employee { get; set; }
-        
+
+        // New property to explicitly mark virtual absence records
+        [JsonIgnore] // Don't persist this to JSON
+        public bool IsAbsentRecord { get; set; }
+
         public Attendance()
         {
             AttendanceId = Guid.NewGuid().ToString("N");
+            IsAbsentRecord = false; // Default value
         }
     }
 }

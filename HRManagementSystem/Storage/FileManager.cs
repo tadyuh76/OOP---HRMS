@@ -15,7 +15,7 @@ namespace HRManagementSystem
         public FileManager(IFileStorage storage)
         {
             _fileStorage = storage ?? throw new ArgumentNullException(nameof(storage));
-            // Đảm bảo thư mục Data tồn tại
+            // Ensure Data directory exists
             if (!Directory.Exists(dataDirectory))
             {
                 Directory.CreateDirectory(dataDirectory);
@@ -64,20 +64,6 @@ namespace HRManagementSystem
             return _fileStorage.SaveData(attendanceDataPath, attendances);
         }
 
-        public List<Leave> LoadLeaves()
-        {
-            return _fileStorage.LoadData<List<Leave>>(leaveDataPath) ?? new List<Leave>();
-        }
-
-        public bool SaveLeaves(List<Leave> leaves)
-        {
-            if (leaves == null)
-            {
-                throw new ArgumentNullException(nameof(leaves));
-            }
-            return _fileStorage.SaveData(leaveDataPath, leaves);
-        }
-
         public List<Payroll> LoadPayrolls()
         {
             return _fileStorage.LoadData<List<Payroll>>(payrollDataPath) ?? new List<Payroll>();
@@ -94,7 +80,16 @@ namespace HRManagementSystem
 
         public List<LeaveRequest> LoadLeaveRequests()
         {
-            return _fileStorage.LoadData<List<LeaveRequest>>(leaveRequestsDataPath) ?? new List<LeaveRequest>();
+            // Try to load from the regular leave path first
+            var result = _fileStorage.LoadData<List<LeaveRequest>>(leaveDataPath);
+            
+            // If legacy path doesn't have data, try the leaveRequests path
+            if (result == null || !result.Any())
+            {
+                result = _fileStorage.LoadData<List<LeaveRequest>>(leaveRequestsDataPath);
+            }
+            
+            return result ?? new List<LeaveRequest>();
         }
 
         public bool SaveLeaveRequests(List<LeaveRequest> leaveRequests)
@@ -103,7 +98,11 @@ namespace HRManagementSystem
             {
                 throw new ArgumentNullException(nameof(leaveRequests));
             }
-            return _fileStorage.SaveData(leaveRequestsDataPath, leaveRequests);
+            
+            // Save to both paths for backward compatibility
+            bool success = _fileStorage.SaveData(leaveDataPath, leaveRequests);
+            
+            return success;
         }
 
         public List<Payroll> LoadPayrollsByEmployeeId(string employeeId)
@@ -117,5 +116,4 @@ namespace HRManagementSystem
             return allPayrolls.FindAll(p => p.EmployeeId == employeeId);
         }
     }
-
 }

@@ -46,31 +46,31 @@ namespace HRManagementSystem
             set { budgetResponsibility = value; }
         }
 
-        public void ApproveLeaveRequest(LeaveRequest request)
-        {
-            if (request == null)
-            {
-                throw new ArgumentNullException(nameof(request));
-            }
+        // public void ApproveLeaveRequest(LeaveRequest request)
+        // {
+        //     if (request == null)
+        //     {
+        //         throw new ArgumentNullException(nameof(request));
+        //     }
 
-            if (request.LeaveDetails != null)
-            {
-                request.LeaveDetails.Status = LeaveStatus.Approved;
-            }
-        }
+        //     if (request.LeaveDetails != null)
+        //     {
+        //         request.LeaveDetails.Status = LeaveStatus.Approved;
+        //     }
+        // }
 
-        public void RejectLeaveRequest(LeaveRequest request)
-        {
-            if (request == null)
-            {
-                throw new ArgumentNullException(nameof(request));
-            }
+        // public void RejectLeaveRequest(LeaveRequest request)
+        // {
+        //     if (request == null)
+        //     {
+        //         throw new ArgumentNullException(nameof(request));
+        //     }
 
-            if (request.LeaveDetails != null)
-            {
-                request.LeaveDetails.Status = LeaveStatus.Rejected;
-            }
-        }
+        //     if (request.LeaveDetails != null)
+        //     {
+        //         request.LeaveDetails.Status = LeaveStatus.Rejected;
+        //     }
+        // }
     }
 
 }
