@@ -1,7 +1,8 @@
 [
     {
         "leaveId": "LV001",
-        "employeeId": "P001",
+        "employeeId": "EMP001",
+        "employeeName": "Dat Huy",
         "startDate": "2025-03-20T00:00:00",
         "endDate": "2025-03-22T00:00:00",
         "type": 0,
@@ -10,7 +11,8 @@
     },
     {
         "leaveId": "LV002",
-        "employeeId": "P002",
+        "employeeId": "EMP002",
+        "employeeName": "Emily Johnson",
         "startDate": "2025-03-18T00:00:00",
         "endDate": "2025-03-18T00:00:00",
         "type": 1,
@@ -19,7 +21,8 @@
     },
     {
         "leaveId": "LV003",
-        "employeeId": "P003",
+        "employeeId": "EMP003",
+        "employeeName": "Michael Brown",
         "startDate": "2025-04-01T00:00:00",
         "endDate": "2025-04-05T00:00:00",
         "type": 0,
@@ -28,7 +31,8 @@
     },
     {
         "leaveId": "LV004",
-        "employeeId": "P003",
+        "employeeId": "EMP003",
+        "employeeName": "Michael Brown",
         "startDate": "2025-03-17T00:00:00",
         "endDate": "2025-03-17T00:00:00",
         "type": 2,
@@ -37,7 +41,8 @@
     },
     {
         "leaveId": "LV005",
-        "employeeId": "P004",
+        "employeeId": "EMP004",
+        "employeeName": "Sarah Davis",
         "startDate": "2025-03-16T00:00:00",
         "endDate": "2025-03-19T00:00:00",
         "type": 3,
@@ -46,7 +51,8 @@
     },
     {
         "leaveId": "LV006",
-        "employeeId": "P005",
+        "employeeId": "EMP005",
+        "employeeName": "James Wilson",
         "startDate": "2025-03-25T00:00:00",
         "endDate": "2025-03-25T00:00:00",
         "type": 1,
@@ -55,7 +61,8 @@
     },
     {
         "leaveId": "LV007",
-        "employeeId": "P002",
+        "employeeId": "EMP002",
+        "employeeName": "Emily Johnson",
         "startDate": "2025-04-10T00:00:00",
         "endDate": "2025-04-17T00:00:00",
         "type": 0,
@@ -64,7 +71,8 @@
     },
     {
         "leaveId": "LV008",
-        "employeeId": "P001",
+        "employeeId": "EMP001",
+        "employeeName": "Dat Huy",
         "startDate": "2025-03-30T00:00:00",
         "endDate": "2025-03-31T00:00:00",
         "type": 4,
@@ -73,7 +81,8 @@
     },
     {
         "leaveId": "LV009",
-        "employeeId": "P005",
+        "employeeId": "EMP005",
+        "employeeName": "James Wilson",
         "startDate": "2025-04-20T00:00:00",
         "endDate": "2025-04-22T00:00:00",
         "type": 0,
@@ -82,11 +91,112 @@
     },
     {
         "leaveId": "LV010",
-        "employeeId": "P004",
+        "employeeId": "EMP004",
+        "employeeName": "Sarah Davis",
         "startDate": "2025-05-01T00:00:00",
         "endDate": "2025-05-03T00:00:00",
         "type": 5,
         "status": 2,
         "remarks": "Compensatory leave for overtime"
+    },
+    {
+        "leaveId": "LV011",
+        "employeeId": "EMP006",
+        "employeeName": "Jessica Lee",
+        "startDate": "2025-03-25T00:00:00",
+        "endDate": "2025-03-27T00:00:00",
+        "type": 0,
+        "status": 1,
+        "remarks": "Personal vacation"
+    },
+    {
+        "leaveId": "LV012",
+        "employeeId": "EMP007",
+        "employeeName": "David Martinez",
+        "startDate": "2025-03-20T00:00:00",
+        "endDate": "2025-03-20T00:00:00",
+        "type": 3,
+        "status": 1,
+        "remarks": "Work from home"
+    },
+    {
+        "leaveId": "LV013",
+        "employeeId": "EMP008",
+        "employeeName": "Jennifer Garcia",
+        "startDate": "2025-04-02T00:00:00",
+        "endDate": "2025-04-03T00:00:00",
+        "type": 1,
+        "status": 0,
+        "remarks": "Medical procedure"
+    },
+    {
+        "leaveId": "LV014",
+        "employeeId": "EMP009",
+        "employeeName": "Robert Taylor",
+        "startDate": "2025-04-10T00:00:00",
+        "endDate": "2025-04-12T00:00:00",
+        "type": 0,
+        "status": 0,
+        "remarks": "Family event"
+    },
+    {
+        "leaveId": "LV015",
+        "employeeId": "EMP010",
+        "employeeName": "Lisa Anderson",
+        "startDate": "2025-03-29T00:00:00",
+        "endDate": "2025-03-29T00:00:00",
+        "type": 1,
+        "status": 1,
+        "remarks": "Doctor appointment"
+    },
+    {
+        "leaveId": "LV016",
+        "employeeId": "EMP011",
+        "employeeName": "Thomas Clark",
+        "startDate": "2025-04-15T00:00:00",
+        "endDate": "2025-04-22T00:00:00",
+        "type": 0,
+        "status": 0,
+        "remarks": "Annual family vacation"
+    },
+    {
+        "leaveId": "LV017",
+        "employeeId": "EMP012",
+        "employeeName": "Olivia Rodriguez",
+        "startDate": "2025-03-19T00:00:00",
+        "endDate": "2025-03-19T00:00:00",
+        "type": 2,
+        "status": 1,
+        "remarks": "Half-day personal appointment"
+    },
+    {
+        "leaveId": "LV018",
+        "employeeId": "EMP013",
+        "employeeName": "William Harris",
+        "startDate": "2025-04-05T00:00:00",
+        "endDate": "2025-04-07T00:00:00",
+        "type": 4,
+        "status": 2,
+        "remarks": "Professional development conference"
+    },
+    {
+        "leaveId": "LV019",
+        "employeeId": "EMP014",
+        "employeeName": "Sophia Lewis",
+        "startDate": "2025-05-10T00:00:00",
+        "endDate": "2025-05-15T00:00:00",
+        "type": 0,
+        "status": 0,
+        "remarks": "Wedding and honeymoon"
+    },
+    {
+        "leaveId": "LV020",
+        "employeeId": "EMP016",
+        "employeeName": "Tad Yuh",
+        "startDate": "2025-04-01T00:00:00",
+        "endDate": "2025-04-02T00:00:00",
+        "type": 5,
+        "status": 1,
+        "remarks": "Personal leave"
     }
 ]

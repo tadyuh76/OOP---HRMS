@@ -7,9 +7,11 @@ namespace HRManagementSystem
         public static string dataDirectory = Path.Combine(projectDirectory, "Data");
         public static string employeeDataPath = Path.Combine(dataDirectory, "Employees.json");
         public static string departmentDataPath = Path.Combine(dataDirectory, "Departments.json");
-        public static string attendanceDataPath = Path.Combine(dataDirectory, "Attendances.json");
-        public static string leaveDataPath = Path.Combine(dataDirectory, "Leaves.json");
+        public static string attendanceDataPath = Path.Combine(dataDirectory, "Attendance.json");
+        public static string leaveDataPath = Path.Combine(dataDirectory, "Leave.json");
         public static string payrollDataPath = Path.Combine(dataDirectory, "Payroll.json");
+        public static string leaveRequestsDataPath = Path.Combine(dataDirectory, "LeaveRequests.json");
+
         public FileManager(IFileStorage storage)
         {
             _fileStorage = storage ?? throw new ArgumentNullException(nameof(storage));
@@ -88,6 +90,20 @@ namespace HRManagementSystem
                 throw new ArgumentNullException(nameof(payrolls));
             }
             return _fileStorage.SaveData(payrollDataPath, payrolls);
+        }
+
+        public List<LeaveRequest> LoadLeaveRequests()
+        {
+            return _fileStorage.LoadData<List<LeaveRequest>>(leaveRequestsDataPath) ?? new List<LeaveRequest>();
+        }
+
+        public bool SaveLeaveRequests(List<LeaveRequest> leaveRequests)
+        {
+            if (leaveRequests == null)
+            {
+                throw new ArgumentNullException(nameof(leaveRequests));
+            }
+            return _fileStorage.SaveData(leaveRequestsDataPath, leaveRequests);
         }
 
         public List<Payroll> LoadPayrollsByEmployeeId(string employeeId)
