@@ -145,7 +145,7 @@ namespace HRManagementSystem
                 Size = new Size(80, 35),
                 BackColor = Color.FromArgb(240, 240, 240)
             };
-            btnSearch.Click += (sender, e) => SearchButtonClicked?.Invoke(sender, e);
+            btnSearch.Click += new EventHandler(SearchButton_Click);
             searchPanel.Controls.Add(btnSearch);
 
             // Refresh button
@@ -156,7 +156,7 @@ namespace HRManagementSystem
                 Size = new Size(80, 35),
                 BackColor = Color.FromArgb(240, 240, 240)
             };
-            btnRefresh.Click += (sender, e) => RefreshButtonClicked?.Invoke(sender, e);
+            btnRefresh.Click += new EventHandler(RefreshButton_Click);
             searchPanel.Controls.Add(btnRefresh);
 
             // DataGridView for departments
@@ -251,7 +251,7 @@ namespace HRManagementSystem
             };
             dgvDepartments.Columns.Add(viewDetailsColumn);
 
-            dgvDepartments.CellClick += (sender, e) => DepartmentCellClicked?.Invoke(sender, e);
+            dgvDepartments.CellClick += new DataGridViewCellEventHandler(DgvDepartments_CellClick);
         }
 
         private void LoadData()
@@ -304,7 +304,7 @@ namespace HRManagementSystem
             dgvDepartments.Rows.Clear();
 
             // Add each department to the grid in the order we want
-            foreach (var dept in departments)
+            foreach (Department dept in departments)
             {
                 // Calculate employee count for this department
                 int employeeCount = _employees.Count(e => e.DepartmentId == dept.DepartmentId);
@@ -372,6 +372,22 @@ namespace HRManagementSystem
                     detailsDialog.ShowDialog(this);
                 }
             }
+        }
+
+        // New regular event handlers to replace lambdas
+        private void SearchButton_Click(object? sender, EventArgs e)
+        {
+            SearchButtonClicked?.Invoke(sender, e);
+        }
+
+        private void RefreshButton_Click(object? sender, EventArgs e)
+        {
+            RefreshButtonClicked?.Invoke(sender, e);
+        }
+
+        private void DgvDepartments_CellClick(object? sender, DataGridViewCellEventArgs e)
+        {
+            DepartmentCellClicked?.Invoke(sender, e);
         }
     }
 }

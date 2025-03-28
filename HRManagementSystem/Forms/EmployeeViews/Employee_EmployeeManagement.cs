@@ -2,21 +2,42 @@ using System.Drawing.Drawing2D;
 
 namespace HRManagementSystem
 {
+    // Custom delegate definitions for event handlers
+    public delegate void EmployeeSelectionEventHandler(object? sender, EventArgs e);
+    public delegate void ButtonClickEventHandler(object? sender, EventArgs e);
+    public delegate void PanelPaintEventHandler(object? sender, PaintEventArgs e);
+
     public class Employee_ProfileView : Form
     {
         // UI Controls
-        private Label lblName, lblEmail, lblPhone, lblAddress, lblDOB, lblAge;
-        private Label lblEmployeeID, lblPosition, lblDepartment, lblHireDate, lblYearsOfService, lblSalary;
-        private TextBox txtPhone, txtEmail, txtAddress;
-        private Button btnSave, btnCancel;
-        private Panel personalInfoPanel, employmentInfoPanel, headerPanel;
-        private PictureBox profilePicture;
-        private Label lblUserName, lblUserTitle;
-        private Panel mainContentPanel;
-        private TableLayoutPanel buttonsPanel;
-        private ComboBox cmbEmployeeSelector;
-        private Label lblEmployeeSelector;
-        private Panel selectorPanel;
+        private Label lblName = null!;
+        private Label lblEmail = null!;
+        private Label lblPhone = null!;
+        private Label lblAddress = null!;
+        private Label lblDOB = null!;
+        private Label lblAge = null!;
+        private Label lblEmployeeID = null!;
+        private Label lblPosition = null!;
+        private Label lblDepartment = null!;
+        private Label lblHireDate = null!;
+        private Label lblYearsOfService = null!;
+        private Label lblSalary = null!;
+        private TextBox txtPhone = null!;
+        private TextBox txtEmail = null!;
+        private TextBox txtAddress = null!;
+        private Button btnSave = null!;
+        private Button btnCancel = null!;
+        private Panel personalInfoPanel = null!;
+        private Panel employmentInfoPanel = null!;
+        private Panel headerPanel = null!;
+        private PictureBox profilePicture = null!;
+        private Label lblUserName = null!;
+        private Label lblUserTitle = null!;
+        private Panel mainContentPanel = null!;
+        private TableLayoutPanel buttonsPanel = null!;
+        private ComboBox cmbEmployeeSelector = null!;
+        private Label lblEmployeeSelector = null!;
+        private Panel selectorPanel = null!;
 
         // Color scheme
         private readonly Color primaryColor = Color.FromArgb(60, 141, 188);  // Blue
@@ -28,15 +49,27 @@ namespace HRManagementSystem
         private readonly Color editFieldBackColor = Color.FromArgb(248, 249, 250);
 
         // Data fields
-        private Employee currentEmployee;
-        private EmployeeService employeeService;
-        private List<Employee> allEmployees;
+        private Employee currentEmployee = null!;
+        private readonly EmployeeService employeeService;
+        private readonly List<Employee> allEmployees;
+
+        // Event handler delegates
+        private readonly EmployeeSelectionEventHandler employeeSelectionChangedHandler;
+        private readonly ButtonClickEventHandler saveButtonClickHandler;
+        private readonly ButtonClickEventHandler cancelButtonClickHandler;
+        private readonly PanelPaintEventHandler panelPaintHandler;
 
         // Assuming the logged-in employee ID is passed to the constructor
         public Employee_ProfileView(string employeeId = "EMP001") // Default for testing
         {
             employeeService = EmployeeService.GetInstance();
             allEmployees = employeeService.GetAll();
+
+            // Initialize event handler delegates
+            employeeSelectionChangedHandler = new EmployeeSelectionEventHandler(CmbEmployeeSelector_SelectedIndexChanged);
+            saveButtonClickHandler = new ButtonClickEventHandler(BtnSave_Click);
+            cancelButtonClickHandler = new ButtonClickEventHandler(BtnCancel_Click);
+            panelPaintHandler = new PanelPaintEventHandler(Panel_Paint);
 
             InitializeComponent();
             PopulateEmployeeSelector();
@@ -133,7 +166,8 @@ namespace HRManagementSystem
                 Location = new Point(130, 12),
                 Anchor = AnchorStyles.Left
             };
-            cmbEmployeeSelector.SelectedIndexChanged += CmbEmployeeSelector_SelectedIndexChanged;
+            // Using the explicit delegate for the event
+            cmbEmployeeSelector.SelectedIndexChanged += new EventHandler(employeeSelectionChangedHandler);
 
             selectorPanel.Controls.Add(lblEmployeeSelector);
             selectorPanel.Controls.Add(cmbEmployeeSelector);
@@ -304,10 +338,12 @@ namespace HRManagementSystem
 
             // Create buttons
             btnSave = CreateStyledButton("Save Changes", accentColor, Color.White);
-            btnSave.Click += BtnSave_Click;
+            // Using explicit delegate for button click
+            btnSave.Click += new EventHandler(saveButtonClickHandler);
 
             btnCancel = CreateStyledButton("Cancel", Color.FromArgb(220, 220, 220), darkTextColor);
-            btnCancel.Click += BtnCancel_Click;
+            // Using explicit delegate for button click
+            btnCancel.Click += new EventHandler(cancelButtonClickHandler);
 
             // Add buttons to panel
             buttonsPanel.ColumnCount = 3;
@@ -344,15 +380,14 @@ namespace HRManagementSystem
             cmbEmployeeSelector.Items.Clear();
             foreach (Employee employee in allEmployees)
             {
-                cmbEmployeeSelector.Items.Add(new EmployeeSelectionItem
-                {
-                    DisplayName = $"{employee.EmployeeId} - {employee.Name}",
-                    EmployeeId = employee.EmployeeId
-                });
+                cmbEmployeeSelector.Items.Add(new EmployeeSelectionItem(
+                    employee.EmployeeId,
+                    $"{employee.EmployeeId} - {employee.Name}"
+                ));
             }
         }
 
-        private void CmbEmployeeSelector_SelectedIndexChanged(object sender, EventArgs e)
+        private void CmbEmployeeSelector_SelectedIndexChanged(object? sender, EventArgs e)
         {
             if (cmbEmployeeSelector.SelectedItem != null)
             {
@@ -370,16 +405,23 @@ namespace HRManagementSystem
             };
 
             // Add shadow effect (simulated with border)
-            panel.Paint += (sender, e) =>
-            {
-                Rectangle rect = new(0, 0, panel.Width - 1, panel.Height - 1);
-                using (Pen pen = new(Color.FromArgb(230, 230, 230), 1))
-                {
-                    e.Graphics.DrawRectangle(pen, rect);
-                }
-            };
+            // Using explicit delegate for the Paint event
+            panel.Paint += new PaintEventHandler(panelPaintHandler);
 
             return panel;
+        }
+
+        // Panel paint event handler
+        private void Panel_Paint(object? sender, PaintEventArgs e)
+        {
+            if (sender == null) return;
+
+            Panel panel = (Panel)sender;
+            Rectangle rect = new(0, 0, panel.Width - 1, panel.Height - 1);
+            using (Pen pen = new(Color.FromArgb(230, 230, 230), 1))
+            {
+                e.Graphics.DrawRectangle(pen, rect);
+            }
         }
 
         private Label CreateStyledLabel(string text)
@@ -444,57 +486,103 @@ namespace HRManagementSystem
             try
             {
                 // Find the employee using EmployeeService instead of reading directly from file
-                currentEmployee = allEmployees.FirstOrDefault(e => e.EmployeeId == employeeId);
+                currentEmployee = allEmployees.FirstOrDefault(e => e.EmployeeId == employeeId) ??
+                    throw new Exception("Employee not found in the database");
 
-                if (currentEmployee != null)
+                // Select the correct item in the dropdown if it exists
+                for (int i = 0; i < cmbEmployeeSelector.Items.Count; i++)
                 {
-                    // Select the correct item in the dropdown if it exists
-                    for (int i = 0; i < cmbEmployeeSelector.Items.Count; i++)
+                    EmployeeSelectionItem item = (EmployeeSelectionItem)cmbEmployeeSelector.Items[i]!;
+                    if (item.EmployeeId == employeeId)
                     {
-                        EmployeeSelectionItem? item = (EmployeeSelectionItem)cmbEmployeeSelector.Items[i];
-                        if (item.EmployeeId == employeeId)
-                        {
-                            cmbEmployeeSelector.SelectedIndex = i;
-                            break;
-                        }
+                        cmbEmployeeSelector.SelectedIndex = i;
+                        break;
                     }
+                }
 
-                    // Header information
-                    lblUserName.Text = currentEmployee.Name;
-                    lblUserTitle.Text = currentEmployee.Position;
+                // Header information
+                lblUserName.Text = currentEmployee.Name;
+                lblUserTitle.Text = currentEmployee.Position;
 
-                    // Try to load a profile picture based on employee ID
-                    string picturePath = $@"c:\Users\tadyuh\Coding Projects\hrms\HRManagementSystem\Resources\ProfilePictures\{currentEmployee.EmployeeId}.png";
-                    if (File.Exists(picturePath))
+                // Try to load a profile picture based on employee ID
+                string picturePath = $@"c:\Users\tadyuh\Coding Projects\hrms\HRManagementSystem\Resources\ProfilePictures\{currentEmployee.EmployeeId}.png";
+                if (File.Exists(picturePath))
+                {
+                    if (profilePicture.Image != null)
                     {
-                        profilePicture.Image = Image.FromFile(picturePath);
+                        profilePicture.Image.Dispose();
                     }
-                    else
-                    {
-                        // Create an initial-based avatar
-                        Bitmap avatarBitmap = CreateInitialsAvatar(currentEmployee.Name);
-                        profilePicture.Image = avatarBitmap;
-                    }
-
-                    // Populate personal information
-                    ((Label)personalInfoPanel.Controls.Find("lblNameValue", true)[0]).Text = currentEmployee.Name;
-                    txtEmail.Text = currentEmployee.Email;
-                    txtPhone.Text = currentEmployee.Phone;
-                    txtAddress.Text = currentEmployee.Address;
-                    ((Label)personalInfoPanel.Controls.Find("lblDOBValue", true)[0]).Text = currentEmployee.DateOfBirth.ToShortDateString();
-                    ((Label)personalInfoPanel.Controls.Find("lblAgeValue", true)[0]).Text = currentEmployee.CalculateAge() + " years";
-
-                    // Populate employment information
-                    ((Label)employmentInfoPanel.Controls.Find("lblEmployeeIDValue", true)[0]).Text = currentEmployee.EmployeeId;
-                    ((Label)employmentInfoPanel.Controls.Find("lblPositionValue", true)[0]).Text = currentEmployee.Position;
-                    ((Label)employmentInfoPanel.Controls.Find("lblDepartmentValue", true)[0]).Text = currentEmployee.DepartmentId;
-                    ((Label)employmentInfoPanel.Controls.Find("lblHireDateValue", true)[0]).Text = currentEmployee.HireDate.ToShortDateString();
-                    ((Label)employmentInfoPanel.Controls.Find("lblYearsOfServiceValue", true)[0]).Text = currentEmployee.CalculateYearsOfService() + " years";
-                    ((Label)employmentInfoPanel.Controls.Find("lblSalaryValue", true)[0]).Text = "$" + currentEmployee.BaseSalary.ToString("N2");
+                    profilePicture.Image = Image.FromFile(picturePath);
                 }
                 else
                 {
-                    MessageBox.Show("Employee not found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    // Create an initial-based avatar
+                    if (profilePicture.Image != null)
+                    {
+                        profilePicture.Image.Dispose();
+                    }
+                    Bitmap avatarBitmap = CreateInitialsAvatar(currentEmployee.Name);
+                    profilePicture.Image = avatarBitmap;
+                }
+
+                // Populate personal information
+                Label? nameValueLabel = personalInfoPanel.Controls.Find("lblNameValue", true).FirstOrDefault() as Label;
+                if (nameValueLabel != null)
+                {
+                    nameValueLabel.Text = currentEmployee.Name;
+                }
+
+                txtEmail.Text = currentEmployee.Email;
+                txtPhone.Text = currentEmployee.Phone;
+                txtAddress.Text = currentEmployee.Address;
+
+                Label? dobValueLabel = personalInfoPanel.Controls.Find("lblDOBValue", true).FirstOrDefault() as Label;
+                if (dobValueLabel != null)
+                {
+                    dobValueLabel.Text = currentEmployee.DateOfBirth.ToShortDateString();
+                }
+
+                Label? ageValueLabel = personalInfoPanel.Controls.Find("lblAgeValue", true).FirstOrDefault() as Label;
+                if (ageValueLabel != null)
+                {
+                    ageValueLabel.Text = currentEmployee.CalculateAge() + " years";
+                }
+
+                // Populate employment information
+                Label? idValueLabel = employmentInfoPanel.Controls.Find("lblEmployeeIDValue", true).FirstOrDefault() as Label;
+                if (idValueLabel != null)
+                {
+                    idValueLabel.Text = currentEmployee.EmployeeId;
+                }
+
+                Label? positionValueLabel = employmentInfoPanel.Controls.Find("lblPositionValue", true).FirstOrDefault() as Label;
+                if (positionValueLabel != null)
+                {
+                    positionValueLabel.Text = currentEmployee.Position;
+                }
+
+                Label? departmentValueLabel = employmentInfoPanel.Controls.Find("lblDepartmentValue", true).FirstOrDefault() as Label;
+                if (departmentValueLabel != null)
+                {
+                    departmentValueLabel.Text = currentEmployee.DepartmentId;
+                }
+
+                Label? hireDateValueLabel = employmentInfoPanel.Controls.Find("lblHireDateValue", true).FirstOrDefault() as Label;
+                if (hireDateValueLabel != null)
+                {
+                    hireDateValueLabel.Text = currentEmployee.HireDate.ToShortDateString();
+                }
+
+                Label? serviceValueLabel = employmentInfoPanel.Controls.Find("lblYearsOfServiceValue", true).FirstOrDefault() as Label;
+                if (serviceValueLabel != null)
+                {
+                    serviceValueLabel.Text = currentEmployee.CalculateYearsOfService() + " years";
+                }
+
+                Label? salaryValueLabel = employmentInfoPanel.Controls.Find("lblSalaryValue", true).FirstOrDefault() as Label;
+                if (salaryValueLabel != null)
+                {
+                    salaryValueLabel.Text = "$" + currentEmployee.BaseSalary.ToString("N2");
                 }
             }
             catch (Exception ex)
@@ -548,7 +636,7 @@ namespace HRManagementSystem
             return avatarBitmap;
         }
 
-        private void BtnSave_Click(object sender, EventArgs e)
+        private void BtnSave_Click(object? sender, EventArgs e)
         {
             if (currentEmployee != null)
             {
@@ -576,7 +664,7 @@ namespace HRManagementSystem
             }
         }
 
-        private void BtnCancel_Click(object sender, EventArgs e)
+        private void BtnCancel_Click(object? sender, EventArgs e)
         {
             // Reload the original data
             LoadEmployeeData(currentEmployee.EmployeeId);
@@ -586,8 +674,14 @@ namespace HRManagementSystem
     // Helper class for employee selection combobox
     public class EmployeeSelectionItem
     {
-        public string EmployeeId { get; set; }
-        public string DisplayName { get; set; }
+        public string EmployeeId { get; }
+        public string DisplayName { get; }
+
+        public EmployeeSelectionItem(string employeeId, string displayName)
+        {
+            EmployeeId = employeeId;
+            DisplayName = displayName;
+        }
 
         public override string ToString()
         {
