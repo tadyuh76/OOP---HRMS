@@ -91,9 +91,9 @@
     "startDate": "2025-03-29T00:00:00+07:00",
     "endDate": "2025-03-29T00:00:00+07:00",
     "type": "Annual",
-    "status": "Pending",
-    "remarks": "",
-    "approverId": null
+    "status": "Rejected",
+    "remarks": " Rejection Reason: di lam di",
+    "approverId": "ADMIN001"
   },
   {
     "requestId": "LVE009",
@@ -106,5 +106,17 @@
     "status": "Rejected",
     "remarks": "em met qua cho em nghi Rejection Reason: troll vn lam di con",
     "approverId": "ADMIN001"
+  },
+  {
+    "requestId": "LVE010",
+    "employeeId": "EMP001",
+    "employeeName": "Dat Huy",
+    "requestDate": "2025-03-28T20:20:48.3026641+07:00",
+    "startDate": "2025-03-29T00:00:00+07:00",
+    "endDate": "2025-03-29T00:00:00+07:00",
+    "type": "Annual",
+    "status": "Pending",
+    "remarks": "",
+    "approverId": null
   }
 ]

@@ -180,12 +180,12 @@
     "Status": "Present"
   },
   {
-    "AttendanceId": "ATT8AF5B19D",
+    "AttendanceId": "ATT021",
     "EmployeeId": "EMP001",
     "EmployeeName": "Dat Huy",
     "Date": "2025-03-28T00:00:00+07:00",
-    "ClockInTime": "2025-03-28T14:05:38.1221035+07:00",
-    "ClockOutTime": "2025-03-28T14:05:46.2205933+07:00",
+    "ClockInTime": "2025-03-28T16:49:05.6273515+07:00",
+    "ClockOutTime": "2025-03-28T16:49:13.7667792+07:00",
     "Status": "Late"
   }
 ]

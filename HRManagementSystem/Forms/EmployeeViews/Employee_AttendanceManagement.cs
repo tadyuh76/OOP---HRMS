@@ -94,10 +94,6 @@ namespace HRManagementSystem
             // Initialize custom delegates with their respective methods
             btnRequestLeaveClick = new RequestLeaveEventHandler(BtnRequestLeave_Click);
             btnSubmitLeaveClick = new SubmitLeaveEventHandler(BtnSubmit_Click);
-
-            // Subscribe to events
-            OnRequestLeave += btnRequestLeaveClick;
-            OnSubmitLeave += btnSubmitLeaveClick;
         }
 
         private void InitializeComponent()
@@ -717,12 +713,6 @@ namespace HRManagementSystem
 
         private void BtnRequestLeave_Click(object? sender, EventArgs e)
         {
-            // Trigger the event in a null-safe way
-            if (OnRequestLeave != null)
-            {
-                OnRequestLeave(sender, e);
-            }
-
             Form leaveRequestForm = new Form
             {
                 Text = "Request Leave",
@@ -808,7 +798,10 @@ namespace HRManagementSystem
                 FlatStyle = FlatStyle.Flat
             };
             btnSubmit.FlatAppearance.BorderSize = 0;
-            btnSubmit.Click += new EventHandler(btnSubmitLeaveClick);
+
+            // Fix the submit button click handler - create a lambda that calls the proper method
+            btnSubmit.Click += (s, ev) => SubmitLeaveRequest(cmbType, dtpStartDate, dtpEndDate, txtRemarks, leaveRequestForm);
+
             layout.Controls.Add(btnSubmit, 1, 5);
 
             leaveRequestForm.ShowDialog();
@@ -816,21 +809,8 @@ namespace HRManagementSystem
 
         private void BtnSubmit_Click(object? sender, EventArgs e)
         {
-            // Trigger the event in a null-safe way
-            if (OnSubmitLeave != null)
-            {
-                OnSubmitLeave(sender, e);
-            }
-
             // This method is a placeholder for the delegate
-            // The actual implementation is in the overloaded method below
-        }
-
-        private void BtnSubmit_Click(object? sender, EventArgs e,
-                                    ComboBox cmbType, DateTimePicker dtpStartDate, DateTimePicker dtpEndDate,
-                                    TextBox txtRemarks, Form leaveRequestForm)
-        {
-            SubmitLeaveRequest(cmbType, dtpStartDate, dtpEndDate, txtRemarks, leaveRequestForm);
+            // The actual implementation is in the SubmitLeaveRequest method
         }
 
         private void SubmitLeaveRequest(ComboBox? cmbType, DateTimePicker? dtpStartDate, DateTimePicker? dtpEndDate,
