@@ -1,129 +1,169 @@
-// // Services/LeaveService.cs
-// using System;
-// using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
 
-// namespace HRManagementSystem
-// {
-//     public class LeaveService
-//     {
-//         private List<Leave> leaves;
-//         private List<LeaveRequest> leaveRequests;
-//         private JsonFileStorage<Leave> leaveStorage;
-//         private JsonFileStorage<LeaveRequest> requestStorage;
+namespace HRManagementSystem.Services
+{
+    public class LeaveService
+    {
+        private const string LEAVE_REQUEST_FILE_PATH = @"..\..\Data\LeaveRequests.json";
+        private const string LEAVE_FILE_PATH = @"..\..\Data\Leave.json";
+        private List<LeaveRequest> leaveRequests;
+        private List<Leave> leaves;
+        private EmployeeService employeeService;
 
-//         public LeaveService()
-//         {
-//             leaveStorage = new JsonFileStorage<Leave>("Leave.json");
-//             requestStorage = new JsonFileStorage<LeaveRequest>("LeaveRequests.json");
-//             LoadData();
-//         }
+        public LeaveService(EmployeeService employeeService)
+        {
+            this.employeeService = employeeService;
+            LoadLeaveData();
+        }
 
-//         private void LoadData()
-//         {
-//             leaves = leaveStorage.LoadData() ?? new List<Leave>();
-//             leaveRequests = requestStorage.LoadData() ?? new List<LeaveRequest>();
-//         }
+        private void LoadLeaveData()
+        {
+            // Load Leave Requests
+            if (File.Exists(LEAVE_REQUEST_FILE_PATH))
+            {
+                string requestsJson = File.ReadAllText(LEAVE_REQUEST_FILE_PATH);
+                leaveRequests = JsonSerializer.Deserialize<List<LeaveRequest>>(requestsJson) ?? new List<LeaveRequest>();
+            }
+            else
+            {
+                leaveRequests = new List<LeaveRequest>();
+            }
 
-//         public List<Leave> GetAllLeaves()
-//         {
-//             return leaves;
-//         }
+            // Load Leaves
+            if (File.Exists(LEAVE_FILE_PATH))
+            {
+                string leavesJson = File.ReadAllText(LEAVE_FILE_PATH);
+                leaves = JsonSerializer.Deserialize<List<Leave>>(leavesJson) ?? new List<Leave>();
+            }
+            else
+            {
+                leaves = new List<Leave>();
+            }
+        }
 
-//         public List<Leave> GetLeavesByEmployeeId(string employeeId)
-//         {
-//             return leaves.FindAll(l => l.EmployeeId == employeeId);
-//         }
+        private void SaveLeaveData()
+        {
+            // Save Leave Requests
+            string requestsJson = JsonSerializer.Serialize(leaveRequests, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(LEAVE_REQUEST_FILE_PATH, requestsJson);
 
-//         public Leave GetLeaveById(string leaveId)
-//         {
-//             return leaves.Find(l => l.LeaveId == leaveId);
-//         }
+            // Save Leaves
+            string leavesJson = JsonSerializer.Serialize(leaves, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(LEAVE_FILE_PATH, leavesJson);
+        }
 
-//         public List<LeaveRequest> GetPendingLeaveRequests()
-//         {
-//             return leaveRequests.FindAll(lr => lr.LeaveDetails.Status == LeaveStatus.Pending);
-//         }
+        public LeaveRequest SubmitLeaveRequest(
+            string employeeId,
+            DateTime startDate,
+            DateTime endDate,
+            LeaveType leaveType,
+            string remarks)
+        {
+            // Validate employee
+            var employee = employeeService.GetEmployeeById(employeeId);
+            if (employee == null)
+            {
+                throw new EntityNotFoundException("Employee not found.");
+            }
 
-//         public LeaveRequest SubmitLeaveRequest(string employeeId, DateTime startDate, DateTime endDate, 
-//                                              LeaveType type, string remarks, string approverId)
-//         {
-//             string leaveId = Guid.NewGuid().ToString();
-//             Leave leave = new Leave(
-//                 leaveId,
-//                 employeeId,
-//                 startDate,
-//                 endDate,
-//                 type,
-//                 LeaveStatus.Pending,
-//                 remarks
-//             );
+            // Validate date range
+            if (startDate > endDate)
+            {
+                throw new ValidationException("Start date must be before or equal to end date.");
+            }
 
-//             string requestId = Guid.NewGuid().ToString();
-//             LeaveRequest request = new LeaveRequest(
-//                 requestId,
-//                 employeeId,
-//                 DateTime.Now,
-//                 leave,
-//                 approverId
-//             );
+            // Create Leave
+            Leave leave = new Leave
+            {
+                LeaveId = Guid.NewGuid().ToString(),
+                EmployeeId = employeeId,
+                StartDate = startDate,
+                EndDate = endDate,
+                Type = leaveType,
+                Status = LeaveStatus.Pending,
+                Remarks = remarks,
+                Employee = employee
+            };
 
-//             request.Submit(); // Updates the status to Pending
-//             leaveRequests.Add(request);
-//             leaves.Add(leave);
-//             SaveChanges();
+            // Create Leave Request
+            LeaveRequest leaveRequest = new LeaveRequest
+            {
+                RequestId = Guid.NewGuid().ToString(),
+                EmployeeId = employeeId,
+                RequestDate = DateTime.Now,
+                LeaveDetails = leave,
+                ApproverId = null // Will be set by admin
+            };
 
-//             return request;
-//         }
+            leaveRequests.Add(leaveRequest);
+            leaves.Add(leave);
+            SaveLeaveData();
 
-//         public void ApproveLeaveRequest(string requestId)
-//         {
-//             LeaveRequest request = leaveRequests.Find(lr => lr.RequestId == requestId);
-//             if (request != null && request.LeaveDetails != null)
-//             {
-//                 request.LeaveDetails.Status = LeaveStatus.Approved;
-//                 Leave leave = leaves.Find(l => l.LeaveId == request.LeaveDetails.LeaveId);
-//                 if (leave != null)
-//                 {
-//                     leave.Status = LeaveStatus.Approved;
-//                 }
-//                 SaveChanges();
-//             }
-//         }
+            return leaveRequest;
+        }
 
-//         public void RejectLeaveRequest(string requestId)
-//         {
-//             LeaveRequest request = leaveRequests.Find(lr => lr.RequestId == requestId);
-//             if (request != null && request.LeaveDetails != null)
-//             {
-//                 request.LeaveDetails.Status = LeaveStatus.Rejected;
-//                 Leave leave = leaves.Find(l => l.LeaveId == request.LeaveDetails.LeaveId);
-//                 if (leave != null)
-//                 {
-//                     leave.Status = LeaveStatus.Rejected;
-//                 }
-//                 SaveChanges();
-//             }
-//         }
+        public List<LeaveRequest> GetPendingLeaveRequests()
+        {
+            return leaveRequests
+                .Where(lr => lr.LeaveDetails.Status == LeaveStatus.Pending)
+                .ToList();
+        }
 
-//         public void CancelLeaveRequest(string requestId)
-//         {
-//             LeaveRequest request = leaveRequests.Find(lr => lr.RequestId == requestId);
-//             if (request != null)
-//             {
-//                 request.Cancel();
-//                 Leave leave = leaves.Find(l => l.LeaveId == request.LeaveDetails.LeaveId);
-//                 if (leave != null)
-//                 {
-//                     leave.Status = LeaveStatus.Cancelled;
-//                 }
-//                 SaveChanges();
-//             }
-//         }
+        public LeaveRequest ApproveLeaveRequest(string requestId, string approverId)
+        {
+            var leaveRequest = leaveRequests
+                .FirstOrDefault(lr => lr.RequestId == requestId);
 
-//         private void SaveChanges()
-//         {
-//             leaveStorage.SaveData(leaves);
-//             requestStorage.SaveData(leaveRequests);
-//         }
-//     }
-// }
+            if (leaveRequest == null)
+            {
+                throw new EntityNotFoundException("Leave request not found.");
+            }
+
+            leaveRequest.ApproverId = approverId;
+            leaveRequest.LeaveDetails.Status = LeaveStatus.Approved;
+            SaveLeaveData();
+
+            return leaveRequest;
+        }
+
+        public LeaveRequest RejectLeaveRequest(string requestId, string approverId, string rejectionReason)
+        {
+            var leaveRequest = leaveRequests
+                .FirstOrDefault(lr => lr.RequestId == requestId);
+
+            if (leaveRequest == null)
+            {
+                throw new EntityNotFoundException("Leave request not found.");
+            }
+
+            leaveRequest.ApproverId = approverId;
+            leaveRequest.LeaveDetails.Status = LeaveStatus.Rejected;
+            leaveRequest.LeaveDetails.Remarks += $" Rejection Reason: {rejectionReason}";
+            SaveLeaveData();
+
+            return leaveRequest;
+        }
+
+        public List<Leave> GetEmployeeLeaves(string employeeId)
+        {
+            return leaves
+                .Where(l => l.EmployeeId == employeeId)
+                .ToList();
+        }
+
+        public Dictionary<LeaveType, int> GetLeaveTypesSummary(string employeeId)
+        {
+            return leaves
+                .Where(l => l.EmployeeId == employeeId && l.Status == LeaveStatus.Approved)
+                .GroupBy(l => l.Type)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Sum(l => l.CalculateDays())
+                );
+        }
+    }
+}

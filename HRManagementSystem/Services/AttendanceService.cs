@@ -1,85 +1,116 @@
-// // Services/AttendanceService.cs
-// using System;
-// using System.Collections.Generic;
-// using System.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
 
-// namespace HRManagementSystem
-// {
-//     public class AttendanceService
-//     {
-//         private List<Attendance> attendances;
-//         private JsonFileStorage<Attendance> storage;
+namespace HRManagementSystem.Services
+{
+    public class AttendanceService
+    {
+        private const string ATTENDANCE_FILE_PATH = @"..\..\Data\Attendance.json";
+        private List<Attendance> attendances;
+        //private EmployeeService employeeService;
 
-//         public AttendanceService()
-//         {
-//             storage = new("Attendance.json");
-//             LoadAttendances();
-//         }
+        /*public AttendanceService(EmployeeService employeeService)
+        {
+            this.employeeService = employeeService;
+            LoadAttendances();
+        }*/
 
-//         private void LoadAttendances()
-//         {
-//             attendances = storage.LoadData() ?? new List<Attendance>();
-//         }
+        private void LoadAttendances()
+        {
+            if (File.Exists(ATTENDANCE_FILE_PATH))
+            {
+                string jsonString = File.ReadAllText(ATTENDANCE_FILE_PATH);
+                attendances = JsonSerializer.Deserialize<List<Attendance>>(jsonString) ?? new List<Attendance>();
+            }
+            else
+            {
+                attendances = new List<Attendance>();
+            }
+        }
 
-//         public List<Attendance> GetAllAttendances()
-//         {
-//             return attendances;
-//         }
+        private void SaveAttendances()
+        {
+            string jsonString = JsonSerializer.Serialize(attendances, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(ATTENDANCE_FILE_PATH, jsonString);
+        }
 
-//         public List<Attendance> GetAttendancesByEmployeeId(string employeeId)
-//         {
-//             return attendances.FindAll(a => a.EmployeeId == employeeId);
-//         }
+        public Attendance RecordAttendance(string employeeId, string fullName, AttendanceStatus status)
+        {
+            // Validate employee exists
+            var employee = employeeService.GetEmployeeById(employeeId);
+            if (employee == null || employee.FullName != fullName)
+            {
+                throw new EntityNotFoundException("Employee not found or name mismatch.");
+            }
 
-//         public List<Attendance> GetAttendancesByDate(DateTime date)
-//         {
-//             return attendances.FindAll(a => a.Date.Date == date.Date);
-//         }
+            // Check if attendance for today already exists
+            var existingAttendance = attendances
+                .FirstOrDefault(a => a.EmployeeId == employeeId && a.Date.Date == DateTime.Today);
 
-//         public Attendance GetAttendanceById(string attendanceId)
-//         {
-//             return attendances.Find(a => a.AttendanceId == attendanceId);
-//         }
+            if (existingAttendance != null)
+            {
+                throw new HRSystemException("Attendance already recorded for today.");
+            }
 
-//         public void RecordClockIn(string employeeId, DateTime clockInTime)
-//         {
-//             string attendanceId = Guid.NewGuid().ToString();
-//             Attendance attendance = new Attendance(
-//                 attendanceId,
-//                 employeeId,
-//                 clockInTime.Date,
-//                 clockInTime,
-//                 DateTime.MinValue, // ClockOut not yet recorded
-//                 AttendanceStatus.Present
-//             );
+            // Create new attendance record
+            var attendance = new Attendance
+            {
+                AttendanceId = Guid.NewGuid().ToString(),
+                EmployeeId = employeeId,
+                Date = DateTime.Today,
+                ClockInTime = DateTime.Now,
+                ClockOutTime = DateTime.MinValue, // Will be updated when clocking out
+                Status = status,
+                Employee = employee
+            };
 
-//             attendances.Add(attendance);
-//             SaveChanges();
-//         }
+            attendances.Add(attendance);
+            SaveAttendances();
 
-//         public void RecordClockOut(string attendanceId, DateTime clockOutTime)
-//         {
-//             Attendance attendance = GetAttendanceById(attendanceId);
-//             if (attendance != null)
-//             {
-//                 attendance.ClockOutTime = clockOutTime;
-//                 SaveChanges();
-//             }
-//         }
+            return attendance;
+        }
 
-//         public void UpdateAttendanceStatus(string attendanceId, AttendanceStatus status)
-//         {
-//             Attendance attendance = GetAttendanceById(attendanceId);
-//             if (attendance != null)
-//             {
-//                 attendance.Status = status;
-//                 SaveChanges();
-//             }
-//         }
+        public void UpdateClockOut(string attendanceId)
+        {
+            var attendance = attendances.FirstOrDefault(a => a.AttendanceId == attendanceId);
+            if (attendance == null)
+            {
+                throw new EntityNotFoundException("Attendance record not found.");
+            }
 
-//         public void SaveChanges()
-//         {
-//             storage.SaveData(attendances);
-//         }
-//     }
-// }
+            attendance.ClockOutTime = DateTime.Now;
+            SaveAttendances();
+        }
+
+        public List<Attendance> GetMonthlyAttendance(int year, int month)
+        {
+            return attendances
+                .Where(a => a.Date.Year == year && a.Date.Month == month)
+                .ToList();
+        }
+
+        public Dictionary<string, int> GetAttendanceSummary(int year, int month)
+        {
+            var monthlyAttendance = GetMonthlyAttendance(year, month);
+
+            return monthlyAttendance
+                .GroupBy(a => a.Status)
+                .ToDictionary(
+                    group => group.Key.ToString(),
+                    group => group.Count()
+                );
+        }
+
+        public List<Attendance> GetEmployeeAttendance(string employeeId, int year, int month)
+        {
+            return attendances
+                .Where(a => a.EmployeeId == employeeId &&
+                            a.Date.Year == year &&
+                            a.Date.Month == month)
+                .ToList();
+        }
+    }
+}
