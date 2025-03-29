@@ -299,7 +299,7 @@ namespace HRManagementSystem
             foreach (Department dept in departments)
             {
                 // Calculate employee count for this department
-                int employeeCount = _employees.Count(e => e.DepartmentId == dept.DepartmentId);
+                int employeeCount = CountEmployeesInDepartment(dept.DepartmentId);
 
                 int rowIndex = dgvDepartments.Rows.Add(
                     dept.DepartmentId,
@@ -315,6 +315,20 @@ namespace HRManagementSystem
             }
         }
 
+        // Helper method to count employees in a department
+        private int CountEmployeesInDepartment(string departmentId)
+        {
+            int count = 0;
+            foreach (Employee employee in _employees)
+            {
+                if (employee.DepartmentId == departmentId)
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
         private void BtnSearch_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtSearch.Text))
@@ -324,14 +338,27 @@ namespace HRManagementSystem
             }
 
             string searchTerm = txtSearch.Text.ToLower();
-            List<Department> filteredList = _departments.Where(d =>
-                d.DepartmentId.ToLower().Contains(searchTerm) ||
-                d.Name.ToLower().Contains(searchTerm) ||
-                (d.ManagerId?.ToLower()?.Contains(searchTerm) ?? false) ||
-                (d.ManagerName?.ToLower()?.Contains(searchTerm) ?? false)
-            ).ToList();
-
+            List<Department> filteredList = FilterDepartmentsBySearchTerm(searchTerm);
             PopulateDepartmentsGrid(filteredList);
+        }
+
+        // Helper method to filter departments by search term
+        private List<Department> FilterDepartmentsBySearchTerm(string searchTerm)
+        {
+            List<Department> result = new List<Department>();
+            
+            foreach (Department d in _departments)
+            {
+                if (d.DepartmentId.ToLower().Contains(searchTerm) ||
+                    d.Name.ToLower().Contains(searchTerm) ||
+                    (d.ManagerId != null && d.ManagerId.ToLower().Contains(searchTerm)) ||
+                    (d.ManagerName != null && d.ManagerName.ToLower().Contains(searchTerm)))
+                {
+                    result.Add(d);
+                }
+            }
+            
+            return result;
         }
 
         private void BtnRefresh_Click(object sender, EventArgs e)
@@ -468,9 +495,14 @@ namespace HRManagementSystem
                 return false;
 
             // Check if any employees are assigned to this department
-            return _employees.Any(e => e.DepartmentId == departmentId);
+            foreach (Employee employee in _employees)
+            {
+                if (employee.DepartmentId == departmentId)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
-
-
 }

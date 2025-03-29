@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "C:\\Users\\tadyuh\\Coding Projects\\HRMS\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\tadyuh\\coding projects\\hrms\\hrmanagementsystem\\services\\payrollservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\services\\payrollservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\tadyuh\\coding projects\\hrms\\hrmanagementsystem\\hrmanagementsystem.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\hrmanagementsystem.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|c:\\users\\tadyuh\\coding projects\\hrms\\hrmanagementsystem\\forms\\payroll\\search\\payrollsearch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{AC6B5A30-E45C-5550-2E93-60BB69E39408}|HRManagementSystem\\HRManagementSystem.csproj|solutionrelative:hrmanagementsystem\\forms\\payroll\\search\\payrollsearch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -14,21 +22,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "PayrollSearch.cs",
-              "DocumentMoniker": "C:\\Users\\tadyuh\\Coding Projects\\HRMS\\HRManagementSystem\\Forms\\Payroll\\Search\\PayrollSearch.cs",
-              "RelativeDocumentMoniker": "HRManagementSystem\\Forms\\Payroll\\Search\\PayrollSearch.cs",
-              "ToolTip": "C:\\Users\\tadyuh\\Coding Projects\\HRMS\\HRManagementSystem\\Forms\\Payroll\\Search\\PayrollSearch.cs",
-              "RelativeToolTip": "HRManagementSystem\\Forms\\Payroll\\Search\\PayrollSearch.cs",
-              "ViewState": "AgIAAKgAAAAAAAAAAAAjwK8AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-27T11:51:56.124Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
@@ -36,6 +31,45 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{e5c86464-96be-4d7c-9a8b-abcb3bbf5f92}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "PayrollService.cs",
+              "DocumentMoniker": "C:\\Users\\tadyuh\\Coding Projects\\HRMS\\HRManagementSystem\\Services\\PayrollService.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\Services\\PayrollService.cs",
+              "ToolTip": "C:\\Users\\tadyuh\\Coding Projects\\HRMS\\HRManagementSystem\\Services\\PayrollService.cs",
+              "RelativeToolTip": "HRManagementSystem\\Services\\PayrollService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGwAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-29T17:42:48.025Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "HRManagementSystem",
+              "DocumentMoniker": "C:\\Users\\tadyuh\\Coding Projects\\HRMS\\HRManagementSystem\\HRManagementSystem.csproj",
+              "RelativeDocumentMoniker": "HRManagementSystem\\HRManagementSystem.csproj",
+              "ToolTip": "C:\\Users\\tadyuh\\Coding Projects\\HRMS\\HRManagementSystem\\HRManagementSystem.csproj",
+              "RelativeToolTip": "HRManagementSystem\\HRManagementSystem.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-03-29T17:42:42.37Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "PayrollSearch.cs",
+              "DocumentMoniker": "C:\\Users\\tadyuh\\Coding Projects\\HRMS\\HRManagementSystem\\Forms\\Payroll\\Search\\PayrollSearch.cs",
+              "RelativeDocumentMoniker": "HRManagementSystem\\Forms\\Payroll\\Search\\PayrollSearch.cs",
+              "ToolTip": "C:\\Users\\tadyuh\\Coding Projects\\HRMS\\HRManagementSystem\\Forms\\Payroll\\Search\\PayrollSearch.cs",
+              "RelativeToolTip": "HRManagementSystem\\Forms\\Payroll\\Search\\PayrollSearch.cs",
+              "ViewState": "AgIAAHEAAAAAAAAAAAAjwIAAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-27T11:51:56.124Z",
+              "EditorCaption": ""
             }
           ]
         }

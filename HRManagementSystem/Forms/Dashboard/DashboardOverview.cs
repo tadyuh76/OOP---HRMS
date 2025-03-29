@@ -49,10 +49,10 @@
         {
             try
             {
-                var employees = _employeeService.GetAll();
+                List<Employee> employees = _employeeService.GetAll();
                 _employeeCount = employees?.Count ?? 0;
 
-                var departments = _departmentService.GetAll();
+                List<Department> departments = _departmentService.GetAll();
                 _departmentCount = departments?.Count ?? 0;
             }
             catch (Exception ex)

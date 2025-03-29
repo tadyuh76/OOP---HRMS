@@ -15,8 +15,6 @@ namespace HRManagementSystem
                     return CreateFullTimeEmployee();
                 case "contract":
                     return CreateContractEmployee();
-                case "manager":
-                    return CreateManager();
                 default:
                     throw new ArgumentException("Invalid employee type", nameof(type));
             }
@@ -35,15 +33,6 @@ namespace HRManagementSystem
             return new ContractEmployee
             {
                 Status = EmployeeStatus.Active
-            };
-        }
-
-        public Manager CreateManager()
-        {
-            return new Manager
-            {
-                Status = EmployeeStatus.Active,
-                ManagedEmployeeIds = new List<string>()
             };
         }
 

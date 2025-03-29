@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Linq;
 
 namespace HRManagementSystem
 {
@@ -15,7 +14,7 @@ namespace HRManagementSystem
                 WriteIndented = true,
                 PropertyNameCaseInsensitive = true
             };
-            
+
             // Add JsonConverter for handling Employee polymorphism
             _options.Converters.Add(new JsonStringEnumConverter());
             _options.Converters.Add(new EmployeeJsonConverter());
@@ -60,30 +59,37 @@ namespace HRManagementSystem
     // Custom JsonConverter for Employee types
     public class EmployeeJsonConverter : JsonConverter<Employee>
     {
-        public override bool CanConvert(Type typeToConvert) =>
-            typeof(Employee).IsAssignableFrom(typeToConvert);
+        public override bool CanConvert(Type typeToConvert)
+        {
+            return typeof(Employee).IsAssignableFrom(typeToConvert);
+        }
 
         public override Employee Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             // Clone the options without this converter to avoid infinite recursion
-            var clonedOptions = new JsonSerializerOptions(options);
-            
+            JsonSerializerOptions clonedOptions = new JsonSerializerOptions(options);
+
             // Create a new converter list without this converter
-            var filteredConverters = options.Converters
-                .Where(c => !(c is EmployeeJsonConverter))
-                .ToList();
-            
+            List<JsonConverter> filteredConverters = new List<JsonConverter>();
+            foreach (var converter in options.Converters)
+            {
+                if (!(converter is EmployeeJsonConverter))
+                {
+                    filteredConverters.Add(converter);
+                }
+            }
+
             // Clear and re-add the converters
             clonedOptions.Converters.Clear();
-            foreach (var converter in filteredConverters)
+            foreach (JsonConverter? converter in filteredConverters)
             {
                 clonedOptions.Converters.Add(converter);
             }
 
             // Read the JSON into a document
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            var rootElement = document.RootElement;
-            
+            JsonElement rootElement = document.RootElement;
+
             // Determine the employee type
             string employeeType = "Regular";
             if (rootElement.TryGetProperty("employeeType", out JsonElement typeElement))
@@ -113,7 +119,7 @@ namespace HRManagementSystem
         public override void Write(Utf8JsonWriter writer, Employee value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
-            
+
             // Write common properties
             writer.WriteString("id", value.Id);
             writer.WriteString("name", value.Name);
@@ -127,7 +133,7 @@ namespace HRManagementSystem
             writer.WriteNumber("baseSalary", value.BaseSalary);
             writer.WriteString("departmentId", value.DepartmentId);
             writer.WriteString("status", value.Status.ToString());
-            
+
             // Write specific type
             if (value is FullTimeEmployee fullTimeEmployee)
             {
@@ -144,7 +150,7 @@ namespace HRManagementSystem
             {
                 writer.WriteString("employeeType", "Regular");
             }
-            
+
             writer.WriteEndObject();
         }
     }

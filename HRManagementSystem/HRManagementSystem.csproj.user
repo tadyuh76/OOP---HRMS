@@ -4,7 +4,13 @@
     <Compile Update="Forms\Attendance\AttendanceManagement.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\Attendance\EmployeeAttendanceViewer.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\Dashboard\DashboardOverview.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Department\DepartmentEdit.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\Department\DepartmentManagement.cs">
@@ -13,13 +19,19 @@
     <Compile Update="Forms\EmployeeViews\Employee_AttendanceManagement.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\EmployeeViews\Employee_DepartmentDetailsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\EmployeeViews\Employee_DepartmentView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Forms\EmployeeViews\Employee_EmployeeManagement.cs">
+    <Compile Update="Forms\EmployeeViews\Employee_PayrollView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Forms\EmployeeViews\Employee_PayrollManagement.cs">
+    <Compile Update="Forms\EmployeeViews\Employee_ProfileView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Employee\EditEmployeeForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\Employee\EmployeeManagement.cs">

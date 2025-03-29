@@ -230,7 +230,7 @@ namespace HRManagementSystem
                 Font = new Font("Segoe UI", 10, FontStyle.Bold)
             };
             btnRequestLeave.FlatAppearance.BorderSize = 0;
-            btnRequestLeave.Click += new EventHandler(btnRequestLeaveClick);
+            btnRequestLeave.Click += new EventHandler(BtnRequestLeave_Click);
             actionPanel.Controls.Add(btnRequestLeave);
 
             // Tab control for attendance and leave history
@@ -706,6 +706,11 @@ namespace HRManagementSystem
 
         private void BtnRequestLeave_Click(object? sender, EventArgs e)
         {
+            OpenLeaveRequestForm();
+        }
+
+        private void OpenLeaveRequestForm()
+        {
             Form leaveRequestForm = new Form
             {
                 Text = "Request Leave",
@@ -792,8 +797,8 @@ namespace HRManagementSystem
             };
             btnSubmit.FlatAppearance.BorderSize = 0;
 
-            // Fix the submit button click handler - create a lambda that calls the proper method
-            btnSubmit.Click += (s, ev) => SubmitLeaveRequest(cmbType, dtpStartDate, dtpEndDate, txtRemarks, leaveRequestForm);
+            // Replace lambda with explicit method
+            btnSubmit.Click += new EventHandler((s, ev) => SubmitLeaveRequest(cmbType, dtpStartDate, dtpEndDate, txtRemarks, leaveRequestForm));
 
             layout.Controls.Add(btnSubmit, 1, 5);
 

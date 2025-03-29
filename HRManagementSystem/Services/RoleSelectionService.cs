@@ -5,11 +5,11 @@ namespace HRManagementSystem
     public class RoleSelectionService
     {
         private UserRole currentRole;
-        
+
         // Singleton instance
         private static RoleSelectionService instance;
         private static readonly object lockObject = new object();
-        
+
         // Public accessor for the singleton instance
         public static RoleSelectionService Instance
         {
@@ -73,16 +73,25 @@ namespace HRManagementSystem
                 return false;
             }
 
-            // Implementation depends on feature permissions
-            switch (currentRole)
+            if (currentRole == UserRole.Admin)
             {
-                case UserRole.Admin:
-                    return true; // Admin can access all features
-                case UserRole.Employee:
-                    return featureName == "ViewProfile" || featureName == "RequestLeave"; // Example permissions
-                default:
-                    return false;
+                return true; // Admin can access all features
             }
+            else if (currentRole == UserRole.Employee)
+            {
+                return IsEmployeeFeature(featureName);
+            }
+
+            return false;
+        }
+
+        private bool IsEmployeeFeature(string featureName)
+        {
+            if (featureName == "ViewProfile" || featureName == "RequestLeave")
+            {
+                return true;
+            }
+            return false;
         }
 
         public event RoleChangedEventHandler RoleChanged;

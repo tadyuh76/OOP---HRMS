@@ -92,14 +92,16 @@ namespace HRManagementSystem
             {
                 List<Employee> employees = _employeeService.GetAll();
 
-                var employeeList = employees
-                    .Select(e => new
+                List<object> employeeList = new List<object>();
+                foreach (Employee e in employees)
+                {
+                    employeeList.Add(new
                     {
                         Id = e.Id,
                         EmployeeId = e.EmployeeId,
                         Name = $"{e.Name}"
-                    })
-                    .ToList();
+                    });
+                }
 
                 employeeList.Insert(0, new { Id = "", EmployeeId = "", Name = "-- Choose Employee --" });
 
@@ -394,54 +396,49 @@ namespace HRManagementSystem
                         decimal annualBonus = ParseCurrency(((TextBox)Controls["txtAnnualBonus"]).Text);
                         fullTimeEmployee.AnnualBonus = annualBonus;
 
-                        // Update the monthly bonus display
                         monthlyBonus = annualBonus / 12;
                         ((Label)Controls["lblMonthlyBonusValue"]).Text = monthlyBonus.ToString("N0");
 
                         calculatedSalary = fullTimeEmployee.CalculateSalary();
 
-                        // Simple explanation of calculation
-                        txtSalaryBreakdown.Text = $"This FullTime employee receives:\n" +
-                                                 $"• Base Salary: {baseSalary:N0}\n" +
-                                                 $"• Monthly Bonus (from Annual Bonus): {monthlyBonus:N0}\n" +
-                                                 $"• Additional Allowances: {allowances:N0}\n" +
-                                                 $"• Deductions: {deductions:N0}";
+                        txtSalaryBreakdown.Text = $"Full-Time Employee Salary:\n" +
+                                                  $"- Base Salary: {baseSalary:N0}\n" +
+                                                  $"- Monthly Bonus: {monthlyBonus:N0}\n" +
+                                                  $"- Allowances: {allowances:N0}\n" +
+                                                  $"- Deductions: {deductions:N0}";
                     }
                     else if (_selectedEmployee is ContractEmployee contractEmployee &&
                              Controls.ContainsKey("txtHourlyRate") &&
                              Controls.ContainsKey("txtHoursWorked"))
                     {
                         decimal hourlyRate = ParseCurrency(((TextBox)Controls["txtHourlyRate"]).Text);
-                        int hoursWorked = 0;
-                        int.TryParse(((TextBox)Controls["txtHoursWorked"]).Text, out hoursWorked);
+                        int hoursWorked = int.TryParse(((TextBox)Controls["txtHoursWorked"]).Text, out int hw) ? hw : 0;
 
                         contractEmployee.HourlyRate = hourlyRate;
                         contractEmployee.HoursWorked = hoursWorked;
 
                         calculatedSalary = contractEmployee.CalculateSalary();
 
-                        // Simple explanation of calculation
-                        txtSalaryBreakdown.Text = $"This Contract employee receives:\n" +
-                                                 $"• {hourlyRate:N0} per hour × {hoursWorked} hours = {calculatedSalary:N0}\n" +
-                                                 $"• Additional Allowances: {allowances:N0}\n" +
-                                                 $"• Deductions: {deductions:N0}";
+                        txtSalaryBreakdown.Text = $"Contract Employee Salary:\n" +
+                                                  $"- Hourly Rate: {hourlyRate:N0}\n" +
+                                                  $"- Hours Worked: {hoursWorked}\n" +
+                                                  $"- Total: {calculatedSalary:N0}\n" +
+                                                  $"- Allowances: {allowances:N0}\n" +
+                                                  $"- Deductions: {deductions:N0}";
                     }
                     else
                     {
-                        // Regular employee
                         calculatedSalary = _selectedEmployee.CalculateSalary();
 
-                        // Simple explanation of calculation
-                        txtSalaryBreakdown.Text = $"This Regular employee receives:\n" +
-                                                 $"• Base Salary: {baseSalary:N0}\n" +
-                                                 $"• Additional Allowances: {allowances:N0}\n" +
-                                                 $"• Deductions: {deductions:N0}";
+                        txtSalaryBreakdown.Text = $"Regular Employee Salary:\n" +
+                                                  $"- Base Salary: {baseSalary:N0}\n" +
+                                                  $"- Allowances: {allowances:N0}\n" +
+                                                  $"- Deductions: {deductions:N0}";
                     }
                 }
                 else
                 {
-                    // No employee selected
-                    txtSalaryBreakdown.Text = "No employee selected";
+                    txtSalaryBreakdown.Text = "No employee selected.";
                 }
 
                 decimal netSalary = calculatedSalary + allowances - deductions;
@@ -459,7 +456,14 @@ namespace HRManagementSystem
             if (string.IsNullOrWhiteSpace(value))
                 return 0;
 
-            string numericValue = new string(value.Where(c => char.IsDigit(c) || c == '.').ToArray());
+            string numericValue = "";
+            foreach (char c in value)
+            {
+                if (char.IsDigit(c) || c == '.')
+                {
+                    numericValue += c;
+                }
+            }
 
             if (decimal.TryParse(numericValue, out decimal result))
                 return result;

@@ -148,32 +148,31 @@ namespace HRManagementSystem
         {
             try
             {
-
                 List<Payroll> payrolls = _payrollService.GetAll();
 
+                List<object> allEmployees = new List<object>();
+                allEmployees.Add(new { Id = "", Name = "All Employee" });
 
-                List<object> allEmployees = new List<object>
+                if (payrolls != null && payrolls.Count > 0)
                 {
-                    new { Id = "", Name = "All Employee" }
-                };
-
-                if (payrolls != null && payrolls.Any())
-                {
-
-                    var employees = payrolls
-                        .GroupBy(p => p.EmployeeId)
-                        .Select(g => new
+                    Dictionary<string, string> employeeMap = new Dictionary<string, string>();
+                    foreach (Payroll payroll in payrolls)
+                    {
+                        if (!employeeMap.ContainsKey(payroll.EmployeeId))
                         {
-                            Id = g.Key,
-                            Name = g.First().EmployeeName ?? g.Key
-                        })
-                        .OrderBy(e => e.Name)
-                        .ToList();
+                            employeeMap.Add(payroll.EmployeeId, payroll.EmployeeName ?? payroll.EmployeeId);
+                        }
+                    }
 
+                    List<object> employees = new List<object>();
+                    foreach (KeyValuePair<string, string> entry in employeeMap)
+                    {
+                        employees.Add(new { Id = entry.Key, Name = entry.Value });
+                    }
 
+                    employees.Sort((x, y) => string.Compare(((dynamic)x).Name, ((dynamic)y).Name));
                     allEmployees.AddRange(employees);
                 }
-
 
                 cboEmployee.DisplayMember = "Name";
                 cboEmployee.ValueMember = "Id";
@@ -184,11 +183,8 @@ namespace HRManagementSystem
                 MessageBox.Show($"Lỗi khi tải danh sách nhân viên: {ex.Message}", "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-
-                List<object> defaultList = new List<object>
-                {
-                    new { Id = "", Name = "All Employee" }
-                };
+                List<object> defaultList = new List<object>();
+                defaultList.Add(new { Id = "", Name = "All Employee" });
 
                 cboEmployee.DisplayMember = "Name";
                 cboEmployee.ValueMember = "Id";

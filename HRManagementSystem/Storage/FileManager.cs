@@ -63,20 +63,6 @@ namespace HRManagementSystem
             return _fileStorage.SaveData(attendanceDataPath, attendances);
         }
 
-        public List<Payroll> LoadPayrolls()
-        {
-            return _fileStorage.LoadData<List<Payroll>>(payrollDataPath) ?? new List<Payroll>();
-        }
-
-        public bool SavePayrolls(List<Payroll> payrolls)
-        {
-            if (payrolls == null)
-            {
-                throw new ArgumentNullException(nameof(payrolls));
-            }
-            return _fileStorage.SaveData(payrollDataPath, payrolls);
-        }
-
         public List<LeaveRequest> LoadLeaveRequests()
         {
             // Load leave requests only from the leaveDataPath
@@ -92,17 +78,6 @@ namespace HRManagementSystem
 
             // Save only to the leaveDataPath
             return _fileStorage.SaveData(leaveDataPath, leaveRequests);
-        }
-
-        public List<Payroll> LoadPayrollsByEmployeeId(string employeeId)
-        {
-            if (string.IsNullOrEmpty(employeeId))
-            {
-                throw new ArgumentNullException(nameof(employeeId));
-            }
-
-            List<Payroll> allPayrolls = LoadPayrolls();
-            return allPayrolls.FindAll(p => p.EmployeeId == employeeId);
         }
     }
 }

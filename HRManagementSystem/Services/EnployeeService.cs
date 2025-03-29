@@ -60,17 +60,20 @@ namespace HRManagementSystem
             // Load department data to populate department names
             DepartmentService departmentService = DepartmentService.GetInstance();
             List<Department> departments = departmentService.GetAll();
-            
+
             // Associate department names with employees
             foreach (Employee employee in _employees)
             {
-                Department? department = departments.FirstOrDefault(d => d.DepartmentId == employee.DepartmentId);
-                if (department != null)
+                foreach (Department department in departments)
                 {
-                    employee.DepartmentName = department.Name;
+                    if (department.DepartmentId == employee.DepartmentId)
+                    {
+                        employee.DepartmentName = department.Name;
+                        break;
+                    }
                 }
             }
-            
+
             return _employees;
         }
 
@@ -79,7 +82,15 @@ namespace HRManagementSystem
             if (string.IsNullOrEmpty(id))
                 throw new ArgumentNullException(nameof(id));
 
-            return _employees.FirstOrDefault(e => e.Id == id);
+            foreach (Employee e in _employees)
+            {
+                if (e.Id == id)
+                {
+                    return e;
+                }
+            }
+
+            return null;
         }
 
         public bool Add(Employee entity)
@@ -99,7 +110,15 @@ namespace HRManagementSystem
             if (entity == null || string.IsNullOrEmpty(entity.Id))
                 throw new ArgumentNullException(nameof(entity));
 
-            int index = _employees.FindIndex(e => e.Id == entity.Id);
+            int index = -1;
+            for (int i = 0; i < _employees.Count; i++)
+            {
+                if (_employees[i].Id == entity.Id)
+                {
+                    index = i;
+                    break;
+                }
+            }
             if (index == -1)
                 return false;
 
@@ -112,7 +131,15 @@ namespace HRManagementSystem
             if (string.IsNullOrEmpty(id))
                 throw new ArgumentNullException(nameof(id));
 
-            int index = _employees.FindIndex(e => e.Id == id);
+            int index = -1;
+            for (int i = 0; i < _employees.Count; i++)
+            {
+                if (_employees[i].Id == id)
+                {
+                    index = i;
+                    break;
+                }
+            }
             if (index == -1)
                 return false;
 

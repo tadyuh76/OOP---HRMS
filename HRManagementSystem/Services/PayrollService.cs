@@ -30,9 +30,8 @@ namespace HRManagementSystem
         public List<Payroll> GetPayrollsByMonth(DateTime month)
         {
             List<Payroll> result = new List<Payroll>();
-            for (int i = 0; i < payrolls.Count; i++)
+            foreach (Payroll payroll in payrolls)
             {
-                Payroll payroll = payrolls[i];
                 if (payroll.PayPeriodStart.Year == month.Year &&
                     payroll.PayPeriodStart.Month == month.Month)
                 {
@@ -58,9 +57,8 @@ namespace HRManagementSystem
         public List<Payroll> GetPayrollsByEmployee(string employeeName)
         {
             List<Payroll> result = new List<Payroll>();
-            for (int i = 0; i < payrolls.Count; i++)
+            foreach (Payroll payroll in payrolls)
             {
-                Payroll payroll = payrolls[i];
                 if (payroll.EmployeeName == employeeName)
                 {
                     result.Add(payroll);
@@ -171,9 +169,9 @@ namespace HRManagementSystem
         public decimal CalculateTotalPayroll(List<Payroll> payrolls)
         {
             decimal total = 0;
-            for (int i = 0; i < payrolls.Count; i++)
+            foreach (Payroll payroll in payrolls)
             {
-                total += payrolls[i].NetSalary;
+                total += payroll.NetSalary;
             }
             return total;
         }
@@ -199,9 +197,8 @@ namespace HRManagementSystem
                 return;
             }
 
-            for (int i = 0; i < payrolls.Count; i++)
+            foreach (Payroll payroll in payrolls)
             {
-                Payroll payroll = payrolls[i];
                 if (payroll.NetSalary < minSalary)
                 {
                     minSalary = payroll.NetSalary;
@@ -235,16 +232,6 @@ namespace HRManagementSystem
             }
 
             return anyChanges;
-        }
-
-        // Method to calculate salary based on employee type
-        public decimal CalculateSalaryForEmployee(string employeeId)
-        {
-            var employee = _employeeService.GetAll().FirstOrDefault(e => e.EmployeeId == employeeId);
-            if (employee == null)
-                return 0;
-
-            return employee.CalculateSalary();
         }
     }
 }

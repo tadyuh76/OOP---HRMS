@@ -55,9 +55,16 @@ namespace HRManagementSystem
 
         public Attendance RecordAttendance(string employeeId, string employeeName, AttendanceStatus status)
         {
-            // Check if attendance for today already exists
-            Attendance? existingAttendance = attendances
-                .FirstOrDefault(a => a.EmployeeId == employeeId && a.Date.Date == DateTime.Today);
+            // Replace lambda with explicit loop
+            Attendance? existingAttendance = null;
+            foreach (Attendance a in attendances)
+            {
+                if (a.EmployeeId == employeeId && a.Date.Date == DateTime.Today)
+                {
+                    existingAttendance = a;
+                    break;
+                }
+            }
 
             if (existingAttendance != null)
             {
@@ -109,7 +116,16 @@ namespace HRManagementSystem
 
         public void UpdateClockOut(string attendanceId)
         {
-            Attendance? attendance = attendances.FirstOrDefault(a => a.AttendanceId == attendanceId);
+            Attendance? attendance = null;
+            foreach (Attendance a in attendances)
+            {
+                if (a.AttendanceId == attendanceId)
+                {
+                    attendance = a;
+                    break;
+                }
+            }
+
             if (attendance == null)
             {
                 throw new EntityNotFoundException("Attendance record not found.");
@@ -117,42 +133,50 @@ namespace HRManagementSystem
 
             attendance.ClockOutTime = DateTime.Now;
             SaveChanges();
-            
+
             // After updating clock out time, check if this is a contract employee
             // and update their hours worked
             UpdateContractEmployeeHours(attendance);
         }
-        
+
         private void UpdateContractEmployeeHours(Attendance attendance)
         {
-            if (attendance == null || attendance.ClockInTime == DateTime.MinValue || 
+            if (attendance == null || attendance.ClockInTime == DateTime.MinValue ||
                 attendance.ClockOutTime == DateTime.MinValue)
                 return;
-                
+
             try
             {
                 // Get the employee service
                 EmployeeService employeeService = EmployeeService.GetInstance();
                 List<Employee>? employees = employeeService.GetAll();
-                
+
                 if (employees == null)
                     return;
-                    
+
                 // Find the employee by their ID
-                Employee? employee = employees.FirstOrDefault(e => e.EmployeeId == attendance.EmployeeId);
-                
+                Employee? employee = null;
+                foreach (Employee e in employees)
+                {
+                    if (e.EmployeeId == attendance.EmployeeId)
+                    {
+                        employee = e;
+                        break;
+                    }
+                }
+
                 if (employee == null)
                     return;
-                    
+
                 // Check if this is a contract employee by checking the EmployeeType property
                 if (employee.EmployeeType == "Contract")
                 {
                     // Calculate the hours worked
                     TimeSpan hoursWorked = attendance.ClockOutTime - attendance.ClockInTime;
-                    
+
                     // Convert to decimal hours
                     decimal hours = (decimal)hoursWorked.TotalHours;
-                    
+
                     // Update the employee's hours worked if they have the ContractEmployee properties
                     if (employee is ContractEmployee contractEmployee)
                     {
@@ -163,9 +187,9 @@ namespace HRManagementSystem
                     {
                         // If the employee is stored as a base class but marked as Contract type,
                         // try to access the property through reflection or dynamic
-                        var employeeType = employee.GetType();
-                        var hoursWorkedProperty = employeeType.GetProperty("HoursWorked");
-                        
+                        Type employeeType = employee.GetType();
+                        System.Reflection.PropertyInfo? hoursWorkedProperty = employeeType.GetProperty("HoursWorked");
+
                         if (hoursWorkedProperty != null)
                         {
                             decimal currentHours = (decimal)hoursWorkedProperty.GetValue(employee, null);
@@ -184,44 +208,72 @@ namespace HRManagementSystem
 
         public List<Attendance> GetMonthlyAttendance(int year, int month)
         {
-            return attendances
-                .Where(a => a.Date.Year == year && a.Date.Month == month)
-                .ToList();
+            List<Attendance> result = new List<Attendance>();
+            foreach (Attendance a in attendances)
+            {
+                if (a.Date.Year == year && a.Date.Month == month)
+                {
+                    result.Add(a);
+                }
+            }
+            return result;
         }
 
         public Dictionary<string, int> GetAttendanceSummary(int year, int month)
         {
             List<Attendance> monthlyAttendance = GetMonthlyAttendance(year, month);
+            Dictionary<string, int> summary = new Dictionary<string, int>();
 
-            return monthlyAttendance
-                .GroupBy(a => a.Status)
-                .ToDictionary(
-                    group => group.Key.ToString(),
-                    group => group.Count()
-                );
+            foreach (Attendance a in monthlyAttendance)
+            {
+                string key = a.Status.ToString();
+                if (!summary.ContainsKey(key))
+                {
+                    summary[key] = 0;
+                }
+                summary[key]++;
+            }
+
+            return summary;
         }
 
         public List<Attendance> GetEmployeeAttendance(string employeeId, int year, int month)
         {
-            return attendances
-                .Where(a => a.EmployeeId == employeeId &&
-                            a.Date.Year == year &&
-                            a.Date.Month == month)
-                .ToList();
+            List<Attendance> result = new List<Attendance>();
+            foreach (Attendance a in attendances)
+            {
+                if (a.EmployeeId == employeeId && a.Date.Year == year && a.Date.Month == month)
+                {
+                    result.Add(a);
+                }
+            }
+            return result;
         }
 
         public List<Attendance> GetDailyAttendance(DateTime date)
         {
-            return attendances
-                .Where(a => a.Date.Date == date.Date)
-                .ToList();
+            List<Attendance> result = new List<Attendance>();
+            foreach (Attendance a in attendances)
+            {
+                if (a.Date.Date == date.Date)
+                {
+                    result.Add(a);
+                }
+            }
+            return result;
         }
 
         public List<Attendance> GetEmployeeDailyAttendance(string employeeId, DateTime date)
         {
-            return attendances
-                .Where(a => a.EmployeeId == employeeId && a.Date.Date == date.Date)
-                .ToList();
+            List<Attendance> result = new List<Attendance>();
+            foreach (Attendance a in attendances)
+            {
+                if (a.EmployeeId == employeeId && a.Date.Date == date.Date)
+                {
+                    result.Add(a);
+                }
+            }
+            return result;
         }
 
         private bool SaveChanges()

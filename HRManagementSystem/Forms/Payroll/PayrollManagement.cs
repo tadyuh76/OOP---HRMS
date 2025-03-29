@@ -173,8 +173,7 @@
 
                 foreach (Payroll payroll in _currentPayrolls)
                 {
-
-                    payrollViewModels.Add(new PayrollViewModel
+                    PayrollViewModel viewModel = new PayrollViewModel
                     {
                         PayrollId = payroll.PayrollId,
                         EmployeeId = payroll.EmployeeId,
@@ -186,7 +185,8 @@
                         Deductions = payroll.Deductions,
                         NetSalary = payroll.NetSalary,
                         IsPaid = payroll.IsPaid
-                    });
+                    };
+                    payrollViewModels.Add(viewModel);
                 }
 
                 dgvPayrolls.DataSource = null;

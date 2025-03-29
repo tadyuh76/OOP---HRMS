@@ -59,7 +59,15 @@ namespace HRManagementSystem
             if (string.IsNullOrEmpty(id))
                 throw new ArgumentNullException(nameof(id));
 
-            return _departments.FirstOrDefault(d => d.DepartmentId == id);
+            foreach (Department d in _departments)
+            {
+                if (d.DepartmentId == id)
+                {
+                    return d;
+                }
+            }
+
+            return null;
         }
 
         public bool Add(Department entity)
@@ -76,7 +84,15 @@ namespace HRManagementSystem
             if (entity == null || string.IsNullOrEmpty(entity.DepartmentId))
                 throw new ArgumentNullException(nameof(entity));
 
-            int index = _departments.FindIndex(d => d.DepartmentId == entity.DepartmentId);
+            int index = -1;
+            for (int i = 0; i < _departments.Count; i++)
+            {
+                if (_departments[i].DepartmentId == entity.DepartmentId)
+                {
+                    index = i;
+                    break;
+                }
+            }
             if (index == -1)
                 return false;
 
@@ -89,7 +105,15 @@ namespace HRManagementSystem
             if (string.IsNullOrEmpty(id))
                 throw new ArgumentNullException(nameof(id));
 
-            int index = _departments.FindIndex(d => d.DepartmentId == id);
+            int index = -1;
+            for (int i = 0; i < _departments.Count; i++)
+            {
+                if (_departments[i].DepartmentId == id)
+                {
+                    index = i;
+                    break;
+                }
+            }
             if (index == -1)
                 return false;
 
@@ -108,12 +132,20 @@ namespace HRManagementSystem
 
         public string GenerateNewDepartmentId()
         {
-            if (!_departments.Any())
+            if (_departments.Count == 0)
             {
                 return "DEP001";
             }
 
-            string? lastId = _departments.Max(d => d.DepartmentId);
+            string? lastId = null;
+            foreach (Department d in _departments)
+            {
+                if (lastId == null || string.Compare(d.DepartmentId, lastId) > 0)
+                {
+                    lastId = d.DepartmentId;
+                }
+            }
+
             if (int.TryParse(lastId.Substring(3), out int id))
             {
                 return $"DEP{(id + 1):D3}";

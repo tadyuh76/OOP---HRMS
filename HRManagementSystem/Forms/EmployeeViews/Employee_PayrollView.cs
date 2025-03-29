@@ -47,8 +47,8 @@ namespace HRManagementSystem
             EmployeeSelectionChanged += selectionChangedHandler;
 
             // Wire up the UI controls to our event handlers
-            btnSearch.Click += new EventHandler(SearchRequested);
-            cboEmployee.SelectedIndexChanged += new EventHandler(EmployeeSelectionChanged);
+            btnSearch.Click += new EventHandler(BtnSearch_Click);
+            cboEmployee.SelectedIndexChanged += new EventHandler(CboEmployee_SelectedIndexChanged);
 
             SetupDataGridView();
             LoadEmployeeNames();
@@ -166,6 +166,7 @@ namespace HRManagementSystem
             btnSearch.TabIndex = 1;
             btnSearch.Text = "Search";
             btnSearch.UseVisualStyleBackColor = true;
+            btnSearch.Click += new EventHandler(BtnSearch_Click);
             // 
             // dgvPayrolls
             // 

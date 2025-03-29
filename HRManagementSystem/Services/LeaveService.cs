@@ -60,7 +60,15 @@ namespace HRManagementSystem
             // Validate employee by EmployeeId field instead of Id field
             EmployeeService employeeService = EmployeeService.GetInstance();
             List<Employee> employees = employeeService.GetAll();
-            Employee? employee = employees.FirstOrDefault(e => e.EmployeeId == employeeId);
+            Employee? employee = null;
+            foreach (var e in employees)
+            {
+                if (e.EmployeeId == employeeId)
+                {
+                    employee = e;
+                    break;
+                }
+            }
 
             if (employee == null)
             {
@@ -119,15 +127,33 @@ namespace HRManagementSystem
 
         public List<LeaveRequest> GetPendingLeaveRequests()
         {
-            return leaveRequests
-                .Where(lr => lr.Status == LeaveStatus.Pending)
-                .ToList();
+            List<LeaveRequest> result = new List<LeaveRequest>();
+            foreach (LeaveRequest lr in leaveRequests)
+            {
+                if (IsPendingLeaveRequest(lr))
+                {
+                    result.Add(lr);
+                }
+            }
+            return result;
+        }
+
+        private bool IsPendingLeaveRequest(LeaveRequest lr)
+        {
+            return lr.Status == LeaveStatus.Pending;
         }
 
         public LeaveRequest ApproveLeaveRequest(string requestId, string approverId)
         {
-            LeaveRequest? leaveRequest = leaveRequests
-                .FirstOrDefault(lr => lr.RequestId == requestId);
+            LeaveRequest? leaveRequest = null;
+            foreach (LeaveRequest lr in leaveRequests)
+            {
+                if (IsMatchingRequestId(lr, requestId))
+                {
+                    leaveRequest = lr;
+                    break;
+                }
+            }
 
             if (leaveRequest == null)
             {
@@ -140,10 +166,22 @@ namespace HRManagementSystem
             return leaveRequest;
         }
 
+        private bool IsMatchingRequestId(LeaveRequest lr, string requestId)
+        {
+            return lr.RequestId == requestId;
+        }
+
         public LeaveRequest RejectLeaveRequest(string requestId, string approverId, string rejectionReason)
         {
-            LeaveRequest? leaveRequest = leaveRequests
-                .FirstOrDefault(lr => lr.RequestId == requestId);
+            LeaveRequest? leaveRequest = null;
+            foreach (LeaveRequest lr in leaveRequests)
+            {
+                if (IsMatchingRequestId(lr, requestId))
+                {
+                    leaveRequest = lr;
+                    break;
+                }
+            }
 
             if (leaveRequest == null)
             {
@@ -158,73 +196,121 @@ namespace HRManagementSystem
 
         public List<LeaveRequest> GetEmployeeLeaves(string employeeId)
         {
-            return leaveRequests
-                .Where(l => l.EmployeeId == employeeId)
-                .ToList();
+            List<LeaveRequest> result = new List<LeaveRequest>();
+            foreach (LeaveRequest l in leaveRequests)
+            {
+                if (IsMatchingEmployeeId(l, employeeId))
+                {
+                    result.Add(l);
+                }
+            }
+            return result;
+        }
+
+        private bool IsMatchingEmployeeId(LeaveRequest l, string employeeId)
+        {
+            return l.EmployeeId == employeeId;
         }
 
         public Dictionary<LeaveType, int> GetLeaveTypesSummary(string employeeId)
         {
-            return leaveRequests
-                .Where(l => l.EmployeeId == employeeId && l.Status == LeaveStatus.Approved)
-                .GroupBy(l => l.Type)
-                .ToDictionary(
-                    group => group.Key,
-                    group => group.Sum(l => l.CalculateDays())
-                );
-        }
+            Dictionary<LeaveType, int> leaveSummary = new Dictionary<LeaveType, int>();
 
-        public List<LeaveRequest> GetAllLeaves()
-        {
-            return leaveRequests.ToList();
+            foreach (LeaveRequest leaveRequest in leaveRequests)
+            {
+                if (leaveRequest.EmployeeId == employeeId && leaveRequest.Status == LeaveStatus.Approved)
+                {
+                    if (!leaveSummary.ContainsKey(leaveRequest.Type))
+                    {
+                        leaveSummary[leaveRequest.Type] = 0;
+                    }
+
+                    leaveSummary[leaveRequest.Type] += leaveRequest.CalculateDays();
+                }
+            }
+
+            return leaveSummary;
         }
 
         public List<LeaveRequest> GetMonthlyLeaves(int year, int month)
         {
-            // Returns all leaves that overlap with the specified month
-            return leaveRequests
-                .Where(l =>
-                    (l.StartDate.Year == year && l.StartDate.Month == month) ||  // Leave starts in target month
-                    (l.EndDate.Year == year && l.EndDate.Month == month) ||      // Leave ends in target month
-                    (l.StartDate < new DateTime(year, month, 1) &&
-                     l.EndDate >= new DateTime(year, month, 1))                  // Leave spans over target month
-                )
-                .ToList();
+            List<LeaveRequest> result = new List<LeaveRequest>();
+            foreach (LeaveRequest l in leaveRequests)
+            {
+                if (IsLeaveInMonth(l, year, month))
+                {
+                    result.Add(l);
+                }
+            }
+            return result;
+        }
+
+        private bool IsLeaveInMonth(LeaveRequest l, int year, int month)
+        {
+            return (l.StartDate.Year == year && l.StartDate.Month == month) ||  // Leave starts in target month
+                   (l.EndDate.Year == year && l.EndDate.Month == month) ||      // Leave ends in target month
+                   (l.StartDate < new DateTime(year, month, 1) &&
+                    l.EndDate >= new DateTime(year, month, 1));                 // Leave spans over target month
         }
 
         public List<LeaveRequest> GetDailyLeaves(DateTime date)
         {
-            // Returns all leaves that include the specified date
-            return leaveRequests
-                .Where(l =>
-                    date.Date >= l.StartDate.Date &&
-                    date.Date <= l.EndDate.Date
-                )
-                .ToList();
+            List<LeaveRequest> result = new List<LeaveRequest>();
+            foreach (LeaveRequest l in leaveRequests)
+            {
+                if (IsLeaveOnDate(l, date))
+                {
+                    result.Add(l);
+                }
+            }
+            return result;
+        }
+
+        private bool IsLeaveOnDate(LeaveRequest l, DateTime date)
+        {
+            return date.Date >= l.StartDate.Date &&
+                   date.Date <= l.EndDate.Date;
         }
 
         public List<LeaveRequest> GetEmployeeMonthlyLeaves(string employeeId, int year, int month)
         {
-            // Returns all leaves for an employee that overlap with the specified month
-            return leaveRequests
-                .Where(l => l.EmployeeId == employeeId &&
-                    ((l.StartDate.Year == year && l.StartDate.Month == month) ||  // Leave starts in target month
-                     (l.EndDate.Year == year && l.EndDate.Month == month) ||      // Leave ends in target month
-                     (l.StartDate < new DateTime(year, month, 1) &&
-                      l.EndDate >= new DateTime(year, month, 1)))                 // Leave spans over target month
-                )
-                .ToList();
+            List<LeaveRequest> result = new List<LeaveRequest>();
+            foreach (LeaveRequest l in leaveRequests)
+            {
+                if (IsEmployeeLeaveInMonth(l, employeeId, year, month))
+                {
+                    result.Add(l);
+                }
+            }
+            return result;
         }
 
+        private bool IsEmployeeLeaveInMonth(LeaveRequest l, string employeeId, int year, int month)
+        {
+            return l.EmployeeId == employeeId &&
+                   ((l.StartDate.Year == year && l.StartDate.Month == month) ||  // Leave starts in target month
+                    (l.EndDate.Year == year && l.EndDate.Month == month) ||      // Leave ends in target month
+                    (l.StartDate < new DateTime(year, month, 1) &&
+                     l.EndDate >= new DateTime(year, month, 1)));                // Leave spans over target month
+        }
         public List<LeaveRequest> GetEmployeeDailyLeaves(string employeeId, DateTime date)
         {
-            // Returns all leaves for an employee that include the specified date
-            return leaveRequests
-                .Where(l => l.EmployeeId == employeeId &&
-                    date.Date >= l.StartDate.Date &&
-                    date.Date <= l.EndDate.Date
-                )
-                .ToList();
+            List<LeaveRequest> result = new List<LeaveRequest>();
+            foreach (LeaveRequest l in leaveRequests)
+            {
+                if (IsEmployeeLeaveOnDate(l, employeeId, date))
+                {
+                    result.Add(l);
+                }
+            }
+            return result;
+        }
+
+        private bool IsEmployeeLeaveOnDate(LeaveRequest l, string employeeId, DateTime date)
+        {
+            return l.EmployeeId == employeeId &&
+                   date.Date >= l.StartDate.Date &&
+                   date.Date <= l.EndDate.Date;
         }
 
         private bool SaveChanges()

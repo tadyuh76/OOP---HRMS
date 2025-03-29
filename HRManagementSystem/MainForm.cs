@@ -133,6 +133,7 @@
             MaximizeBox = true;
             Text = "Human Resource Management System";
             Size = new Size(1200, 800);
+            StartPosition = FormStartPosition.CenterScreen;
         }
 
         // Unsubscribe from events when removing a form

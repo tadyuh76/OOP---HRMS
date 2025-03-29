@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace HRManagementSystem
 {
     public class EmployeeAttendanceViewer : Form
@@ -604,14 +606,14 @@ namespace HRManagementSystem
                 selectedEmployeeId, startDate.Year, startDate.Month);
 
             // Create a list to track all the dates employee was present
-            HashSet<DateTime> datesWithAttendance = new HashSet<DateTime>(
-                allAttendance.Select(a => a.Date.Date)
-            );
+            HashSet<DateTime> datesWithAttendance = new HashSet<DateTime>();
+            foreach (Attendance attendance in allAttendance)
+            {
+                datesWithAttendance.Add(attendance.Date.Date);
+            }
 
             // Get approved leaves
-            List<LeaveRequest> approvedLeaves = leaveService.GetEmployeeLeaves(selectedEmployeeId)
-                .Where(l => l.Status == LeaveStatus.Approved)
-                .ToList();
+            List<LeaveRequest> approvedLeaves = GetApprovedLeaves(selectedEmployeeId);
 
             // List to store absence dates
             List<DateTime> absenceDates = new List<DateTime>();
@@ -627,8 +629,7 @@ namespace HRManagementSystem
                 if (!datesWithAttendance.Contains(date.Date))
                 {
                     // Check if the employee was on approved leave
-                    bool onApprovedLeave = approvedLeaves.Any(l =>
-                        date.Date >= l.StartDate.Date && date.Date <= l.EndDate.Date);
+                    bool onApprovedLeave = IsEmployeeOnLeave(approvedLeaves, date);
 
                     // If not on leave, they were absent
                     if (!onApprovedLeave)
@@ -641,9 +642,12 @@ namespace HRManagementSystem
             // Display message with absences
             if (absenceDates.Count > 0)
             {
-                string absencesText = string.Join("\n", absenceDates.Select(d => d.ToString("yyyy-MM-dd (dddd)")));
+                string absencesText = GetFormattedAbsenceDates(absenceDates);
+                Employee selectedEmployee = GetEmployeeById(selectedEmployeeId);
+                string employeeName = selectedEmployee != null ? selectedEmployee.Name : "Unknown";
+
                 MessageBox.Show(
-                    $"Absences for {employees.FirstOrDefault(e => e.EmployeeId == selectedEmployeeId)?.Name} during {dateRangeText}:\n\n{absencesText}",
+                    $"Absences for {employeeName} during {dateRangeText}:\n\n{absencesText}",
                     "Absence Report",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information
@@ -651,13 +655,70 @@ namespace HRManagementSystem
             }
             else
             {
+                Employee selectedEmployee = GetEmployeeById(selectedEmployeeId);
+                string employeeName = selectedEmployee != null ? selectedEmployee.Name : "Unknown";
+
                 MessageBox.Show(
-                    $"No absences found for {employees.FirstOrDefault(e => e.EmployeeId == selectedEmployeeId)?.Name} during {dateRangeText}.",
+                    $"No absences found for {employeeName} during {dateRangeText}.",
                     "Absence Report",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information
                 );
             }
+        }
+
+        private Employee GetEmployeeById(string employeeId)
+        {
+            foreach (Employee employee in employees)
+            {
+                if (employee.EmployeeId == employeeId)
+                {
+                    return employee;
+                }
+            }
+            return null;
+        }
+
+        private string GetFormattedAbsenceDates(List<DateTime> absenceDates)
+        {
+            StringBuilder result = new StringBuilder();
+            foreach (DateTime date in absenceDates)
+            {
+                if (result.Length > 0)
+                {
+                    result.AppendLine();
+                }
+                result.Append(date.ToString("yyyy-MM-dd (dddd)"));
+            }
+            return result.ToString();
+        }
+
+        private bool IsEmployeeOnLeave(List<LeaveRequest> approvedLeaves, DateTime date)
+        {
+            foreach (LeaveRequest leave in approvedLeaves)
+            {
+                if (date.Date >= leave.StartDate.Date && date.Date <= leave.EndDate.Date)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private List<LeaveRequest> GetApprovedLeaves(string employeeId)
+        {
+            List<LeaveRequest> result = new List<LeaveRequest>();
+            List<LeaveRequest> allLeaves = leaveService.GetEmployeeLeaves(employeeId);
+
+            foreach (LeaveRequest leave in allLeaves)
+            {
+                if (leave.Status == LeaveStatus.Approved)
+                {
+                    result.Add(leave);
+                }
+            }
+
+            return result;
         }
 
         // Class to hold employee data for combo box

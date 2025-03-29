@@ -251,8 +251,21 @@ namespace HRManagementSystem
             }
 
             // Find the employee by ID and set the manager name
-            Employee manager = _employees.FirstOrDefault(emp => emp.EmployeeId == managerId);
-            txtManagerName.Text = manager?.Name ?? "";
+            Employee manager = FindEmployeeById(managerId);
+            txtManagerName.Text = manager != null ? manager.Name : "";
+        }
+
+        // New helper method to replace lambda function
+        private Employee FindEmployeeById(string employeeId)
+        {
+            foreach (Employee emp in _employees)
+            {
+                if (emp.EmployeeId == employeeId)
+                {
+                    return emp;
+                }
+            }
+            return null;
         }
 
         private void BtnSave_Click(object sender, EventArgs e)

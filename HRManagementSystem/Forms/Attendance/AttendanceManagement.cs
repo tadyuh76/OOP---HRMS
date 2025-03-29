@@ -789,48 +789,70 @@ namespace HRManagementSystem
                 // If the employee hasn't clocked out yet, add a clock out option
                 if (attendance.ClockInTime != DateTime.MinValue && attendance.ClockOutTime == DateTime.MinValue)
                 {
-                    actionMenu.Items.Add("Record Clock Out", null, (s, args) =>
-                    {
-                        try
-                        {
-                            attendanceService.UpdateClockOut(attendance.AttendanceId);
-                            LoadAttendanceData(); // Refresh the data
-                            MessageBox.Show("Clock out recorded successfully!", "Success",
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Error recording clock out: {ex.Message}", "Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    });
+                    ToolStripMenuItem clockOutItem = new ToolStripMenuItem("Record Clock Out");
+                    clockOutItem.Tag = attendance.AttendanceId;
+                    clockOutItem.Click += RecordClockOut_Click;
+                    actionMenu.Items.Add(clockOutItem);
                 }
 
-                actionMenu.Items.Add("View Details", null, (s, args) =>
-                {
-                    // Check if the employee clocked in late
-                    string lateStatus = "";
-                    if (attendance.Status == AttendanceStatus.Late)
-                    {
-                        TimeSpan clockInTime = attendance.ClockInTime.TimeOfDay;
-                        TimeSpan minutesLate = clockInTime - workStartTime;
-                        lateStatus = $"\nLate by: {minutesLate.TotalMinutes:0} minutes";
-                    }
-
-                    MessageBox.Show(
-                        $"Attendance Details\n\n" +
-                        $"Employee: {employeeName} ({attendance.EmployeeId})\n" +
-                        $"Date: {attendance.Date.ToShortDateString()}\n" +
-                        $"Clock In: {(attendance.ClockInTime != DateTime.MinValue ? attendance.ClockInTime.ToString("HH:mm") : "Not recorded")}\n" +
-                        $"Clock Out: {(attendance.ClockOutTime != DateTime.MinValue ? attendance.ClockOutTime.ToString("HH:mm") : "Not recorded")}\n" +
-                        $"Status: {GetAttendanceStatusString(attendance.Status)}{lateStatus}",
-                        "Attendance Details",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information
-                    );
-                });
+                ToolStripMenuItem viewDetailsItem = new ToolStripMenuItem("View Details");
+                viewDetailsItem.Tag = attendance;
+                viewDetailsItem.Click += ViewAttendanceDetails_Click;
+                actionMenu.Items.Add(viewDetailsItem);
 
                 actionMenu.Show(Cursor.Position);
+            }
+        }
+
+        private void RecordClockOut_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
+            if (menuItem != null && menuItem.Tag != null)
+            {
+                string attendanceId = menuItem.Tag.ToString();
+                try
+                {
+                    attendanceService.UpdateClockOut(attendanceId);
+                    LoadAttendanceData(); // Refresh the data
+                    MessageBox.Show("Clock out recorded successfully!", "Success",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error recording clock out: {ex.Message}", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void ViewAttendanceDetails_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
+            if (menuItem != null && menuItem.Tag != null)
+            {
+                Attendance attendance = menuItem.Tag as Attendance;
+                if (attendance == null) return;
+
+                // Check if the employee clocked in late
+                string lateStatus = "";
+                if (attendance.Status == AttendanceStatus.Late)
+                {
+                    TimeSpan clockInTime = attendance.ClockInTime.TimeOfDay;
+                    TimeSpan minutesLate = clockInTime - workStartTime;
+                    lateStatus = $"\nLate by: {minutesLate.TotalMinutes:0} minutes";
+                }
+
+                MessageBox.Show(
+                    $"Attendance Details\n\n" +
+                    $"Employee: {attendance.EmployeeName} ({attendance.EmployeeId})\n" +
+                    $"Date: {attendance.Date.ToShortDateString()}\n" +
+                    $"Clock In: {(attendance.ClockInTime != DateTime.MinValue ? attendance.ClockInTime.ToString("HH:mm") : "Not recorded")}\n" +
+                    $"Clock Out: {(attendance.ClockOutTime != DateTime.MinValue ? attendance.ClockOutTime.ToString("HH:mm") : "Not recorded")}\n" +
+                    $"Status: {GetAttendanceStatusString(attendance.Status)}{lateStatus}",
+                    "Attendance Details",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
             }
         }
 
@@ -851,113 +873,164 @@ namespace HRManagementSystem
 
                 if (request.Status == LeaveStatus.Pending)
                 {
-                    actionMenu.Items.Add("Approve", null, (s, args) =>
+                    ToolStripMenuItem approveItem = new ToolStripMenuItem("Approve");
+                    approveItem.Tag = request.RequestId;
+                    approveItem.Click += ApproveLeaveRequest_Click;
+                    actionMenu.Items.Add(approveItem);
+
+                    ToolStripMenuItem rejectItem = new ToolStripMenuItem("Reject");
+                    rejectItem.Tag = request;
+                    rejectItem.Click += RejectLeaveRequest_Click;
+                    actionMenu.Items.Add(rejectItem);
+                }
+
+                ToolStripMenuItem viewDetailsItem = new ToolStripMenuItem("View Details");
+                viewDetailsItem.Tag = request;
+                viewDetailsItem.Click += ViewLeaveDetails_Click;
+                actionMenu.Items.Add(viewDetailsItem);
+
+                actionMenu.Show(Cursor.Position);
+            }
+        }
+
+        private void ApproveLeaveRequest_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
+            if (menuItem != null && menuItem.Tag != null)
+            {
+                string requestId = menuItem.Tag.ToString();
+                try
+                {
+                    // Use an admin ID for approval (in a real system, this would be the logged-in user's ID)
+                    string approverId = "ADMIN001";
+                    leaveService.ApproveLeaveRequest(requestId, approverId);
+                    LoadLeaveData(); // Refresh the data
+                    MessageBox.Show("Leave request approved!", "Success",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error approving leave request: {ex.Message}", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void RejectLeaveRequest_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
+            if (menuItem != null && menuItem.Tag != null)
+            {
+                LeaveRequest request = menuItem.Tag as LeaveRequest;
+                if (request == null) return;
+
+                // Create a simple form to get rejection reason
+                Form rejectionForm = new Form
+                {
+                    Text = "Reject Leave Request",
+                    Size = new Size(400, 200),
+                    StartPosition = FormStartPosition.CenterParent,
+                    FormBorderStyle = FormBorderStyle.FixedDialog,
+                    MaximizeBox = false,
+                    MinimizeBox = false
+                };
+
+                Label lblReason = new Label
+                {
+                    Text = "Rejection Reason:",
+                    Location = new Point(20, 20),
+                    AutoSize = true
+                };
+                rejectionForm.Controls.Add(lblReason);
+
+                TextBox txtReason = new TextBox
+                {
+                    Location = new Point(20, 50),
+                    Size = new Size(340, 80),
+                    Multiline = true
+                };
+                rejectionForm.Controls.Add(txtReason);
+
+                Button btnConfirm = new Button
+                {
+                    Text = "Confirm Rejection",
+                    Location = new Point(240, 140),
+                    Size = new Size(120, 30),
+                    BackColor = Color.FromArgb(220, 53, 69),
+                    ForeColor = Color.White,
+                    FlatStyle = FlatStyle.Flat
+                };
+                btnConfirm.FlatAppearance.BorderSize = 0;
+                btnConfirm.Tag = new object[] { request, txtReason, rejectionForm };
+                btnConfirm.Click += ConfirmRejectLeaveRequest_Click;
+                rejectionForm.Controls.Add(btnConfirm);
+
+                rejectionForm.ShowDialog();
+            }
+        }
+
+        private void ConfirmRejectLeaveRequest_Click(object sender, EventArgs e)
+        {
+            Button button = sender as Button;
+            if (button != null && button.Tag != null)
+            {
+                object[] parameters = button.Tag as object[];
+                if (parameters != null && parameters.Length == 3)
+                {
+                    LeaveRequest request = parameters[0] as LeaveRequest;
+                    TextBox txtReason = parameters[1] as TextBox;
+                    Form rejectionForm = parameters[2] as Form;
+
+                    if (request != null && txtReason != null && rejectionForm != null)
                     {
                         try
                         {
-                            // Use an admin ID for approval (in a real system, this would be the logged-in user's ID)
+                            if (string.IsNullOrWhiteSpace(txtReason.Text))
+                            {
+                                MessageBox.Show("Please provide a reason for rejection.", "Error",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+
+                            // Use an admin ID for rejection (in a real system, this would be the logged-in user's ID)
                             string approverId = "ADMIN001";
-                            leaveService.ApproveLeaveRequest(request.RequestId, approverId);
+                            leaveService.RejectLeaveRequest(request.RequestId, approverId, txtReason.Text);
                             LoadLeaveData(); // Refresh the data
-                            MessageBox.Show("Leave request approved!", "Success",
+
+                            rejectionForm.Close();
+                            MessageBox.Show("Leave request rejected!", "Success",
                                 MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Error approving leave request: {ex.Message}", "Error",
+                            MessageBox.Show($"Error rejecting leave request: {ex.Message}", "Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
-                    });
-
-                    actionMenu.Items.Add("Reject", null, (s, args) =>
-                    {
-                        // Create a simple form to get rejection reason
-                        Form rejectionForm = new Form
-                        {
-                            Text = "Reject Leave Request",
-                            Size = new Size(400, 200),
-                            StartPosition = FormStartPosition.CenterParent,
-                            FormBorderStyle = FormBorderStyle.FixedDialog,
-                            MaximizeBox = false,
-                            MinimizeBox = false
-                        };
-
-                        Label lblReason = new Label
-                        {
-                            Text = "Rejection Reason:",
-                            Location = new Point(20, 20),
-                            AutoSize = true
-                        };
-                        rejectionForm.Controls.Add(lblReason);
-
-                        TextBox txtReason = new TextBox
-                        {
-                            Location = new Point(20, 50),
-                            Size = new Size(340, 80),
-                            Multiline = true
-                        };
-                        rejectionForm.Controls.Add(txtReason);
-
-                        Button btnConfirm = new Button
-                        {
-                            Text = "Confirm Rejection",
-                            Location = new Point(240, 140),
-                            Size = new Size(120, 30),
-                            BackColor = Color.FromArgb(220, 53, 69),
-                            ForeColor = Color.White,
-                            FlatStyle = FlatStyle.Flat
-                        };
-                        btnConfirm.FlatAppearance.BorderSize = 0;
-                        rejectionForm.Controls.Add(btnConfirm);
-
-                        btnConfirm.Click += (sender, e) =>
-                        {
-                            try
-                            {
-                                if (string.IsNullOrWhiteSpace(txtReason.Text))
-                                {
-                                    MessageBox.Show("Please provide a reason for rejection.", "Error",
-                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    return;
-                                }
-
-                                // Use an admin ID for rejection (in a real system, this would be the logged-in user's ID)
-                                string approverId = "ADMIN001";
-                                leaveService.RejectLeaveRequest(request.RequestId, approverId, txtReason.Text);
-                                LoadLeaveData(); // Refresh the data
-
-                                rejectionForm.Close();
-                                MessageBox.Show("Leave request rejected!", "Success",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"Error rejecting leave request: {ex.Message}", "Error",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
-                        };
-
-                        rejectionForm.ShowDialog();
-                    });
+                    }
                 }
+            }
+        }
 
-                actionMenu.Items.Add("View Details", null, (s, args) =>
-                {
-                    MessageBox.Show(
-                        $"Leave Request Details\n\n" +
-                        $"Employee: {employeeName} ({request.EmployeeId})\n" +
-                        $"Request Date: {request.RequestDate.ToShortDateString()}\n" +
-                        $"Leave Type: {request.Type}\n" +
-                        $"Period: {request.StartDate.ToShortDateString()} to {request.EndDate.ToShortDateString()}\n" +
-                        $"Status: {request.Status}\n" +
-                        $"Remarks: {request.Remarks}",
-                        "Leave Request Details",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information
-                    );
-                });
+        private void ViewLeaveDetails_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
+            if (menuItem != null && menuItem.Tag != null)
+            {
+                LeaveRequest request = menuItem.Tag as LeaveRequest;
+                if (request == null) return;
 
-                actionMenu.Show(Cursor.Position);
+                MessageBox.Show(
+                    $"Leave Request Details\n\n" +
+                    $"Employee: {request.EmployeeName} ({request.EmployeeId})\n" +
+                    $"Request Date: {request.RequestDate.ToShortDateString()}\n" +
+                    $"Leave Type: {request.Type}\n" +
+                    $"Period: {request.StartDate.ToShortDateString()} to {request.EndDate.ToShortDateString()}\n" +
+                    $"Status: {request.Status}\n" +
+                    $"Remarks: {request.Remarks}",
+                    "Leave Request Details",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
             }
         }
     }
