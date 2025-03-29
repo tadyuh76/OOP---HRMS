@@ -94,6 +94,10 @@ namespace HRManagementSystem
         [JsonIgnore]
         public string DepartmentName { get; set; }
 
+        // Add employee type property for type discrimination
+        [JsonPropertyName("employeeType")]
+        public virtual string EmployeeType { get; set; } = "Regular";
+
         public int CalculateYearsOfService()
         {
             DateTime today = DateTime.Today;

@@ -5,6 +5,8 @@ namespace HRManagementSystem
     {
         private List<Payroll> payrolls;
         private readonly string payrollDataPath = FileManager.payrollDataPath;
+        private readonly EmployeeService _employeeService;
+
         public PayrollService()
         {
             if (File.Exists(payrollDataPath))
@@ -17,6 +19,7 @@ namespace HRManagementSystem
                 payrolls = new List<Payroll>();
             }
 
+            _employeeService = EmployeeService.GetInstance();
         }
 
         public List<Payroll> GetAll()
@@ -232,6 +235,16 @@ namespace HRManagementSystem
             }
 
             return anyChanges;
+        }
+
+        // Method to calculate salary based on employee type
+        public decimal CalculateSalaryForEmployee(string employeeId)
+        {
+            var employee = _employeeService.GetAll().FirstOrDefault(e => e.EmployeeId == employeeId);
+            if (employee == null)
+                return 0;
+
+            return employee.CalculateSalary();
         }
     }
 }

@@ -11,7 +11,9 @@
     "email": "john.smith@company.com",
     "phone": "0914804685",
     "dateOfBirth": "1985-06-15T00:00:00",
-    "address": "123 Main St, Boston, MA 02108"
+    "address": "123 Main St, Boston, MA 02108",
+    "employeeType": "FullTime",
+    "annualBonus": 10000.00
   },
   {
     "employeeId": "EMP002",
@@ -25,7 +27,9 @@
     "email": "emily.johnson@company.com",
     "phone": "555-234-5678",
     "dateOfBirth": "1990-11-23T00:00:00",
-    "address": "456 Oak Ave, Cambridge, MA 02139"
+    "address": "456 Oak Ave, Cambridge, MA 02139",
+    "employeeType": "FullTime",
+    "annualBonus": 8000.00
   },
   {
     "employeeId": "EMP003",
@@ -39,7 +43,9 @@
     "email": "michael.brown@company.com",
     "phone": "555-345-6789",
     "dateOfBirth": "1978-04-30T00:00:00",
-    "address": "789 Pine St, Somerville, MA 02143"
+    "address": "789 Pine St, Somerville, MA 02143",
+    "employeeType": "FullTime",
+    "annualBonus": 12000.00
   },
   {
     "employeeId": "EMP004",
@@ -53,7 +59,9 @@
     "email": "sarah.davis@company.com",
     "phone": "555-456-7890",
     "dateOfBirth": "1982-09-12T00:00:00",
-    "address": "101 Elm St, Brookline, MA 02445"
+    "address": "101 Elm St, Brookline, MA 02445",
+    "employeeType": "FullTime",
+    "annualBonus": 7000.00
   },
   {
     "employeeId": "EMP005",
@@ -67,7 +75,9 @@
     "email": "james.wilson@company.com",
     "phone": "555-567-8901",
     "dateOfBirth": "1975-03-18T00:00:00",
-    "address": "202 Maple Dr, Newton, MA 02458"
+    "address": "202 Maple Dr, Newton, MA 02458",
+    "employeeType": "FullTime",
+    "annualBonus": 15000.00
   },
   {
     "employeeId": "EMP006",
@@ -81,7 +91,9 @@
     "email": "jessica.lee@company.com",
     "phone": "555-678-9012",
     "dateOfBirth": "1988-07-05T00:00:00",
-    "address": "303 Cedar Rd, Watertown, MA 02472"
+    "address": "303 Cedar Rd, Watertown, MA 02472",
+    "employeeType": "FullTime",
+    "annualBonus": 5000.00
   },
   {
     "employeeId": "EMP007",
@@ -95,7 +107,9 @@
     "email": "david.martinez@company.com",
     "phone": "555-789-0123",
     "dateOfBirth": "1983-12-09T00:00:00",
-    "address": "404 Birch Ln, Malden, MA 02148"
+    "address": "404 Birch Ln, Malden, MA 02148",
+    "employeeType": "FullTime",
+    "annualBonus": 9000.00
   },
   {
     "employeeId": "EMP008",
@@ -109,7 +123,9 @@
     "email": "jennifer.garcia@company.com",
     "phone": "555-890-1234",
     "dateOfBirth": "1992-05-27T00:00:00",
-    "address": "505 Spruce Ave, Medford, MA 02155"
+    "address": "505 Spruce Ave, Medford, MA 02155",
+    "employeeType": "FullTime",
+    "annualBonus": 3000.00
   },
   {
     "employeeId": "EMP009",
@@ -123,7 +139,9 @@
     "email": "robert.taylor@company.com",
     "phone": "555-901-2345",
     "dateOfBirth": "1980-02-14T00:00:00",
-    "address": "606 Willow Way, Arlington, MA 02474"
+    "address": "606 Willow Way, Arlington, MA 02474",
+    "employeeType": "FullTime",
+    "annualBonus": 7500.00
   },
   {
     "employeeId": "EMP010",
@@ -137,7 +155,9 @@
     "email": "lisa.anderson@company.com",
     "phone": "555-012-3456",
     "dateOfBirth": "1986-10-03T00:00:00",
-    "address": "707 Aspen Ct, Belmont, MA 02478"
+    "address": "707 Aspen Ct, Belmont, MA 02478",
+    "employeeType": "FullTime",
+    "annualBonus": 8500.00
   },
   {
     "employeeId": "EMP011",
@@ -151,7 +171,8 @@
     "email": "thomas.clark@company.com",
     "phone": "555-123-4567",
     "dateOfBirth": "1984-01-22T00:00:00",
-    "address": "808 Redwood Rd, Cambridge, MA 02139"
+    "address": "808 Redwood Rd, Cambridge, MA 02139",
+    "employeeType": "Regular"
   },
   {
     "employeeId": "EMP012",
@@ -165,7 +186,8 @@
     "email": "olivia.rodriguez@company.com",
     "phone": "555-234-5678",
     "dateOfBirth": "1991-08-17T00:00:00",
-    "address": "909 Magnolia St, Somerville, MA 02143"
+    "address": "909 Magnolia St, Somerville, MA 02143",
+    "employeeType": "Regular"
   },
   {
     "employeeId": "EMP013",
@@ -179,7 +201,8 @@
     "email": "william.harris@company.com",
     "phone": "555-345-6789",
     "dateOfBirth": "1979-06-29T00:00:00",
-    "address": "1010 Dogwood Dr, Boston, MA 02116"
+    "address": "1010 Dogwood Dr, Boston, MA 02116",
+    "employeeType": "Regular"
   },
   {
     "employeeId": "EMP014",
@@ -193,7 +216,10 @@
     "email": "sophia.lewis@company.com",
     "phone": "555-456-7890",
     "dateOfBirth": "1989-03-11T00:00:00",
-    "address": "1111 Fir Pl, Brookline, MA 02445"
+    "address": "1111 Fir Pl, Brookline, MA 02445",
+    "employeeType": "Contract",
+    "hourlyRate": 45.00,
+    "hoursWorked": 160
   },
   {
     "employeeId": "EMP015",
@@ -207,7 +233,10 @@
     "email": "daniel.walker@company.com",
     "phone": "555-567-8901",
     "dateOfBirth": "1993-12-05T00:00:00",
-    "address": "1212 Cherry Ln, Newton, MA 02458"
+    "address": "1212 Cherry Ln, Newton, MA 02458",
+    "employeeType": "Contract",
+    "hourlyRate": 40.00,
+    "hoursWorked": 150
   },
   {
     "employeeId": "EMP016",
@@ -221,6 +250,8 @@
     "email": "tadyuh76@gmail.com",
     "phone": "0914398183",
     "dateOfBirth": "2005-06-07T23:34:29.909",
-    "address": "Rainbow Way"
+    "address": "Rainbow Way",
+    "employeeType": "FullTime",
+    "annualBonus": 20000.00
   }
 ]

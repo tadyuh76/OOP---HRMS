@@ -36,6 +36,10 @@ namespace HRManagementSystem
             set { annualBonus = value; }
         }
 
+        // Override the employee type
+        [JsonPropertyName("employeeType")]
+        public override string EmployeeType { get; set; } = "FullTime";
+
         public override decimal CalculateSalary()
         {
             // Monthly salary calculation (base salary + annualBonus/12)

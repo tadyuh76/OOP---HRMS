@@ -5,6 +5,7 @@ namespace HRManagementSystem
         private Employee _employee;
         private List<Department> _departments;
         private bool _isNewEmployee;
+        private EmployeeFactory _employeeFactory = new EmployeeFactory();
 
         // Property to access the updated employee after the form closes
         public Employee UpdatedEmployee => _employee;
@@ -188,7 +189,7 @@ namespace HRManagementSystem
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 2,
-                RowCount = 7,
+                RowCount = 9, // Increased row count for employee type fields
                 Padding = new Padding(5),
                 ColumnStyles = {
                     new ColumnStyle(SizeType.Percent, 30),
@@ -197,7 +198,7 @@ namespace HRManagementSystem
             };
 
             // Set row styles for employment panel
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 9; i++) // Increased loop count
             {
                 employmentPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             }
@@ -298,6 +299,97 @@ namespace HRManagementSystem
             };
             employmentPanel.Controls.Add(nudSalary, 1, 4);
 
+            // Employee Type field
+            Label lblEmployeeType = new Label
+            {
+                Text = "Employee Type:",
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            employmentPanel.Controls.Add(lblEmployeeType, 0, 5);
+
+            ComboBox cmbEmployeeType = new ComboBox
+            {
+                Name = "cmbEmployeeType",
+                Dock = DockStyle.Fill,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Margin = new Padding(0, 10, 0, 10)
+            };
+            cmbEmployeeType.Items.AddRange(new object[] { "Regular", "FullTime", "Contract" });
+            cmbEmployeeType.SelectedIndexChanged += CmbEmployeeType_SelectedIndexChanged;
+            employmentPanel.Controls.Add(cmbEmployeeType, 1, 5);
+
+            // Annual Bonus field (for FullTime employees)
+            Label lblAnnualBonus = new Label
+            {
+                Name = "lblAnnualBonus",
+                Text = "Annual Bonus:",
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Visible = false
+            };
+            employmentPanel.Controls.Add(lblAnnualBonus, 0, 6);
+
+            NumericUpDown nudAnnualBonus = new NumericUpDown
+            {
+                Name = "nudAnnualBonus",
+                Dock = DockStyle.Fill,
+                Maximum = 100000,
+                Increment = 1000,
+                ThousandsSeparator = true,
+                DecimalPlaces = 2,
+                Margin = new Padding(0, 10, 0, 10),
+                Visible = false
+            };
+            employmentPanel.Controls.Add(nudAnnualBonus, 1, 6);
+
+            // Hourly Rate field (for Contract employees)
+            Label lblHourlyRate = new Label
+            {
+                Name = "lblHourlyRate",
+                Text = "Hourly Rate:",
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Visible = false
+            };
+            employmentPanel.Controls.Add(lblHourlyRate, 0, 7);
+
+            NumericUpDown nudHourlyRate = new NumericUpDown
+            {
+                Name = "nudHourlyRate",
+                Dock = DockStyle.Fill,
+                Maximum = 1000,
+                Increment = 5,
+                ThousandsSeparator = true,
+                DecimalPlaces = 2,
+                Margin = new Padding(0, 10, 0, 10),
+                Visible = false
+            };
+            employmentPanel.Controls.Add(nudHourlyRate, 1, 7);
+
+            // Hours Worked field (for Contract employees)
+            Label lblHoursWorked = new Label
+            {
+                Name = "lblHoursWorked",
+                Text = "Hours Worked:",
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Visible = false
+            };
+            employmentPanel.Controls.Add(lblHoursWorked, 0, 8);
+
+            NumericUpDown nudHoursWorked = new NumericUpDown
+            {
+                Name = "nudHoursWorked",
+                Dock = DockStyle.Fill,
+                Maximum = 500,
+                Increment = 1,
+                ThousandsSeparator = true,
+                Margin = new Padding(0, 10, 0, 10),
+                Visible = false
+            };
+            employmentPanel.Controls.Add(nudHoursWorked, 1, 8);
+
             // Bottom button panel
             Panel buttonPanel = new Panel
             {
@@ -349,6 +441,48 @@ namespace HRManagementSystem
             tabControl.Height = ClientSize.Height - buttonPanel.Height;
         }
 
+        private void CmbEmployeeType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ComboBox cmbEmployeeType = sender as ComboBox;
+            if (cmbEmployeeType == null) return;
+
+            string selectedType = cmbEmployeeType.SelectedItem.ToString();
+
+            // Get references to type-specific controls
+            Label lblAnnualBonus = Controls.Find("lblAnnualBonus", true).FirstOrDefault() as Label;
+            NumericUpDown nudAnnualBonus = Controls.Find("nudAnnualBonus", true).FirstOrDefault() as NumericUpDown;
+            Label lblHourlyRate = Controls.Find("lblHourlyRate", true).FirstOrDefault() as Label;
+            NumericUpDown nudHourlyRate = Controls.Find("nudHourlyRate", true).FirstOrDefault() as NumericUpDown;
+            Label lblHoursWorked = Controls.Find("lblHoursWorked", true).FirstOrDefault() as Label;
+            NumericUpDown nudHoursWorked = Controls.Find("nudHoursWorked", true).FirstOrDefault() as NumericUpDown;
+
+            // Hide all type-specific fields first
+            if (lblAnnualBonus != null) lblAnnualBonus.Visible = false;
+            if (nudAnnualBonus != null) nudAnnualBonus.Visible = false;
+            if (lblHourlyRate != null) lblHourlyRate.Visible = false;
+            if (nudHourlyRate != null) nudHourlyRate.Visible = false;
+            if (lblHoursWorked != null) lblHoursWorked.Visible = false;
+            if (nudHoursWorked != null) nudHoursWorked.Visible = false;
+
+            // Show only relevant fields for the selected type
+            switch (selectedType)
+            {
+                case "FullTime":
+                    if (lblAnnualBonus != null) lblAnnualBonus.Visible = true;
+                    if (nudAnnualBonus != null) nudAnnualBonus.Visible = true;
+                    break;
+                case "Contract":
+                    if (lblHourlyRate != null) lblHourlyRate.Visible = true;
+                    if (nudHourlyRate != null) nudHourlyRate.Visible = true;
+                    if (lblHoursWorked != null) lblHoursWorked.Visible = true;
+                    if (nudHoursWorked != null) nudHoursWorked.Visible = true;
+                    break;
+                default: // Regular
+                    // No additional fields needed
+                    break;
+            }
+        }
+
         private void LoadEmployeeData()
         {
             // Load data into form controls
@@ -388,6 +522,34 @@ namespace HRManagementSystem
                             cmbDepartment.SelectedIndex = i;
                             break;
                         }
+                    }
+                }
+
+                // Handle employee type
+                ComboBox cmbEmployeeType = Controls.Find("cmbEmployeeType", true).FirstOrDefault() as ComboBox;
+                NumericUpDown nudAnnualBonus = Controls.Find("nudAnnualBonus", true).FirstOrDefault() as NumericUpDown;
+                NumericUpDown nudHourlyRate = Controls.Find("nudHourlyRate", true).FirstOrDefault() as NumericUpDown;
+                NumericUpDown nudHoursWorked = Controls.Find("nudHoursWorked", true).FirstOrDefault() as NumericUpDown;
+
+                if (cmbEmployeeType != null)
+                {
+                    cmbEmployeeType.SelectedItem = _employee.EmployeeType;
+                }
+
+                // Load type-specific data
+                if (_employee is FullTimeEmployee fullTimeEmployee && nudAnnualBonus != null)
+                {
+                    nudAnnualBonus.Value = Math.Min(fullTimeEmployee.AnnualBonus, nudAnnualBonus.Maximum);
+                }
+                else if (_employee is ContractEmployee contractEmployee)
+                {
+                    if (nudHourlyRate != null)
+                    {
+                        nudHourlyRate.Value = Math.Min(contractEmployee.HourlyRate, nudHourlyRate.Maximum);
+                    }
+                    if (nudHoursWorked != null)
+                    {
+                        nudHoursWorked.Value = Math.Min(contractEmployee.HoursWorked, nudHoursWorked.Maximum);
                     }
                 }
             }
@@ -435,6 +597,38 @@ namespace HRManagementSystem
             {
                 _employee.DepartmentId = selectedDept.Department.DepartmentId;
                 _employee.DepartmentName = selectedDept.Department.Name;
+            }
+
+            // Get employee type fields
+            ComboBox cmbEmployeeType = Controls.Find("cmbEmployeeType", true).FirstOrDefault() as ComboBox;
+            NumericUpDown nudAnnualBonus = Controls.Find("nudAnnualBonus", true).FirstOrDefault() as NumericUpDown;
+            NumericUpDown nudHourlyRate = Controls.Find("nudHourlyRate", true).FirstOrDefault() as NumericUpDown;
+            NumericUpDown nudHoursWorked = Controls.Find("nudHoursWorked", true).FirstOrDefault() as NumericUpDown;
+
+            // Get selected employee type
+            string selectedType = cmbEmployeeType?.SelectedItem?.ToString() ?? "Regular";
+
+            // Convert employee to the selected type if needed
+            if (selectedType != _employee.EmployeeType)
+            {
+                _employee = _employeeFactory.ConvertToType(_employee, selectedType);
+            }
+
+            // Update type-specific properties
+            if (_employee is FullTimeEmployee fullTimeEmployee && nudAnnualBonus != null)
+            {
+                fullTimeEmployee.AnnualBonus = nudAnnualBonus.Value;
+            }
+            else if (_employee is ContractEmployee contractEmployee)
+            {
+                if (nudHourlyRate != null)
+                {
+                    contractEmployee.HourlyRate = nudHourlyRate.Value;
+                }
+                if (nudHoursWorked != null)
+                {
+                    contractEmployee.HoursWorked = (int)nudHoursWorked.Value;
+                }
             }
 
             DialogResult = DialogResult.OK;

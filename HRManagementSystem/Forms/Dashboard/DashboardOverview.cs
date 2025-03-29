@@ -5,7 +5,6 @@
         // Event for module button clicks that MainForm can subscribe to
         public event EventHandler<ModuleAccessEventArgs> ModuleAccessRequested;
 
-
         // Dashboard panels
         private Panel pnlDashboard = null!;
         private Panel pnlCompanyInfo = null!;
@@ -15,10 +14,25 @@
         // Reference to MainForm can be optional depending on your approach
         private MainForm mainForm;
 
+        // References to services
+        private readonly EmployeeService _employeeService;
+        private readonly DepartmentService _departmentService;
+
+        // Statistics data
+        private int _employeeCount;
+        private int _departmentCount;
 
         public DashboardOverview(MainForm mainForm = null)
         {
             this.mainForm = mainForm;
+
+            // Initialize services
+            _employeeService = EmployeeService.GetInstance();
+            _departmentService = DepartmentService.GetInstance();
+
+            // Load initial statistics
+            LoadStatistics();
+
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1200, 800);
             Text = "Human Resource Management System";
@@ -28,6 +42,58 @@
             CreateDashboardPanel();
 
             Resize += Form_Resize; // Add resize event handler
+        }
+
+        // Method to load statistics from services
+        private void LoadStatistics()
+        {
+            try
+            {
+                var employees = _employeeService.GetAll();
+                _employeeCount = employees?.Count ?? 0;
+
+                var departments = _departmentService.GetAll();
+                _departmentCount = departments?.Count ?? 0;
+            }
+            catch (Exception ex)
+            {
+                // Fallback to zeros if there's an error
+                _employeeCount = 0;
+                _departmentCount = 0;
+                MessageBox.Show($"Error loading statistics: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Method to update statistics cards with real data
+        public void UpdateStatistics()
+        {
+            LoadStatistics();
+
+            // Find and update the employee and department statistic cards
+            Panel employeeCard = FindCardByTag("stat-card-1");
+            Panel departmentCard = FindCardByTag("stat-card-2");
+
+            if (employeeCard != null)
+            {
+                foreach (Control c in employeeCard.Controls)
+                {
+                    if (c is Label lbl && lbl.Tag?.ToString() == "StatValue")
+                    {
+                        lbl.Text = $"{_employeeCount}";
+                    }
+                }
+            }
+
+            if (departmentCard != null)
+            {
+                foreach (Control c in departmentCard.Controls)
+                {
+                    if (c is Label lbl && lbl.Tag?.ToString() == "StatValue")
+                    {
+                        lbl.Text = $"{_departmentCount}";
+                    }
+                }
+            }
         }
 
         private void CreateDashboardPanel()
@@ -193,9 +259,9 @@
             int cardWidth = (pnlStatistics.Width / 2) - 10; // 10px gap between cards
             int cardHeight = 110;
 
-            // Create statistics cards in a 2x2 grid
-            CreateStatCard("Total Employees", "250+", 0, 0, cardWidth, cardHeight, "stat-card-1");
-            CreateStatCard("Departments", "8", cardWidth + 10, 0, cardWidth, cardHeight, "stat-card-2");
+            // Create statistics cards in a 2x2 grid with real data
+            CreateStatCard("Total Employees", _employeeCount.ToString(), 0, 0, cardWidth, cardHeight, "stat-card-1");
+            CreateStatCard("Departments", _departmentCount.ToString(), cardWidth + 10, 0, cardWidth, cardHeight, "stat-card-2");
             CreateStatCard("Retention Rate", "94%", 0, cardHeight + 10, cardWidth, cardHeight, "stat-card-3");
             CreateStatCard("Employee Satisfaction", "4.5/5", cardWidth + 10, cardHeight + 10, cardWidth, cardHeight, "stat-card-4");
         }
@@ -368,7 +434,6 @@
             // Connect button click event to handler
             btnAccess.Click += ModuleButton_Click;
 
-
             pnlModule.Controls.Add(btnAccess);
         }
 
@@ -383,7 +448,6 @@
                 ModuleAccessRequested?.Invoke(this, new ModuleAccessEventArgs(moduleName));
             }
         }
-
 
         // Handle form resizing to adjust dashboard panel and its contents
         private void Form_Resize(object sender, EventArgs e)

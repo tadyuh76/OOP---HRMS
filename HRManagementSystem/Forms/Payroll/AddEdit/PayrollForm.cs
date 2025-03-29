@@ -8,6 +8,12 @@ namespace HRManagementSystem
         private readonly EmployeeService _employeeService;
         private Payroll _payroll;
         private bool _isEditMode = false;
+        private Employee _selectedEmployee;
+        private bool _isEmployeeTypeLoaded = false;
+        private Label lblEmployeeType;
+        private Label lblEmployeeTypeValue;
+        private Label lblSalaryBreakdown;
+        private TextBox txtSalaryBreakdown;
 
         public PayrollForm(PayrollService payrollService, EmployeeService employeeService)
         {
@@ -17,6 +23,7 @@ namespace HRManagementSystem
             _payroll = new Payroll();
 
             SetupForm();
+            InitializeNewLabels();
         }
 
         public PayrollForm(PayrollService payrollService, EmployeeService employeeService, Payroll payroll)
@@ -28,35 +35,78 @@ namespace HRManagementSystem
             _isEditMode = true;
 
             SetupForm();
+            InitializeNewLabels();
             LoadPayrollData();
+        }
+
+        private void InitializeNewLabels()
+        {
+            // Resize the form to accommodate the new controls
+            this.Height += 200;
+
+            // Add employee type labels
+            lblEmployeeType = new Label();
+            lblEmployeeType.Name = "lblEmployeeType";
+            lblEmployeeType.Text = "Employee Type:";
+            lblEmployeeType.Location = new Point(groupBox3.Location.X + 22, groupBox3.Location.Y + groupBox3.Height + 20);
+            lblEmployeeType.AutoSize = true;
+            Controls.Add(lblEmployeeType);
+
+            lblEmployeeTypeValue = new Label();
+            lblEmployeeTypeValue.Name = "lblEmployeeTypeValue";
+            lblEmployeeTypeValue.Text = "N/A";
+            lblEmployeeTypeValue.Location = new Point(groupBox3.Location.X + 155, groupBox3.Location.Y + groupBox3.Height + 20);
+            lblEmployeeTypeValue.AutoSize = true;
+            lblEmployeeTypeValue.Font = new Font(lblEmployeeTypeValue.Font, FontStyle.Bold);
+            lblEmployeeTypeValue.ForeColor = Color.Blue;
+            Controls.Add(lblEmployeeTypeValue);
+
+            // Add salary breakdown section
+            lblSalaryBreakdown = new Label();
+            lblSalaryBreakdown.Name = "lblSalaryBreakdown";
+            lblSalaryBreakdown.Text = "Salary Calculation:";
+            lblSalaryBreakdown.Location = new Point(groupBox3.Location.X + 22, groupBox3.Location.Y + groupBox3.Height + 50);
+            lblSalaryBreakdown.AutoSize = true;
+            Controls.Add(lblSalaryBreakdown);
+
+            txtSalaryBreakdown = new TextBox();
+            txtSalaryBreakdown.Name = "txtSalaryBreakdown";
+            txtSalaryBreakdown.Multiline = true;
+            txtSalaryBreakdown.ReadOnly = true;
+            txtSalaryBreakdown.BackColor = Color.WhiteSmoke;
+            txtSalaryBreakdown.BorderStyle = BorderStyle.FixedSingle;
+            txtSalaryBreakdown.Location = new Point(groupBox3.Location.X + 22, groupBox3.Location.Y + groupBox3.Height + 75);
+            txtSalaryBreakdown.Width = groupBox3.Width - 44;
+            txtSalaryBreakdown.Height = 100;
+            txtSalaryBreakdown.Font = new Font("Consolas", 9F, FontStyle.Regular);
+            Controls.Add(txtSalaryBreakdown);
+
+            // Move the buttons down to accommodate the new controls
+            btnSave.Location = new Point(btnSave.Location.X, txtSalaryBreakdown.Location.Y + txtSalaryBreakdown.Height + 20);
+            btnCancel.Location = new Point(btnCancel.Location.X, txtSalaryBreakdown.Location.Y + txtSalaryBreakdown.Height + 20);
         }
 
         private void LoadEmployeeList()
         {
             try
             {
-                // Get employees from EmployeeService instead of payroll records
                 List<Employee> employees = _employeeService.GetAll();
 
-                // Create a list for the combo box
                 var employeeList = employees
                     .Select(e => new
                     {
-                        Id = e.Id,                 // Use the primary Id (needed for GetById)
-                        EmployeeId = e.EmployeeId, // Keep track of EmployeeId too
+                        Id = e.Id,
+                        EmployeeId = e.EmployeeId,
                         Name = $"{e.Name}"
                     })
                     .ToList();
 
-                // Add default option
                 employeeList.Insert(0, new { Id = "", EmployeeId = "", Name = "-- Choose Employee --" });
 
-                // Bind to combo box
                 cboEmployee.DisplayMember = "Name";
                 cboEmployee.ValueMember = "Id";
                 cboEmployee.DataSource = employeeList;
 
-                // Add event handler for employee selection
                 cboEmployee.SelectedIndexChanged += CboEmployee_SelectedIndexChanged;
             }
             catch (Exception ex)
@@ -73,16 +123,40 @@ namespace HRManagementSystem
                 try
                 {
                     dynamic selectedEmployee = cboEmployee.SelectedItem;
-                    string id = selectedEmployee.Id;  // Use the primary Id for lookup
+                    string id = selectedEmployee.Id;
 
-                    // Find the employee with matching Id, not EmployeeId
-                    Employee employee = _employeeService.GetById(id);
+                    _selectedEmployee = _employeeService.GetById(id);
 
-                    if (employee != null)
+                    if (_selectedEmployee != null)
                     {
-                        // Prefill base salary from employee data
-                        txtBaseSalary.Text = employee.BaseSalary.ToString("N0");
-                        // Recalculate net salary based on the new base salary
+                        SetupEmployeeTypeFields(_selectedEmployee);
+                        txtBaseSalary.Text = _selectedEmployee.BaseSalary.ToString("N0");
+
+                        // Update employee type display with visual emphasis
+                        lblEmployeeTypeValue.Text = _selectedEmployee.EmployeeType;
+
+                        // Set different colors based on employee type for better visibility
+                        switch (_selectedEmployee.EmployeeType)
+                        {
+                            case "FullTime":
+                                lblEmployeeTypeValue.ForeColor = Color.DarkGreen;
+                                break;
+                            case "Contract":
+                                lblEmployeeTypeValue.ForeColor = Color.DarkBlue;
+                                break;
+                            default:
+                                lblEmployeeTypeValue.ForeColor = Color.DarkOrange;
+                                break;
+                        }
+
+                        // Calculate default allowance based on employee type
+                        if (_selectedEmployee is FullTimeEmployee fullTimeEmp && !_isEditMode)
+                        {
+                            // For new payrolls, set initial allowance to include monthly bonus
+                            decimal monthlyBonus = fullTimeEmp.AnnualBonus / 12;
+                            txtAllowances.Text = monthlyBonus.ToString("N0");
+                        }
+
                         CalculateNetSalary();
                     }
                 }
@@ -92,6 +166,136 @@ namespace HRManagementSystem
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            else
+            {
+                // Reset when no employee is selected
+                lblEmployeeTypeValue.Text = "N/A";
+                lblEmployeeTypeValue.ForeColor = Color.Black;
+                txtSalaryBreakdown.Text = "";
+            }
+        }
+
+        private void SetupEmployeeTypeFields(Employee employee)
+        {
+            _isEmployeeTypeLoaded = false;
+
+            if (employee is FullTimeEmployee fullTimeEmployee)
+            {
+                if (!Controls.ContainsKey("lblAnnualBonus"))
+                {
+                    Label lblAnnualBonus = new Label();
+                    lblAnnualBonus.Name = "lblAnnualBonus";
+                    lblAnnualBonus.Text = "Annual Bonus:";
+                    lblAnnualBonus.Location = new Point(txtAllowances.Location.X, txtAllowances.Location.Y + 40);
+                    Controls.Add(lblAnnualBonus);
+
+                    TextBox txtAnnualBonus = new TextBox();
+                    txtAnnualBonus.Name = "txtAnnualBonus";
+                    txtAnnualBonus.Location = new Point(txtAllowances.Location.X + 120, txtAllowances.Location.Y + 40);
+                    txtAnnualBonus.Width = txtAllowances.Width;
+                    txtAnnualBonus.TextChanged += SalaryField_TextChanged;
+                    Controls.Add(txtAnnualBonus);
+
+                    Label lblMonthlyBonus = new Label();
+                    lblMonthlyBonus.Name = "lblMonthlyBonus";
+                    lblMonthlyBonus.Text = "Monthly Bonus:";
+                    lblMonthlyBonus.Location = new Point(txtAllowances.Location.X + 350, txtAllowances.Location.Y + 40);
+                    lblMonthlyBonus.AutoSize = true;
+                    Controls.Add(lblMonthlyBonus);
+
+                    Label lblMonthlyBonusValue = new Label();
+                    lblMonthlyBonusValue.Name = "lblMonthlyBonusValue";
+                    lblMonthlyBonusValue.Text = "0";
+                    lblMonthlyBonusValue.Location = new Point(txtAllowances.Location.X + 450, txtAllowances.Location.Y + 40);
+                    lblMonthlyBonusValue.Font = new Font(lblMonthlyBonusValue.Font, FontStyle.Bold);
+                    lblMonthlyBonusValue.ForeColor = Color.Green;
+                    lblMonthlyBonusValue.AutoSize = true;
+                    Controls.Add(lblMonthlyBonusValue);
+                }
+
+                ((TextBox)Controls["txtAnnualBonus"]).Text = fullTimeEmployee.AnnualBonus.ToString("N0");
+                ((Label)Controls["lblMonthlyBonusValue"]).Text = (fullTimeEmployee.AnnualBonus / 12).ToString("N0");
+
+                if (Controls.ContainsKey("txtHourlyRate"))
+                {
+                    Controls["lblHourlyRate"].Visible = false;
+                    Controls["txtHourlyRate"].Visible = false;
+                    Controls["lblHoursWorked"].Visible = false;
+                    Controls["txtHoursWorked"].Visible = false;
+                }
+
+                Controls["lblAnnualBonus"].Visible = true;
+                Controls["txtAnnualBonus"].Visible = true;
+                Controls["lblMonthlyBonus"].Visible = true;
+                Controls["lblMonthlyBonusValue"].Visible = true;
+            }
+            else if (employee is ContractEmployee contractEmployee)
+            {
+                if (!Controls.ContainsKey("lblHourlyRate"))
+                {
+                    Label lblHourlyRate = new Label();
+                    lblHourlyRate.Name = "lblHourlyRate";
+                    lblHourlyRate.Text = "Hourly Rate:";
+                    lblHourlyRate.Location = new Point(txtAllowances.Location.X, txtAllowances.Location.Y + 40);
+                    Controls.Add(lblHourlyRate);
+
+                    TextBox txtHourlyRate = new TextBox();
+                    txtHourlyRate.Name = "txtHourlyRate";
+                    txtHourlyRate.Location = new Point(txtAllowances.Location.X + 120, txtAllowances.Location.Y + 40);
+                    txtHourlyRate.Width = txtAllowances.Width;
+                    txtHourlyRate.TextChanged += SalaryField_TextChanged;
+                    Controls.Add(txtHourlyRate);
+
+                    Label lblHoursWorked = new Label();
+                    lblHoursWorked.Name = "lblHoursWorked";
+                    lblHoursWorked.Text = "Hours Worked:";
+                    lblHoursWorked.Location = new Point(txtAllowances.Location.X, txtAllowances.Location.Y + 80);
+                    Controls.Add(lblHoursWorked);
+
+                    TextBox txtHoursWorked = new TextBox();
+                    txtHoursWorked.Name = "txtHoursWorked";
+                    txtHoursWorked.Location = new Point(txtAllowances.Location.X + 120, txtAllowances.Location.Y + 80);
+                    txtHoursWorked.Width = txtAllowances.Width;
+                    txtHoursWorked.TextChanged += SalaryField_TextChanged;
+                    Controls.Add(txtHoursWorked);
+                }
+
+                ((TextBox)Controls["txtHourlyRate"]).Text = contractEmployee.HourlyRate.ToString("N0");
+                ((TextBox)Controls["txtHoursWorked"]).Text = contractEmployee.HoursWorked.ToString();
+
+                if (Controls.ContainsKey("txtAnnualBonus"))
+                {
+                    Controls["lblAnnualBonus"].Visible = false;
+                    Controls["txtAnnualBonus"].Visible = false;
+                    Controls["lblMonthlyBonus"].Visible = false;
+                    Controls["lblMonthlyBonusValue"].Visible = false;
+                }
+
+                Controls["lblHourlyRate"].Visible = true;
+                Controls["txtHourlyRate"].Visible = true;
+                Controls["lblHoursWorked"].Visible = true;
+                Controls["txtHoursWorked"].Visible = true;
+            }
+            else
+            {
+                if (Controls.ContainsKey("txtAnnualBonus"))
+                {
+                    Controls["lblAnnualBonus"].Visible = false;
+                    Controls["txtAnnualBonus"].Visible = false;
+                    Controls["lblMonthlyBonus"].Visible = false;
+                    Controls["lblMonthlyBonusValue"].Visible = false;
+                }
+
+                if (Controls.ContainsKey("txtHourlyRate"))
+                {
+                    Controls["lblHourlyRate"].Visible = false;
+                    Controls["txtHourlyRate"].Visible = false;
+                    Controls["lblHoursWorked"].Visible = false;
+                    Controls["txtHoursWorked"].Visible = false;
+                }
+            }
+
+            _isEmployeeTypeLoaded = true;
         }
 
         private void SetupForm()
@@ -113,14 +317,13 @@ namespace HRManagementSystem
             for (int i = 0; i < cboEmployee.Items.Count; i++)
             {
                 dynamic item = cboEmployee.Items[i];
-                if (item.EmployeeId == _payroll.EmployeeId)  // Match by EmployeeId
+                if (item.EmployeeId == _payroll.EmployeeId)
                 {
                     cboEmployee.SelectedIndex = i;
                     break;
                 }
             }
 
-            // Disable employee selection in edit mode
             cboEmployee.Enabled = false;
 
             dtpPayPeriodStart.Value = _payroll.PayPeriodStart;
@@ -130,11 +333,48 @@ namespace HRManagementSystem
             txtDeductions.Text = _payroll.Deductions.ToString("N0");
             txtNetSalary.Text = _payroll.NetSalary.ToString("N0");
             chkIsPaid.Checked = _payroll.IsPaid;
+
+            // Update employee type if employee is selected
+            if (_selectedEmployee != null)
+            {
+                lblEmployeeTypeValue.Text = _selectedEmployee.EmployeeType;
+
+                // Set different colors based on employee type
+                switch (_selectedEmployee.EmployeeType)
+                {
+                    case "FullTime":
+                        lblEmployeeTypeValue.ForeColor = Color.DarkGreen;
+                        break;
+                    case "Contract":
+                        lblEmployeeTypeValue.ForeColor = Color.DarkBlue;
+                        break;
+                    default:
+                        lblEmployeeTypeValue.ForeColor = Color.DarkOrange;
+                        break;
+                }
+
+                CalculateNetSalary(); // This will update the salary breakdown
+            }
         }
 
         private void SalaryField_TextChanged(object sender, EventArgs e)
         {
             CalculateNetSalary();
+
+            // If the annual bonus field is changed, update the monthly bonus display
+            if (sender is TextBox && ((TextBox)sender).Name == "txtAnnualBonus" && Controls.ContainsKey("lblMonthlyBonusValue"))
+            {
+                try
+                {
+                    decimal annualBonus = ParseCurrency(((TextBox)Controls["txtAnnualBonus"]).Text);
+                    decimal monthlyBonus = annualBonus / 12;
+                    ((Label)Controls["lblMonthlyBonusValue"]).Text = monthlyBonus.ToString("N0");
+                }
+                catch
+                {
+                    ((Label)Controls["lblMonthlyBonusValue"]).Text = "0";
+                }
+            }
         }
 
         private void CalculateNetSalary()
@@ -144,13 +384,73 @@ namespace HRManagementSystem
                 decimal baseSalary = ParseCurrency(txtBaseSalary.Text);
                 decimal allowances = ParseCurrency(txtAllowances.Text);
                 decimal deductions = ParseCurrency(txtDeductions.Text);
+                decimal calculatedSalary = baseSalary;
+                decimal monthlyBonus = 0;
 
-                decimal netSalary = _payrollService.CalculateNetSalary(baseSalary, allowances, deductions);
+                if (_selectedEmployee != null && _isEmployeeTypeLoaded)
+                {
+                    if (_selectedEmployee is FullTimeEmployee fullTimeEmployee && Controls.ContainsKey("txtAnnualBonus"))
+                    {
+                        decimal annualBonus = ParseCurrency(((TextBox)Controls["txtAnnualBonus"]).Text);
+                        fullTimeEmployee.AnnualBonus = annualBonus;
+
+                        // Update the monthly bonus display
+                        monthlyBonus = annualBonus / 12;
+                        ((Label)Controls["lblMonthlyBonusValue"]).Text = monthlyBonus.ToString("N0");
+
+                        calculatedSalary = fullTimeEmployee.CalculateSalary();
+
+                        // Simple explanation of calculation
+                        txtSalaryBreakdown.Text = $"This FullTime employee receives:\n" +
+                                                 $"• Base Salary: {baseSalary:N0}\n" +
+                                                 $"• Monthly Bonus (from Annual Bonus): {monthlyBonus:N0}\n" +
+                                                 $"• Additional Allowances: {allowances:N0}\n" +
+                                                 $"• Deductions: {deductions:N0}";
+                    }
+                    else if (_selectedEmployee is ContractEmployee contractEmployee &&
+                             Controls.ContainsKey("txtHourlyRate") &&
+                             Controls.ContainsKey("txtHoursWorked"))
+                    {
+                        decimal hourlyRate = ParseCurrency(((TextBox)Controls["txtHourlyRate"]).Text);
+                        int hoursWorked = 0;
+                        int.TryParse(((TextBox)Controls["txtHoursWorked"]).Text, out hoursWorked);
+
+                        contractEmployee.HourlyRate = hourlyRate;
+                        contractEmployee.HoursWorked = hoursWorked;
+
+                        calculatedSalary = contractEmployee.CalculateSalary();
+
+                        // Simple explanation of calculation
+                        txtSalaryBreakdown.Text = $"This Contract employee receives:\n" +
+                                                 $"• {hourlyRate:N0} per hour × {hoursWorked} hours = {calculatedSalary:N0}\n" +
+                                                 $"• Additional Allowances: {allowances:N0}\n" +
+                                                 $"• Deductions: {deductions:N0}";
+                    }
+                    else
+                    {
+                        // Regular employee
+                        calculatedSalary = _selectedEmployee.CalculateSalary();
+
+                        // Simple explanation of calculation
+                        txtSalaryBreakdown.Text = $"This Regular employee receives:\n" +
+                                                 $"• Base Salary: {baseSalary:N0}\n" +
+                                                 $"• Additional Allowances: {allowances:N0}\n" +
+                                                 $"• Deductions: {deductions:N0}";
+                    }
+                }
+                else
+                {
+                    // No employee selected
+                    txtSalaryBreakdown.Text = "No employee selected";
+                }
+
+                decimal netSalary = calculatedSalary + allowances - deductions;
                 txtNetSalary.Text = netSalary.ToString("N0");
             }
-            catch
+            catch (Exception ex)
             {
                 txtNetSalary.Text = "0";
+                txtSalaryBreakdown.Text = $"Error: {ex.Message}";
             }
         }
 
@@ -175,14 +475,34 @@ namespace HRManagementSystem
                 {
                     dynamic selectedEmployee = cboEmployee.SelectedItem;
 
-                    _payroll.EmployeeId = selectedEmployee.EmployeeId;  // Use EmployeeId for payroll
+                    _payroll.EmployeeId = selectedEmployee.EmployeeId;
                     _payroll.EmployeeName = selectedEmployee.Name;
                     _payroll.PayPeriodStart = dtpPayPeriodStart.Value;
                     _payroll.PayPeriodEnd = dtpPayPeriodEnd.Value;
                     _payroll.BaseSalary = ParseCurrency(txtBaseSalary.Text);
                     _payroll.Allowances = ParseCurrency(txtAllowances.Text);
                     _payroll.Deductions = ParseCurrency(txtDeductions.Text);
-                    _payroll.NetSalary = ParseCurrency(txtNetSalary.Text);
+
+                    if (_selectedEmployee != null)
+                    {
+                        if (_selectedEmployee is FullTimeEmployee fullTimeEmployee && Controls.ContainsKey("txtAnnualBonus"))
+                        {
+                            fullTimeEmployee.AnnualBonus = ParseCurrency(((TextBox)Controls["txtAnnualBonus"]).Text);
+                        }
+                        else if (_selectedEmployee is ContractEmployee contractEmployee &&
+                                Controls.ContainsKey("txtHourlyRate") && Controls.ContainsKey("txtHoursWorked"))
+                        {
+                            contractEmployee.HourlyRate = ParseCurrency(((TextBox)Controls["txtHourlyRate"]).Text);
+                            contractEmployee.HoursWorked = int.Parse(((TextBox)Controls["txtHoursWorked"]).Text);
+                        }
+
+                        _payroll.NetSalary = _selectedEmployee.CalculateSalary() + _payroll.Allowances - _payroll.Deductions;
+                    }
+                    else
+                    {
+                        _payroll.NetSalary = ParseCurrency(txtNetSalary.Text);
+                    }
+
                     _payroll.IsPaid = chkIsPaid.Checked;
 
                     if (_isEditMode)

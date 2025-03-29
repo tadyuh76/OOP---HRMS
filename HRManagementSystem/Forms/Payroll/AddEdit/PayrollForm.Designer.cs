@@ -280,7 +280,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             CancelButton = btnCancel;
-            ClientSize = new Size(657, 515);
+            ClientSize = new Size(657, 700); // Increased height to fit new controls
             Controls.Add(btnCancel);
             Controls.Add(btnSave);
             Controls.Add(groupBox3);

@@ -46,6 +46,10 @@ namespace HRManagementSystem
             set { hoursWorked = value; }
         }
 
+        // Override the employee type
+        [JsonPropertyName("employeeType")]
+        public override string EmployeeType { get; set; } = "Contract";
+
         public override decimal CalculateSalary()
         {
             return hourlyRate * hoursWorked;

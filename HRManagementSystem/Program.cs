@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace HRManagementSystem
 {
     internal static class Program
@@ -8,12 +10,21 @@ namespace HRManagementSystem
         [STAThread]
         static void Main()
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            ApplicationConfiguration.Initialize();
-            Application.Run(new MainForm());
+            try
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                ApplicationConfiguration.Initialize();
+                Application.Run(new MainForm());
+            }
+            catch (JsonException ex)
+            {
+                MessageBox.Show($"JSON Error: {ex.Message}\n\nStack Trace: {ex.StackTrace}", "JSON Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unexpected Error: {ex.Message}\n\nStack Trace: {ex.StackTrace}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
