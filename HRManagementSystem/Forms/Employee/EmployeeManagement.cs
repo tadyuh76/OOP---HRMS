@@ -583,14 +583,13 @@ namespace HRManagementSystem
 
         private void BtnAddEmployee_Click(object sender, EventArgs e)
         {
-            // Create a new employee
-            Employee newEmployee = new Employee
-            {
-                Id = Guid.NewGuid().ToString(),
-                EmployeeId = GenerateNewEmployeeId(),
-                Status = EmployeeStatus.Active,
-                HireDate = DateTime.Now
-            };
+            // Create a new employee using the factory
+            EmployeeFactory employeeFactory = new EmployeeFactory();
+            Employee newEmployee = employeeFactory.CreateEmployee("Regular");
+            newEmployee.Id = Guid.NewGuid().ToString();
+            newEmployee.EmployeeId = GenerateNewEmployeeId();
+            newEmployee.Status = EmployeeStatus.Active;
+            newEmployee.HireDate = DateTime.Now;
 
             // Open the edit form for a new employee
             EditEmployeeForm addForm = new EditEmployeeForm(newEmployee, departments, true);

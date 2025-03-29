@@ -575,52 +575,51 @@ namespace HRManagementSystem
             ComboBox cmbStatus = Controls.Find("cmbStatus", true).FirstOrDefault() as ComboBox;
             NumericUpDown nudSalary = Controls.Find("nudSalary", true).FirstOrDefault() as NumericUpDown;
 
-            // Update employee object
-            _employee.Name = txtName?.Text;
-            _employee.Email = txtEmail?.Text;
-            _employee.Phone = txtPhone?.Text;
-            _employee.DateOfBirth = dtpDob?.Value ?? DateTime.Now;
-            _employee.Address = txtAddress?.Text;
-            _employee.Position = txtPosition?.Text;
-            _employee.HireDate = dtpHireDate?.Value ?? DateTime.Now;
+            // Get employee type
+            ComboBox cmbEmployeeType = Controls.Find("cmbEmployeeType", true).FirstOrDefault() as ComboBox;
+            string selectedType = cmbEmployeeType?.SelectedItem?.ToString() ?? "Regular";
+
+            // Create a new employee using the factory
+            Employee newEmployee = _employeeFactory.CreateEmployee(selectedType);
+            newEmployee.Id = _employee.Id; // Retain the same ID for updates
+            newEmployee.EmployeeId = _employee.EmployeeId; // Retain the same EmployeeId for updates
+            newEmployee.Name = txtName?.Text;
+            newEmployee.Email = txtEmail?.Text;
+            newEmployee.Phone = txtPhone?.Text;
+            newEmployee.DateOfBirth = dtpDob?.Value ?? DateTime.Now;
+            newEmployee.Address = txtAddress?.Text;
+            newEmployee.Position = txtPosition?.Text;
+            newEmployee.HireDate = dtpHireDate?.Value ?? DateTime.Now;
 
             // Parse and set status enum
             if (cmbStatus?.SelectedItem != null && Enum.TryParse(cmbStatus.SelectedItem.ToString(), out EmployeeStatus status))
             {
-                _employee.Status = status;
+                newEmployee.Status = status;
             }
 
-            _employee.BaseSalary = nudSalary?.Value ?? 0;
+            newEmployee.BaseSalary = nudSalary?.Value ?? 0;
 
             // Set department ID and name
             if (cmbDepartment?.SelectedItem is DepartmentItem selectedDept)
             {
-                _employee.DepartmentId = selectedDept.Department.DepartmentId;
-                _employee.DepartmentName = selectedDept.Department.Name;
-            }
-
-            // Get employee type fields
-            ComboBox cmbEmployeeType = Controls.Find("cmbEmployeeType", true).FirstOrDefault() as ComboBox;
-            NumericUpDown nudAnnualBonus = Controls.Find("nudAnnualBonus", true).FirstOrDefault() as NumericUpDown;
-            NumericUpDown nudHourlyRate = Controls.Find("nudHourlyRate", true).FirstOrDefault() as NumericUpDown;
-            NumericUpDown nudHoursWorked = Controls.Find("nudHoursWorked", true).FirstOrDefault() as NumericUpDown;
-
-            // Get selected employee type
-            string selectedType = cmbEmployeeType?.SelectedItem?.ToString() ?? "Regular";
-
-            // Convert employee to the selected type if needed
-            if (selectedType != _employee.EmployeeType)
-            {
-                _employee = _employeeFactory.ConvertToType(_employee, selectedType);
+                newEmployee.DepartmentId = selectedDept.Department.DepartmentId;
+                newEmployee.DepartmentName = selectedDept.Department.Name;
             }
 
             // Update type-specific properties
-            if (_employee is FullTimeEmployee fullTimeEmployee && nudAnnualBonus != null)
+            if (newEmployee is FullTimeEmployee fullTimeEmployee)
             {
-                fullTimeEmployee.AnnualBonus = nudAnnualBonus.Value;
+                NumericUpDown nudAnnualBonus = Controls.Find("nudAnnualBonus", true).FirstOrDefault() as NumericUpDown;
+                if (nudAnnualBonus != null)
+                {
+                    fullTimeEmployee.AnnualBonus = nudAnnualBonus.Value;
+                }
             }
-            else if (_employee is ContractEmployee contractEmployee)
+            else if (newEmployee is ContractEmployee contractEmployee)
             {
+                NumericUpDown nudHourlyRate = Controls.Find("nudHourlyRate", true).FirstOrDefault() as NumericUpDown;
+                NumericUpDown nudHoursWorked = Controls.Find("nudHoursWorked", true).FirstOrDefault() as NumericUpDown;
+
                 if (nudHourlyRate != null)
                 {
                     contractEmployee.HourlyRate = nudHourlyRate.Value;
@@ -631,6 +630,7 @@ namespace HRManagementSystem
                 }
             }
 
+            _employee = newEmployee; // Update the reference to the new employee object
             DialogResult = DialogResult.OK;
             Close();
         }
