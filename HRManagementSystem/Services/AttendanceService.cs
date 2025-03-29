@@ -117,6 +117,69 @@ namespace HRManagementSystem
 
             attendance.ClockOutTime = DateTime.Now;
             SaveChanges();
+            
+            // After updating clock out time, check if this is a contract employee
+            // and update their hours worked
+            UpdateContractEmployeeHours(attendance);
+        }
+        
+        private void UpdateContractEmployeeHours(Attendance attendance)
+        {
+            if (attendance == null || attendance.ClockInTime == DateTime.MinValue || 
+                attendance.ClockOutTime == DateTime.MinValue)
+                return;
+                
+            try
+            {
+                // Get the employee service
+                EmployeeService employeeService = EmployeeService.GetInstance();
+                List<Employee>? employees = employeeService.GetAll();
+                
+                if (employees == null)
+                    return;
+                    
+                // Find the employee by their ID
+                Employee? employee = employees.FirstOrDefault(e => e.EmployeeId == attendance.EmployeeId);
+                
+                if (employee == null)
+                    return;
+                    
+                // Check if this is a contract employee by checking the EmployeeType property
+                if (employee.EmployeeType == "Contract")
+                {
+                    // Calculate the hours worked
+                    TimeSpan hoursWorked = attendance.ClockOutTime - attendance.ClockInTime;
+                    
+                    // Convert to decimal hours
+                    decimal hours = (decimal)hoursWorked.TotalHours;
+                    
+                    // Update the employee's hours worked if they have the ContractEmployee properties
+                    if (employee is ContractEmployee contractEmployee)
+                    {
+                        contractEmployee.HoursWorked += hours;
+                        employeeService.Update(contractEmployee);
+                    }
+                    else
+                    {
+                        // If the employee is stored as a base class but marked as Contract type,
+                        // try to access the property through reflection or dynamic
+                        var employeeType = employee.GetType();
+                        var hoursWorkedProperty = employeeType.GetProperty("HoursWorked");
+                        
+                        if (hoursWorkedProperty != null)
+                        {
+                            decimal currentHours = (decimal)hoursWorkedProperty.GetValue(employee, null);
+                            hoursWorkedProperty.SetValue(employee, currentHours + hours);
+                            employeeService.Update(employee);
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // Log the exception but don't rethrow - this is a secondary operation
+                // that shouldn't prevent clock-out if it fails
+            }
         }
 
         public List<Attendance> GetMonthlyAttendance(int year, int month)

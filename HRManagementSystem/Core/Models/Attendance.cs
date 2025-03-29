@@ -4,25 +4,31 @@ namespace HRManagementSystem
 {
     public class Attendance
     {
-        public string AttendanceId { get; set; }
-        public string EmployeeId { get; set; }
-        public string EmployeeName { get; set; } // Added EmployeeName field
+        [JsonPropertyName("attendanceId")]
+        public string AttendanceId { get; set; } = string.Empty;
+
+        [JsonPropertyName("employeeId")]
+        public string EmployeeId { get; set; } = string.Empty;
+
+        [JsonPropertyName("employeeName")]
+        public string EmployeeName { get; set; } = string.Empty;
+
+        [JsonPropertyName("date")]
         public DateTime Date { get; set; }
+
+        [JsonPropertyName("clockInTime")]
         public DateTime ClockInTime { get; set; }
+
+        [JsonPropertyName("clockOutTime")]
         public DateTime ClockOutTime { get; set; }
+
+        [JsonPropertyName("status")]
         public AttendanceStatus Status { get; set; }
 
+        [JsonPropertyName("isAbsentRecord")]
+        public bool IsAbsentRecord { get; set; } = false;
+
         [JsonIgnore]
-        public Employee Employee { get; set; }
-
-        // New property to explicitly mark virtual absence records
-        [JsonIgnore] // Don't persist this to JSON
-        public bool IsAbsentRecord { get; set; }
-
-        public Attendance()
-        {
-            AttendanceId = Guid.NewGuid().ToString("N");
-            IsAbsentRecord = false; // Default value
-        }
+        public Employee? Employee { get; set; }
     }
 }

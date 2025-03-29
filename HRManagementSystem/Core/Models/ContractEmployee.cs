@@ -5,31 +5,13 @@ namespace HRManagementSystem
     public class ContractEmployee : Employee
     {
         private decimal hourlyRate;
-        private int hoursWorked;
+        private decimal hoursWorked;
 
         public ContractEmployee() : base()
         {
-            // Default constructor required for JSON serialization
-        }
-
-        public ContractEmployee(
-            string id,
-            string name,
-            string email,
-            string phone,
-            DateTime dateOfBirth,
-            string address,
-            string employeeId,
-            DateTime hireDate,
-            string position,
-            decimal baseSalary,
-            string departmentId,
-            EmployeeStatus status,
-            decimal hourlyRate,
-            int hoursWorked) : base(id, name, email, phone, dateOfBirth, address, employeeId, hireDate, position, baseSalary, departmentId, status)
-        {
-            this.hourlyRate = hourlyRate;
-            this.hoursWorked = hoursWorked;
+            hourlyRate = 0;
+            hoursWorked = 0;
+            EmployeeType = "Contract";
         }
 
         [JsonPropertyName("hourlyRate")]
@@ -40,20 +22,17 @@ namespace HRManagementSystem
         }
 
         [JsonPropertyName("hoursWorked")]
-        public int HoursWorked
+        public decimal HoursWorked
         {
             get { return hoursWorked; }
             set { hoursWorked = value; }
         }
 
-        // Override the employee type
-        [JsonPropertyName("employeeType")]
-        public override string EmployeeType { get; set; } = "Contract";
+        public override string EmployeeType => "Contract";
 
         public override decimal CalculateSalary()
         {
             return hourlyRate * hoursWorked;
         }
     }
-
 }
