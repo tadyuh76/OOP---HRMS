@@ -583,13 +583,19 @@ namespace HRManagementSystem
 
         private void BtnAddEmployee_Click(object sender, EventArgs e)
         {
-            // Create a new employee using the factory
+            // Pass a valid employee type ("Regular" or another valid type)
             EmployeeFactory employeeFactory = new EmployeeFactory();
-            Employee newEmployee = employeeFactory.CreateEmployee("Regular");
+            Employee newEmployee = employeeFactory.CreateEmployee("Regular"); // Ensure "Regular" is a valid type
             newEmployee.Id = Guid.NewGuid().ToString();
             newEmployee.EmployeeId = GenerateNewEmployeeId();
             newEmployee.Status = EmployeeStatus.Active;
             newEmployee.HireDate = DateTime.Now;
+
+            // Ensure default values for required fields
+            newEmployee.Name = "New Employee";
+            newEmployee.Position = "Unassigned";
+            newEmployee.DepartmentId = departments.FirstOrDefault()?.DepartmentId ?? string.Empty;
+            newEmployee.DepartmentName = GetDepartmentName(newEmployee.DepartmentId);
 
             // Open the edit form for a new employee
             EditEmployeeForm addForm = new EditEmployeeForm(newEmployee, departments, true);

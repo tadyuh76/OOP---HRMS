@@ -15,6 +15,11 @@ namespace HRManagementSystem
                     return CreateFullTimeEmployee();
                 case "contract":
                     return CreateContractEmployee();
+                case "regular": // Add support for "Regular" type
+                    return new Employee
+                    {
+                        Status = EmployeeStatus.Active
+                    };
                 default:
                     throw new ArgumentException("Invalid employee type", nameof(type));
             }
