@@ -61,7 +61,7 @@ namespace HRManagementSystem
             EmployeeService employeeService = EmployeeService.GetInstance();
             List<Employee> employees = employeeService.GetAll();
             Employee? employee = null;
-            foreach (var e in employees)
+            foreach (Employee e in employees)
             {
                 if (e.EmployeeId == employeeId)
                 {

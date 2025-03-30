@@ -14,6 +14,16 @@ namespace HRManagementSystem
             InitializeControls();
         }
 
+        private class EmployeeComparer : IComparer<object>
+        {
+            public int Compare(object x, object y)
+            {
+                string nameX = ((dynamic)x).Name?.ToString() ?? string.Empty;
+                string nameY = ((dynamic)y).Name?.ToString() ?? string.Empty;
+                return string.Compare(nameX, nameY, StringComparison.CurrentCulture);
+            }
+        }
+
         private void InitializeControls()
         {
             try
@@ -170,7 +180,7 @@ namespace HRManagementSystem
                         employees.Add(new { Id = entry.Key, Name = entry.Value });
                     }
 
-                    employees.Sort((x, y) => string.Compare(((dynamic)x).Name, ((dynamic)y).Name));
+                    employees.Sort(new EmployeeComparer());
                     allEmployees.AddRange(employees);
                 }
 

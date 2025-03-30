@@ -71,7 +71,7 @@ namespace HRManagementSystem
 
             // Create a new converter list without this converter
             List<JsonConverter> filteredConverters = new List<JsonConverter>();
-            foreach (var converter in options.Converters)
+            foreach (JsonConverter converter in options.Converters)
             {
                 if (!(converter is EmployeeJsonConverter))
                 {
